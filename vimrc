@@ -22,6 +22,10 @@ let mapleader = " "			" set space to leader key
 nnoremap <C-e> 3<C-e>
 nnoremap <C-y> 3<C-y>			" sets viewport scroll to 3 lines at a time
 
+" initiate pathogen
+call pathogen#infect()
+call pathogen#helptags()
+
 " other settings
 set backspace=indent,eol,start		" allow backspace over everything in INSERT
 syntax enable				" syntax highlighting
@@ -62,7 +66,7 @@ endif " has("autocmd")
 
 " color options
 set background=dark
-" colorscheme solarized
+colorscheme solarized
 if &t_Co > 2 || has("gui_running")
 	syntax on
 	set hlsearch
