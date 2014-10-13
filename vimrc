@@ -72,4 +72,16 @@ if &t_Co > 2 || has("gui_running")
 	set hlsearch
 endif
 
+" settings for vimwiki
+let wiki = {}
+let wiki.path = '~/Dropbox/wiki/'
+let wiki.syntax = 'markdown'
+let wiki.ext = '.md'
+
+let blog = {}
+let blog.path = '~/Dropbox/wiki/blog/'
+let blog.path_html = '~/Dropbox/wiki/html/'
+let blog.auto_export = 1
+
+let g:vimwiki_list = [wiki, blog]
 
