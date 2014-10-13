@@ -50,6 +50,28 @@ esac
 # Set CLICOLOR for Ansi colors in iTerm2
 export CLICOLOR=1
 
+# Color codes
+    RS="\[\033[0m\]"    # reset
+    HC="\[\033[1m\]"    # hicolor
+    UL="\[\033[4m\]"    # underline
+    INV="\[\033[7m\]"   # inverse background and foreground
+    FBLK="\[\033[30m\]" # foreground black
+    FRED="\[\033[31m\]" # foreground red
+    FGRN="\[\033[32m\]" # foreground green
+    FYEL="\[\033[33m\]" # foreground yellow
+    FBLE="\[\033[34m\]" # foreground blue
+    FMAG="\[\033[35m\]" # foreground magenta
+    FCYN="\[\033[36m\]" # foreground cyan
+    FWHT="\[\033[37m\]" # foreground white
+    BBLK="\[\033[40m\]" # background black
+    BRED="\[\033[41m\]" # background red
+    BGRN="\[\033[42m\]" # background green
+    BYEL="\[\033[43m\]" # background yellow
+    BBLE="\[\033[44m\]" # background blue
+    BMAG="\[\033[45m\]" # background magenta
+    BCYN="\[\033[46m\]" # background cyan
+    BWHT="\[\033[47m\]" # background white
+
 # sanitize TERM:
 safe_term=${TERM//[^[:alnum:]]/?}
 match_lhs=""
@@ -73,7 +95,7 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 		fi
 	fi
 
-    PS1="[\u@\h\w]\$"
+    PS1="$RS[$FCYN\u$RS]$RS$RS[$FCYN\w$RS]\n$RS[$FCYN>$RS]$RS "
 
 #	PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h'; else echo '\[\033[01;32m\]\u@\h'; fi)\[\033[01;34m\] \w \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
 
@@ -91,11 +113,9 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 
 else
 
-    PS1="[\u@\h\w]\$"
-
 	# show root@ when we do not have colors
 
-	#PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$ "
+	PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$ "
 
 	# Use this other PS1 string if you want \W for root and \w for all other users:
 	# PS1="\u@\h $(if [[ ${EUID} == 0 ]]; then echo '\W'; else echo '\w'; fi) \$([[ \$? != 0 ]] && echo \":( \")\$ "
