@@ -96,6 +96,7 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 	fi
 
     PS1="$RS[$FCYN\u$RS]$RS$RS[$FCYN\w$RS]\n$RS[$FCYN>$RS]$RS "
+    #PS1="$FCYN\u $RS@ $FCYN\w\n$FCYN>$RS "
 
 #	PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h'; else echo '\[\033[01;32m\]\u@\h'; fi)\[\033[01;34m\] \w \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
 
@@ -139,3 +140,13 @@ unset safe_term match_lhs
 
 # Add RVM to PATH for scripting
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+# Aliases
+
+alias ..='cd ..'
+alias ...="cd ../.."
+function cdtheme {
+    dir=${PWD##*/}
+    cd wp-content/themes/$dir
+}
+#alias foo="$result= ; cd wp-content/theme/$result/"

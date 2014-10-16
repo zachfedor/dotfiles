@@ -61,6 +61,7 @@ if has("autocmd")
 	augroup END
 else
 	set autoindent
+    filetype plugin indent on
 endif " has("autocmd")
 
 
