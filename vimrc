@@ -54,6 +54,7 @@ if has("autocmd")
 	augroup vimrcEx
 	au!
 	autocmd FileType text setlocal textwidth=78	" set width for text files
+    autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 	autocmd BufReadPost *		" return to last known cursor position
 		\ if line("'\"") > 1 && line("'\"") <= line("$") |
 		\	exe "normal! g`\"" |
@@ -68,6 +69,7 @@ endif " has("autocmd")
 " color options
 set background=dark
 colorscheme solarized
+syntax on
 if &t_Co > 2 || has("gui_running")
 	syntax on
 	set hlsearch
