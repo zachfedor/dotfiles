@@ -1,0 +1,36 @@
+{
+   "checksum": "066b958513b54ead06766815fc81c710",
+   "roots": {
+      "bookmark_bar": {
+         "children": [  ],
+         "date_added": "13055003291483824",
+         "date_modified": "13055348345870202",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13055348345870202",
+            "id": "4",
+            "name": "Scribe the trim to fit | How to Build a Bookcase | This Old House",
+            "type": "url",
+            "url": "http://www.thisoldhouse.com/toh/how-to/step/0,,1080823_899978,00.html"
+         } ],
+         "date_added": "13055003291483850",
+         "date_modified": "13055348354503497",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13055003291483858",
+         "date_modified": "0",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

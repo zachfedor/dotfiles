@@ -1,0 +1,26 @@
+[PNMixer]
+DisplayTextVolume=false
+TextVolumePosition=1
+MouseScrollStep=10
+HotkeyVolumeStep=10
+MiddleClickAction=0
+CustomCommand=
+VolumeControlCommand=pavucontrol
+VolMuteKey=204
+VolUpKey=204
+VolDownKey=204
+AlsaCard=HDA Intel
+DrawVolMeter=false
+VolMeterPos=10
+VolMeterColor=30840;28270;23387;
+EnableHotKeys=false
+VolMuteMods=0
+VolUpMods=0
+VolDownMods=0
+IconTheme=CrunchBang-Dark
+
+[(default)]
+Channel=Master
+
+[HDA Intel]
+Channel=Master
