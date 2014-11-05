@@ -1,13 +1,14 @@
 ;; -*- mode: elisp -*-
 
-(add-to-list 'load-path "~/.emacs.d/elisp/")
-
+;; LOAD PATH
+(add-to-list 'load-path "~/.emacs.d/lisp/")
 (when (>= emacs-major-version 24)
   (require 'package)
   (package-initialize)
   (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 )
 
+;; LOADING PACKAGES
 (load "better-defaults")
 
 ;; disable splash screen (re-enable with o)

@@ -9,7 +9,7 @@
 
 dir=~/dotfiles                    # dotfiles directory
 olddir=~/dotfiles_old             # old dotfiles backup directory
-files="bashrc vimrc dir_colors" 		  # list of files/folders to symlink in homedir
+files="bashrc vimrc dir_colors emacs.d" 		  # list of files/folders to symlink in homedir
 
 ##########
 
