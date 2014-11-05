@@ -142,11 +142,26 @@ unset safe_term match_lhs
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
 # Aliases
-
 alias ..='cd ..'
 alias ...="cd ../.."
+alias la="ls -a"
+alias ll="ls -l"
+alias lla="ls -la"
+
+# Functions
 function cdtheme {
     dir=${PWD##*/}
     cd wp-content/themes/$dir
 }
-#alias foo="$result= ; cd wp-content/theme/$result/"
+function mamptomagento {
+    dir=/Applications/MAMP/conf/apache
+    rm $dir/httpd.conf
+    ln -s $dir/httpd-magento.conf $dir/httpd.conf
+    echo "Happy Magento Developing!"
+}
+function mamptowordpress {
+    dir=/Applications/MAMP/conf/apache
+    rm $dir/httpd.conf
+    ln -s $dir/httpd-wordpress.conf $dir/httpd.conf
+    echo "Happy Wordpress Developing!"
+}
