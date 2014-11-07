@@ -2,12 +2,14 @@
 
 ;; ----- ido-last-directory-list -----
 (
+ ("/Users/zachfedor/.emacs.d/" . "lisp/")
  ("/Users/zachfedor/dotfiles_old/.emacs.d/" . "elisp/")
  ("/Users/zachfedor/" . ".emacs.d/")
 )
 
 ;; ----- ido-work-directory-list -----
 (
+ "/Users/zachfedor/.emacs.d/lisp/"
  "/Users/zachfedor/.emacs.d/"
  "/Users/zachfedor/dotfiles_old/.emacs.d/elisp/"
  "/Users/zachfedor/dotfiles_old/.emacs.d/"
@@ -15,13 +17,16 @@
 
 ;; ----- ido-work-file-list -----
 (
+ "better-defaults.el"
  "init.el"
  "keys.el"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
- ("/Users/zachfedor/.emacs.d/" (21594 28781 0 0) "places" "lisp/" "init.el~" "init.el" "ido.last" "evil/" "elpa/" "backups/" "auto-save-list/" "../" "./")
+ ("/Users/zachfedor/.emacs.d/lisp/" (21594 18828 0 0) "better-defaults.el" "better-defaults/" "../" "./")
+
+ ("/Users/zachfedor/.emacs.d/" (21595 31420 0 0) "places" "lisp/" "init.el~" "init.el" "ido.last" "evil/" "elpa/" "backups/" "auto-save-list/" "../" "./")
 
  ("/Users/zachfedor/dotfiles_old/.emacs.d/elisp/" (21594 27948 0 0) "style.el~" "style.el" "keys.el" ".#keys.el" "../" "./")
 

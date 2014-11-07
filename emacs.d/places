@@ -1,4 +1,5 @@
 ;;; -*- coding: utf-8 -*-
-(("/Users/zachfedor/dotfiles/emacs.d/init.el" . 1582)
+(("/Users/zachfedor/dotfiles/emacs.d/init.el" . 550)
+ ("/Users/zachfedor/dotfiles/emacs.d/lisp/better-defaults/better-defaults.el" . 1697)
  ("/Users/zachfedor/.emacs.d/elpa/undo-tree-0.6.5/undo-tree-autoloads.el" . 1632)
  ("/Users/zachfedor/dotfiles_old/.emacs.d/elisp/keys.el" . 68))
