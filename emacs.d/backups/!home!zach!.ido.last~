@@ -1,0 +1,26 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/home/zach/" . "org/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/home/zach/org/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "tower.org"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/home/zach/org/" (21598 24638 988223 307000) "../" "./" "tower.org" ".dropbox")
+
+ ("/home/zach/" (21598 25595 52193 373000) ".thumbnails/" "../" "templates/" ".macromedia/" ".Xauthority" ".gvfs/" ".config/" ".Xdefaults" ".dbus/" ".profile" ".steam/" "videos/" ".steampid" "sites/" ".pki/" ".mozilla/" "tmp/" "dotfiles/" ".xsession-errors.old" "Dropbox/" ".gnome/" ".purple/" ".gimp-2.8/" ".dmrc" ".dir_colors" ".npm/" ".pulse-cookie" ".cache/" ".thunderbird/" ".xsession-errors" ".adobe/" ".viminfo" "public/" ".bashrc" "./" ".bash_logout" ".bash_history" "downloads/" ".WebIde80/" ".steampath" ".local/" ".vim/" ".java/" ".ssh/" "pictures/" "documents/" ".gconf/" ".gstreamer-0.10/" "desktop/" ".dropbox/" ".emacs.d/" "music/" ".dropbox-dist/" "org/" "Steam/" ".vimrc" ".ICEauthority" "dotfiles_old/" ".gitconfig" ".xscreensaver")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
