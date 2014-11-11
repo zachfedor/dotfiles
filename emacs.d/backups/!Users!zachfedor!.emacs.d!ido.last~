@@ -2,6 +2,8 @@
 
 ;; ----- ido-last-directory-list -----
 (
+ ("/Users/" . "zachfedor/")
+ ("/Users/zachfedor/.emacs.d/lisp/" . "better-defaults/")
  ("/Users/zachfedor/.emacs.d/" . "lisp/")
  ("/Users/zachfedor/dotfiles_old/.emacs.d/" . "elisp/")
  ("/Users/zachfedor/" . ".emacs.d/")
@@ -9,32 +11,42 @@
 
 ;; ----- ido-work-directory-list -----
 (
- "/Users/zachfedor/.emacs.d/lisp/"
  "/Users/zachfedor/.emacs.d/"
+ "/Users/zachfedor/org/"
+ "/Users/zachfedor/.emacs.d/lisp/better-defaults/"
+ "/Users/zachfedor/.emacs.d/lisp/"
  "/Users/zachfedor/dotfiles_old/.emacs.d/elisp/"
  "/Users/zachfedor/dotfiles_old/.emacs.d/"
 )
 
 ;; ----- ido-work-file-list -----
 (
- "better-defaults.el"
  "init.el"
+ "tower.org"
+ "better-defaults.el"
  "keys.el"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("/Users/zachfedor/org/" (21596 54258 0 0) "tower.org" "Icon
+" ".dropbox" "../" "./")
+
+ ("/Users/zachfedor/.emacs.d/lisp/better-defaults/" (21595 32026 0 0) "README.md" "better-defaults.el" ".git/" "../" "./")
+
+ ("/Users/zachfedor/.emacs.d/" (21595 57839 0 0) "places" "lisp/" "init.el~" "init.el" "ido.last" "evil/" "elpa/" "backups/" "auto-save-list/" "../" "./")
+
+ ("/Users/zachfedor/" (21595 41600 0 0) "sites/" "scripts/" "Public/" "Pictures/" "org/" "Music/" "Movies/" "Library/" "Dropbox/" "Downloads/" "dotfiles_old/" "dotfiles/" "Documents/" "Desktop/" "Applications/" ".zshrc" ".zlogin" ".vimrc" ".viminfo" ".vim/" ".Trash/" ".subversion/" ".ssh/" ".rvm/" ".rnd" ".profile" ".npm/" ".mysql_history" ".lesshst" ".keepassx/" ".gitconfig" ".gem/" ".emacs.d/" ".DS_Store" ".dropbox/" ".dir_colors" ".config/" ".CFUserTextEncoding" ".bashrc" ".bash_profile" ".bash_history" "../" "./")
+
+ ("/Users/" (21574 54526 0 0) "zachfedor/" "Shared/" "Guest/" ".localized" "../" "./")
+
+ ("/Users/zachfedor/dotfiles_old/.emacs.d/elisp/" (21594 28031 0 0) "style.el~" "style.el" "keys.el" "#keys.el#" "../" "./")
+
  ("/Users/zachfedor/.emacs.d/lisp/" (21594 18828 0 0) "better-defaults.el" "better-defaults/" "../" "./")
-
- ("/Users/zachfedor/.emacs.d/" (21595 31420 0 0) "places" "lisp/" "init.el~" "init.el" "ido.last" "evil/" "elpa/" "backups/" "auto-save-list/" "../" "./")
-
- ("/Users/zachfedor/dotfiles_old/.emacs.d/elisp/" (21594 27948 0 0) "style.el~" "style.el" "keys.el" ".#keys.el" "../" "./")
 
  ("/Users/zachfedor/dotfiles_old/.emacs.d/" (21587 39263 0 0) "themes/" "init.el~" "init.el" "elisp/" "auto-save-list/" ".DS_Store" "../" "./")
 
  ("/Users/zachfedor/dotfiles_old/" (21594 18414 0 0) ".vimrc" ".emacs.d/" ".dir_colors" ".bashrc" "../" "./")
-
- ("/Users/zachfedor/" (21594 18414 0 0) "sites/" "scripts/" "Public/" "Pictures/" "Music/" "Movies/" "mbox" "Library/" "Dropbox/" "Downloads/" "dotfiles_old/" "dotfiles/" "Documents/" "Desktop/" "Applications/" ".zshrc" ".zlogin" ".vimrc" ".viminfo" ".vim/" ".Trash/" ".subversion/" ".ssh/" ".rvm/" ".rnd" ".profile" ".npm/" ".mysql_history" ".keepassx/" ".gitconfig" ".gem/" ".emacs.d/" ".DS_Store" ".dropbox/" ".dir_colors" ".config/" ".CFUserTextEncoding" ".bashrc" ".bash_profile" ".bash_history" "../" "./")
 )
 
 ;; ----- ido-unc-hosts-cache -----
