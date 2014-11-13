@@ -18,5 +18,83 @@ Testing a fold
      <2014-11-07 Fri>
 
 **** TODO VBPC - Choose two more themes
-
+     
 **** TODO Cont Press - Social icons and duplicate templatesa
+*** 10
+
+**** DONE reinstall dev environment [6/6]
+     CLOSED: [2014-11-10 Mon 16:34]
+     - [X] remove lamp
+     - [X] reinstall lamp
+     - [X] configure apache
+     - [X] configure mysql
+     - [X] configure php
+     - [X] setup portfolio as test
+
+**** TODO infinite wp [/]
+     - [ ] tower marketing
+     - [ ] lrrcu
+     - [ ] iwfv
+     - [ ] ninjaflex
+     - [ ] vanguard
+     - [ ] walsky
+     - [ ] townlively
+     - [ ] oregonhill
+     - [ ] patriotsupport
+     - [ ] personalhealthconnect
+     - [ ] sodium ???
+
+       worked from 08:00 to 17:00 with 30min lunch and 15min on
+       lrrcu-banner update task
+       
+*** 11
+**** DONE lrrcu - link in widget to open in new page
+     CLOSED: [2014-11-11 Tue 10:19]
+     0:00:00 0:44:50
+**** DONE ninjaflex - page titles
+     CLOSED: [2014-11-11 Tue 10:19]
+     0:00:00 0:34:34
+**** TODO lcm - post launch tasks
+     - [ ] archive grid in restuarants
+**** NEXT infinite wp updates [5/10]
+     - [X] ninjaflex 0:47:27 
+     - [X] towermarketing 0:52:25 
+     - [X] oregonhill 0:15:00 
+     - [X] iwfv 0:46:33
+     - [X] walsky 0:00:00 0:33:22
+     - [ ] vanguard 
+     - [ ] personal health connect
+     - [ ] patriot support
+     - [ ] sodium
+     - [ ] town lively
+
+*** 12
+    file server password for zachfedor: chANemE7a#
+    
+**** DONE infinite wp updates [2/5]
+     CLOSED: [2014-11-12 Wed 11:36]
+     - [X] vanguard 0:00:00 0:16:15
+     - [X] personal health connect 0:00:00 0:13:26 
+
+**** TODO continental social icons
+     get icons from Giff and add them to a copied Mailchimp template
+
+**** DONE continental - abandoned cart emails 
+     CLOSED: [2014-11-12 Wed 10:11]
+     0:00:00 0:43:22 
+     
+     robyn can retest this now. an email will only be sent out
+     for a "new" abandoned cart, and it is labelled as "new" if a new
+     user adds something to a cart for the first time, or if an
+     existing user clears their cart with a purchase and then starts a
+     new one. removing items from a cart and adding new ones keeps the
+     same cart and never sends an email.
+
+     she can test it now with two options: 1) she uses her existing
+     promo test account as long as she completes the purchase of her
+     current cart and then starts a brand new one to abandon and test
+     or 2) she creates a new account with an email address she has
+     access to, but we will need to change the group of the account
+     after it is created AND before she adds anything to the cart.
+**** TODO diamond - web updates
+     see pdfs
