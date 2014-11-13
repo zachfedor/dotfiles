@@ -149,6 +149,7 @@ alias ...="cd ../.."
 alias la="ls -a"
 alias ll="ls -l"
 alias lla="ls -la"
+alias emacs='emacsclient'
 
 # Functions
 function cdtheme {
