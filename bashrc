@@ -155,15 +155,43 @@ function cdtheme {
     dir=${PWD##*/}
     cd wp-content/themes/$dir
 }
+
+function stopMAMP {
+    if test -f /Applications/MAMP/Library/logs/httpd.pid; then
+        echo "Stopping Mamp Apache Server..."
+        /Applications/MAMP/Library/bin/apachectl -f"/Applications/MAMP/conf/apache/httpd.conf" -k stop
+    fi
+    if test -f /Applications/MAMP/tmp/mysql/mysql.pid; then
+        echo "Stopping MAMP MySQL Server..."
+        /bin/kill `cat /Applications/MAMP/tmp/mysql/mysql.pid`
+    fi
+}
+
+function startMAMP { 
+    echo "Starting MAMP Apache Server..."
+    /Applications/MAMP/Library/bin/apachectl -f"/Applications/MAMP/conf/apache/httpd.conf" -k start
+
+    echo "Starting MAMP MySQL Server..."
+    /Applications/MAMP/Library/bin/mysqld_safe --defaults-file=/Applications/MAMP/tmp/mysql/my.cnf --user=mysql --port=MAMP_MysqlPort_MAMP --socket=/Applications/MAMP/tmp/mysql/mysql.sock --pid-file=/Applications/MAMP/tmp/mysql/mysql.pid --log-error="/Applications/MAMP/logs/mysql_error_log.err" --tmpdir=/Applications/MAMP/tmp/mysql/tmpdir --datadir=/Library/Application\ Support/appsolute/MAMP\ PRO/db/mysql
+}
+
 function mamptomagento {
     dir=/Applications/MAMP/conf/apache
     rm $dir/httpd.conf
     ln -s $dir/httpd-magento.conf $dir/httpd.conf
+
+    stopMAMP
+#    startMAMP
+
     echo "Happy Magento Developing!"
 }
 function mamptowordpress {
     dir=/Applications/MAMP/conf/apache
     rm $dir/httpd.conf
     ln -s $dir/httpd-wordpress.conf $dir/httpd.conf
+
+    stopMAMP
+#    startMAMP
+
     echo "Happy Wordpress Developing!"
 }
