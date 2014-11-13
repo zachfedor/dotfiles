@@ -73,6 +73,12 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 
+;;;; WEB MODE
+;; enable web-mode
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

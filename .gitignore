@@ -1,0 +1,16 @@
+# Emacs Extras #
+################
+emacs.d/places
+emacs.d/auto-save-list/
+emacs.d/backups/
+emacs.d/ido.last
+
+# OSx Junk #
+############
+.DS_Store
+.DS-Store?
+._*
+.Spotlight-V100
+.Trashes
+.ehthumbs.db
+Thumbs.db
