@@ -30,6 +30,9 @@
             (when server-buffer-clients
               (local-set-key (kbd "C-x k") 'server-edit))))
 
+;; open new buffers in original frame
+(setq ns-pop-up-frames nil)
+
 ;; enable C-n movement to add new lines
 (setq next-line-add-newlines t)
 
