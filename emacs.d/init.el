@@ -36,6 +36,9 @@
 ;; enable C-n movement to add new lines
 (setq next-line-add-newlines t)
 
+;; enable copy-paste
+(setq x-select-enable-clipboard t)
+
 ;;;; ORG MODE
 ;; enable org-mode
 (require 'org)
