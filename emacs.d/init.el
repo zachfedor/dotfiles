@@ -51,6 +51,9 @@
 (setq org-todo-keywords
       '((sequence "TODO" "NEXT" "HOLD" "DONE")))
 
+(setq org-todo-keyword-faces
+           '(("TODO" . (:foreground "#268bd2" :weight bold)) ("HOLD" . (:foreground "#268bd2" :weight bold)) ("NEXT" . (:foreground "#2aa198" :weight bold))))
+
 ;; david o'toole's org tutorial configuration
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
