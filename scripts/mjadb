@@ -16,13 +16,13 @@ comment=" # JADB FUNCTION, DO NOT REMOVE OR ALTER"
 file="/etc/hosts"
                     
 # altogether!
-line="$dest  =  $sites  # JADB FUNCTION, DO NOT REMOVE OR ALTER"
+line="$dest  =  $sites  # MJADB FUNCTION, DO NOT REMOVE OR ALTER"
 
 # toggle time, if its already there...
 if grep -Fxq "$line" $file
 then
     # then get rid of it
-    sed -i '/JADB/d' $file
+    sed -in '/MJADB/d' $file
     echo "...makes Jack a dull boy"
 else
     # if not, then add it

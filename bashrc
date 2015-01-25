@@ -197,21 +197,3 @@ function mamptowordpress {
 
     echo "Happy Wordpress Developing!"
 }
-
-function jadb {
-    dest="127.0.0.1"
-    sites="reddit.com www.reddit.com news.ycombinator.com facebook.com www.facebook.com vimeo.com www.vimeo.com youtube.com www.youtube.com"
-    comment=" # JADB FUNCTION, DO NOT REMOVE OR ALTER"
-    file="/etc/hosts"
-    
-    line="$dest  =  $sites $comment"
-
-    if grep -Fxq "$line" $file
-    then
-        sed '/JADB/d' $file
-        echo "...makes Jack a dull boy"
-    else
-        echo "$line" >> $file
-        echo "All work and no play..."
-    fi
-}
