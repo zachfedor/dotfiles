@@ -68,7 +68,7 @@ endif " has("autocmd")
 
 " color options
 set background=dark
-colorscheme solarized
+colorscheme elflord
 syntax on
 if &t_Co > 2 || has("gui_running")
 	syntax on
