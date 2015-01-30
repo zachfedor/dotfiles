@@ -15,14 +15,11 @@
 # open a quicklook preview of this file
 qlmanage -p '~/Pictures/enso.jpg' &>/dev/null &
 
-# store the returned process id
-QL_PID=$!
-
 # wait for 60 seconds to be noticed
 sleep 60
 
 # check for the process and kill it
-if [ -z "$(pgrep $QL_PID)" ]
+if ps aux | grep "[q]lmanage" > /dev/null
 then
-    kill $QL_PID
+    pkill qlmanage
 fi
