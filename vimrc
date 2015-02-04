@@ -15,12 +15,17 @@ set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp	" temp files in central spot
 set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp	" temp files in central spot
 
 " key bindings
-map Q gq				" don't use EX mode, use Q for formatting
-inoremap jk <ESC>			" jk escapes from INSERT
-inoremap <C-U> <C-G>u<C-U>		" Ctrl-G u first breaks undo so you can undo Ctrl-U after inserting linebreak
-let mapleader = " "			" set space to leader key
+" don't use EX mode, use Q for formatting
+map Q gq
+" jk escapes from INSERT
+inoremap jk <ESC>
+" Ctrl-G u first breaks undo so you can undo Ctrl-U after inserting linebreak
+inoremap <C-U> <C-G>u<C-U>
+" set space to leader key
+let mapleader = " "
+" sets viewport scroll to 3 lines at a time
 nnoremap <C-e> 3<C-e>
-nnoremap <C-y> 3<C-y>			" sets viewport scroll to 3 lines at a time
+nnoremap <C-y> 3<C-y>
 
 " initiate pathogen
 call pathogen#infect()
@@ -87,4 +92,3 @@ let blog.path_html = '~/Dropbox/wiki/html/'
 let blog.auto_export = 1
 
 let g:vimwiki_list = [wiki, blog]
-

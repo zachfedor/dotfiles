@@ -197,3 +197,9 @@ function mamptowordpress {
 
     echo "Happy Wordpress Developing!"
 }
+
+# first
+# canon
+# karma
+# villa
+
