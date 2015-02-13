@@ -10,7 +10,7 @@
 #
 # using cron, this script runs at the hour and the half-hour during the business
 # day ( M-F from 08:00-17:00 ). use the following crontab:
-# 0,30    8-17    *   *   Mon,Tue,Wed,Thu,Fri /home/zachfedor/dotfiles/enso.sh
+# 0,30    8-17    *   *   Mon,Tue,Wed,Thu,Fri ~/dotfiles/enso.sh
 
 # open a quicklook preview of this file
 qlmanage -p '~/Pictures/enso.jpg' &>/dev/null &
