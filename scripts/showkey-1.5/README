@@ -1,0 +1,12 @@
+			showkey
+	by Eric S. Raymond <esr@snark.thyrsus.com>
+
+All this program does is read keystrokes and spit them back at you in a simple,
+printable form.
+
+This is one of these silly little utilities that you never think you'll need
+until some unexpected situation pops up and you have to have it.  Then you
+get to be mugged by the details of tty-interface code, yippee.  Never again!
+
+You may find updates and related resources via WWW at
+<http://www.catb.org/~esr/showkey/>.
