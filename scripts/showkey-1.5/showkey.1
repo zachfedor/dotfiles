@@ -1,0 +1,45 @@
+'\" t
+.\"     Title: showkey
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 10/21/2010
+.\"    Manual: Development Tools
+.\"    Source: showkey
+.\"  Language: English
+.\"
+.TH "SHOWKEY" "1" "10/21/2010" "showkey" "Development Tools"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+showkey_ \- echo raw keystrokes back at you in a printable form
+.SH "SYNOPSIS"
+.HP \w'\fBshowkey\fR\ 'u
+\fBshowkey\fR
+.SH "DESCRIPTION"
+.PP
+This program puts your terminal in raw mode, eats keystrokes, and prints them back it you in a recognizable printed form\&. I will be useful if you\*(Aqre not certain what various keyboard keys are sending\&.
+.PP
+Non\-printables (and whitespace) are displayed as cookies surrounded by < >\&. The cookie will always contain an ASCII mnemonic (NUL, SOH, STX, ETX, EOT, ENQ, ACK, BEL, BS, HT, LF, VT, FF, CR, SO, SI, DLE, DC1, DC2, DC3, DC4, NAK, SYN, ETB, CAN, EM, SUB, ESC, FS, GS, RS, US, SP) and may also contain a control\-key formula\&.
+.PP
+Characters with the high bit set are shown as <ALT\-xxx>, where xxx is generated as previously described\&. You terminate the program with your shell interrupt or quit characters\&.
+.SH "AUTHOR"
+.PP
+Eric S\&. Raymond
+esr@thyrsus\&.com

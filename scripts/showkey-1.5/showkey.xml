@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id='showkey.1'>
+<refmeta>
+<refentrytitle>showkey</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class='date'>October 25, 1994</refmiscinfo>
+<refmiscinfo class='productname'>showkey</refmiscinfo>
+<refmiscinfo class='source'>showkey</refmiscinfo>
+<refmiscinfo class='manual'>Development Tools</refmiscinfo>
+</refmeta>
+<refnamediv id='name'>
+<refname>showkey </refname>
+<refpurpose>echo raw keystrokes back at you in a printable form</refpurpose>
+</refnamediv>
+<refsynopsisdiv id='synopsis'>
+
+<cmdsynopsis>
+  <!--  showkey -->
+  <command>showkey</command>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+
+<para>This program puts your terminal in raw mode, eats keystrokes,
+and prints them back it you in a recognizable printed form. I will be
+useful if you're not certain what various keyboard keys are
+sending.</para>
+
+<para>Non-printables (and whitespace) are displayed as cookies
+surrounded by &lt; &gt;. The cookie will always contain an ASCII
+mnemonic (NUL, SOH, STX, ETX, EOT, ENQ, ACK, BEL, BS, HT, LF, VT, FF,
+CR, SO, SI, DLE, DC1, DC2, DC3, DC4, NAK, SYN, ETB, CAN, EM, SUB, ESC,
+FS, GS, RS, US, SP) and may also contain a control-key formula.</para>
+
+<para>Characters with the high bit set are shown as &lt;ALT-xxx&gt;,
+where xxx is generated as previously described. You terminate the
+program with your shell interrupt or quit characters.</para>
+</refsect1>
+
+<refsect1 id='author'><title>AUTHOR</title>
+<para>Eric S. Raymond <email>esr@thyrsus.com</email></para>
+</refsect1>
+</refentry>
+
