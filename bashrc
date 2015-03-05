@@ -104,12 +104,11 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 	# PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h\[\033[01;34m\] \W'; else echo '\[\033[01;32m\]\u@\h\[\033[01;34m\] \w'; fi) \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
 
 	if [ "$TERM" == xterm ]; then
-        #alias ls="ls --color=auto";
-        alias ls="ls";
+        alias ls="ls --color=auto";
+        #alias ls="ls";
     fi
 	alias dir="dir --color=auto"
 	alias grep="grep --color=auto"
-	alias dmesg='dmesg --color'
 
     # git aliases
     alias ga="git add "
