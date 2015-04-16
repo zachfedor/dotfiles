@@ -72,8 +72,8 @@ endif " has("autocmd")
 
 
 " color options
-set background=dark
-colorscheme elflord
+set background=light
+colorscheme morning
 syntax on
 if &t_Co > 2 || has("gui_running")
 	syntax on
