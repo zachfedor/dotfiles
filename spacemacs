@@ -25,7 +25,7 @@
      syntax-checking
      html
      javascript
-     php
+     ;; php
      python
      shell-scripts
      color
@@ -150,6 +150,88 @@ before layers configuration."
   "Configuration function.
  This function is called at the very end of Spacemacs initialization after
 layers configuration."
+
+    ;;;; GENERAL SETTINGS ;;;;
+
+    ;; fonts
+
+    ;; switching command and option keys in osx
+    (setq mac-option-modifier 'super)
+    (setq mac-command-modifier 'meta)
+
+    ;; enable C-x k to close emacsclient
+    (add-hook 'server-switch-hook
+        (lambda ()
+            (when (current-local-map)
+              (use-local-map (copy-keymap (current-local-map))))
+            (when server-buffer-clients
+              (local-set-key (kbd "C-x k") 'server-edit))))
+
+    ;; enable C-n movement to add new lines
+    (setq next-line-add-newlines t)
+
+    ;; enable copy-paste
+    (setq x-select-enable-clipboard t)
+
+    ;; Set php files to open in Web-Mode by default
+    (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+
+
+    ;;;; ORG-MODE SETTINGS ;;;;
+
+    ;; creating org workflow states
+    (setq org-todo-keywords
+        '((sequence "TODO" "NEXT" "HOLD" "DONE")))
+
+    ;; setting todo keyword colors
+    ;;(setq org-todo-keyword-faces
+    ;;           '(("TODO" . (:foreground "#268bd2" :weight bold)) ("HOLD" . (:foreground "#268bd2" :weight bold)) ("NEXT" . (:foreground "#2aa198" :weight bold))))
+
+    ;; david o'toole's org tutorial configuration
+    (define-key global-map "\C-cl" 'org-store-link)
+    (define-key global-map "\C-ca" 'org-agenda)
+    (setq org-log-done t)
+
+    ;; set org-capture default file
+    (setq org-default-notes-file "~/org/inbox.txt")
+
+    ;; set org-capture keybinding
+    (define-key global-map "\C-cc" 'org-capture)
+
+    ;; set up org-capture templates
+    (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
+                "* TODO %?\n  %i\n  %a")
+        ("j" "JOURNAL" entry (file+datetree "~/org/journal.txt")
+         "* %< %R >\n\n %?"
+         :empty-lines 1)))
+
+    ;; creating source code block insert function
+    ;; found here http://wenshanren.org/?p=334
+    (defun org-insert-src-block (src-code-type)
+        "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
+        (interactive
+        (let ((src-code-types
+                '("emacs-lisp" "python" "C" "shell" "java" "js" "clojure" "C++" "css"
+                    "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
+                    "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
+                    "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
+                    "scheme" "sqlite")))
+            (list (ido-completing-read "Source code type: " src-code-types))))
+        (progn
+            (newline-and-indent)
+            (insert (format "#+BEGIN_SRC %s\n" src-code-type))
+            (newline-and-indent)
+            (insert "#+END_SRC\n")
+            (previous-line 2)
+            (org-edit-src-code)))
+
+    ;; bind C-c s to org-insert-src-block
+    (define-key global-map "\C-cs" 'org-insert-src-block)
+
+    ;; bind C-c e to org-edit-src-code
+    (define-key global-map "\C-ce" 'org-edit-src-code)
+
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
