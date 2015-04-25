@@ -167,7 +167,7 @@ alias ...="cd ../.."
 alias la="ls -a"
 alias ll="ls -l"
 alias lla="ls -la"
-alias emacs='emacsclient'
+#alias emacs='emacsclient'
 alias gngb="gngb -os"
 
 # Functions
