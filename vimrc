@@ -28,8 +28,8 @@ nnoremap <C-e> 3<C-e>
 nnoremap <C-y> 3<C-y>
 
 " initiate pathogen
-call pathogen#infect()
-call pathogen#helptags()
+"call pathogen#infect()
+"call pathogen#helptags()
 
 " other settings
 set backspace=indent,eol,start		" allow backspace over everything in INSERT
