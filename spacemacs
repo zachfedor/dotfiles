@@ -184,8 +184,9 @@ layers configuration."
         '((sequence "TODO" "NEXT" "HOLD" "DONE")))
 
     ;; setting todo keyword colors
-    ;;(setq org-todo-keyword-faces
+    (setq org-todo-keyword-faces
     ;;           '(("TODO" . (:foreground "#268bd2" :weight bold)) ("HOLD" . (:foreground "#268bd2" :weight bold)) ("NEXT" . (:foreground "#2aa198" :weight bold))))
+               '(("NEXT" . (:foreground "#2aa198" :weight bold))))
 
     ;; david o'toole's org tutorial configuration
     (define-key global-map "\C-cl" 'org-store-link)
