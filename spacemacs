@@ -97,7 +97,7 @@ before layers configuration."
    dotspacemacs-enable-paste-micro-state t
    ;; Guide-key delay in seconds. The Guide-key is the popup buffer listing
    ;; the commands bound to the current keystrokes.
-   dotspacemacs-guide-key-delay 0.4
+   dotspacemacs-guide-key-delay 1.0
    ;; If non nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil ;; to boost the loading time.
@@ -140,18 +140,22 @@ before layers configuration."
    ;;
    ;; NEW CHANGES
    ;;
-   ;; escape with j-k instead of <ESC>
+   ;; escape with j-j instead of <ESC>
    evil-escape-key-sequence "jk"
+   evil-escape-delay 0.5
    )
   ;; User initialization goes here
   )
 
 (defun dotspacemacs/config ()
-  "Configuration function.
- This function is called at the very end of Spacemacs initialization after
-layers configuration."
+    "Configuration function.
+    This function is called at the very end of Spacemacs initialization after
+    layers configuration."
 
     ;;;; GENERAL SETTINGS ;;;;
+
+    ;; power-line
+    (setq powerline-default-separator 'arrow)
 
     ;; fonts
 
