@@ -3,15 +3,6 @@
 #################
 #
 # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
-#
-# This file is sourced by all *interactive* bash shells on startup,
-# including some apparently interactive shells such as scp and rcp
-# that can't tolerate any output. So make sure this doesn't display
-# anything or bad things will happen !
-
-# Test for an interactive shell. There is no need to set anything
-# past this point for scp and rcp, and it's important to refrain from
-# outputting anything in those cases.
 
 # If not running interactively, don't do anything!
 [[ $- != *i* ]] && return
@@ -33,19 +24,6 @@ case ${TERM} in
 		PROMPT_COMMAND=${PROMPT_COMMAND:+$PROMPT_COMMAND; }'printf "\033_%s@%s:%s\033\\" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/~}"'
 		;;
 esac
-
-# fortune is a simple program that displays a pseudorandom message
-# from a database of quotations at logon and/or logout.
-# If you wish to use it, please install "fortune-mod" from the
-# official repositories, then uncomment the following line:
-
-# [[ "$PS1" ]] && /usr/bin/fortune
-
-# Set colorful PS1 only on colorful terminals.
-# dircolors --print-database uses its own built-in database
-# instead of using /etc/DIR_COLORS. Try to use the external file
-# first to take advantage of user additions. Use internal bash
-# globbing instead of external grep binary.
 
 # Set CLICOLOR for Ansi colors in iTerm2
 export CLICOLOR=1
@@ -83,7 +61,6 @@ match_lhs=""
 	&& match_lhs=$(dircolors --print-database)
 
 if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
-	
 	# we have colors :-)
 
 	# Enable colors for ls, etc. Prefer ~/.dir_colors
@@ -95,6 +72,7 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 		fi
 	fi
 
+    # Grabs the current git branch for prompt
     function current_git_branch {
         BRANCH="$(git symbolic-ref HEAD 2>/dev/null | awk -F/ {'print $NF'})"
         if [ "$BRANCH" == "" ]
@@ -106,15 +84,8 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
     }
 
     PS1="$RS[$FCYN\u$RS][$FCYN\w$RS][$FCYN\$(current_git_branch)\[$RESET\]$RS]\n[$FCYN>$RS] "
-
     #PS1="$RS[$FCYN\u$RS][$FCYN\w$RS]\n[$FCYN>$RS] "
-    #PS1="$RS[$FCYN\u$RS][$FCYN\w$RS]$(if [[ ${GIT_BRANCH} != null ]]; then echo '[$FCYN\$GIT_BRANCH$RS]'; fi)\n[$FCYN>$RS] "
-    #PS1="$FCYN\u $RS@ $FCYN\w\n$FCYN>$RS "
 
-#	PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h'; else echo '\[\033[01;32m\]\u@\h'; fi)\[\033[01;34m\] \w \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
-
-	# Use this other PS1 string if you want \W for root and \w for all other users:
-	# PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h\[\033[01;34m\] \W'; else echo '\[\033[01;32m\]\u@\h\[\033[01;34m\] \w'; fi) \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
 
 	if [ "$TERM" == xterm ]
     then
@@ -141,19 +112,9 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
     alias gb="git branch "
     alias gch="git checkout "
 
-	# Uncomment the "Color" line in /etc/pacman.conf instead of uncommenting the following line...!
-
-	# alias pacman="pacman --color=auto"
-
 else
-
 	# show root@ when we do not have colors
-
-	PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$ "
-
-	# Use this other PS1 string if you want \W for root and \w for all other users:
-	# PS1="\u@\h $(if [[ ${EUID} == 0 ]]; then echo '\W'; else echo '\w'; fi) \$([[ \$? != 0 ]] && echo \":( \")\$ "
-
+	PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$\" 
 fi
 
 PS2="> "
@@ -170,9 +131,9 @@ unset safe_term match_lhs
 # See also: https://wiki.archlinux.org/index.php/Bash#The_.22command_not_found.22_hook
 [ -r /usr/share/doc/pkgfile/command-not-found.bash ] && . /usr/share/doc/pkgfile/command-not-found.bash
 
-
 # Add RVM to PATH for scripting
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
 
 # Aliases
 alias ..='cd ..'
@@ -228,9 +189,3 @@ function mamptowordpress {
 
     echo "Happy Wordpress Developing!"
 }
-
-# first
-# canon
-# karma
-# villa
-
