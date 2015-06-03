@@ -95,7 +95,20 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 		fi
 	fi
 
-    PS1="$RS[$FCYN\u$RS]$RS$RS[$FCYN\w$RS]\n$RS[$FCYN>$RS]$RS "
+    function current_git_branch {
+        BRANCH="$(git symbolic-ref HEAD 2>/dev/null | awk -F/ {'print $NF'})"
+        if [ "$BRANCH" == "" ]
+        then
+            echo "-"
+        else
+            echo "$BRANCH"
+        fi
+    }
+
+    PS1="$RS[$FCYN\u$RS][$FCYN\w$RS][$FCYN\$(current_git_branch)\[$RESET\]$RS]\n[$FCYN>$RS] "
+
+    #PS1="$RS[$FCYN\u$RS][$FCYN\w$RS]\n[$FCYN>$RS] "
+    #PS1="$RS[$FCYN\u$RS][$FCYN\w$RS]$(if [[ ${GIT_BRANCH} != null ]]; then echo '[$FCYN\$GIT_BRANCH$RS]'; fi)\n[$FCYN>$RS] "
     #PS1="$FCYN\u $RS@ $FCYN\w\n$FCYN>$RS "
 
 #	PS1="$(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h'; else echo '\[\033[01;32m\]\u@\h'; fi)\[\033[01;34m\] \w \$([[ \$? != 0 ]] && echo \"\[\033[01;31m\]:(\[\033[01;34m\] \")\\$\[\033[00m\] "
