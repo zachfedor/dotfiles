@@ -9,7 +9,7 @@
 
 dir=~/dotfiles                    # dotfiles directory
 olddir=~/dotfiles_old             # old dotfiles backup directory
-files="bashrc vimrc dir_colors spacemacs" 		  # list of files/folders to symlink in homedir
+files="bashrc vimrc dir_colors spacemacs tmux.conf" 		  # list of files/folders to symlink in homedir
 
 ##########
 
