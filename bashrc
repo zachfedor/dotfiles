@@ -114,7 +114,7 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
 
 else
 	# show root@ when we do not have colors
-	PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$\" 
+	PS1="\u@\h \w \$([[ \$? != 0 ]] && echo \":( \")\$" 
 fi
 
 PS2="> "

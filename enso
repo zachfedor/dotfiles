@@ -18,16 +18,16 @@ os=${OSTYPE//[0-9.]/}
 if [[ $os == darwin ]]
 then
 
-# open a quicklook preview of this file
-qlmanage -p '~/Pictures/enso.jpg' &>/dev/null &
+    # open a quicklook preview of this file
+    qlmanage -p '~/Pictures/enso.jpg' &>/dev/null &
 
-# wait for 60 seconds to be noticed
-sleep 60
+    # wait for 60 seconds to be noticed
+    sleep 60
 
-# check for the process and kill it
-if ps aux | grep "[q]lmanage" > /dev/null
-then
-    pkill qlmanage
-fi
+    # check for the process and kill it
+    if ps aux | grep "[q]lmanage" > /dev/null
+    then
+        pkill qlmanage
+    fi
 
 fi
