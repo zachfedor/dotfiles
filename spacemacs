@@ -2,6 +2,8 @@
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
+;; use `SPACE f e R' to re-exucute spacemacs init
+
 (defun dotspacemacs/layers ()
   "Configuration Layers declaration."
   (setq-default
@@ -140,9 +142,9 @@ before layers configuration."
    ;;
    ;; NEW CHANGES
    ;;
-   ;; escape with j-j instead of <ESC>
+   ;; escape with f-j instead of <ESC>
    evil-escape-key-sequence "jk"
-   evil-escape-delay 0.5
+   evil-escape-delay 0.3
    )
   ;; User initialization goes here
   )
@@ -154,10 +156,12 @@ before layers configuration."
 
     ;;;; GENERAL SETTINGS ;;;;
 
-    ;; power-line
-    (setq powerline-default-separator 'arrow)
+    ;; themes
+    ;; (set-mouse-color "white")
+    (set-mouse-color "black")
 
-    ;; fonts
+    ;; power-line
+    (setq powerline-default-separator 'slant)
 
     ;; switching command and option keys in osx
     (setq mac-option-modifier 'super)
@@ -189,8 +193,8 @@ before layers configuration."
 
     ;; setting todo keyword colors
     (setq org-todo-keyword-faces
-    ;;           '(("TODO" . (:foreground "#268bd2" :weight bold)) ("HOLD" . (:foreground "#268bd2" :weight bold)) ("NEXT" . (:foreground "#2aa198" :weight bold))))
-               '(("NEXT" . (:foreground "#2aa198" :weight bold))))
+          ;;'(("TODO" . (:foreground "#268bd2" :weight bold)) ("HOLD" . (:foreground "#268bd2" :weight bold)) ("NEXT" . (:foreground "#2aa198" :weight bold))))
+          '(("NEXT" . (:foreground "#2aa198" :weight bold))))
 
     ;; david o'toole's org tutorial configuration
     (define-key global-map "\C-cl" 'org-store-link)
@@ -231,11 +235,19 @@ before layers configuration."
             (previous-line 2)
             (org-edit-src-code)))
 
-    ;; bind C-c s to org-insert-src-block
+    ;; keybindings to insert and edit source blocks in org-mode
     (define-key global-map "\C-cs" 'org-insert-src-block)
-
-    ;; bind C-c e to org-edit-src-code
     (define-key global-map "\C-ce" 'org-edit-src-code)
+    (evil-leader/set-key
+        "Cs" 'org-insert-src-block
+        "Ce" 'org-edit-src-code
+        "C'" 'org-edit-special)
+
+    ;; changing vim section navigation keybindings to heading navigation in org-mode
+;    (evil-define-key ’normal org-mode-map "[[" ’org-backward-heading-same-level)
+;    (evil-define-key ’normal org-mode-map "]]" ’org-forward-heading-same-level)
+;    (evil-define-key ’normal org-mode-map "[]" ’org-goto)
+;    (evil-define-key ’normal org-mode-map "][" ’outline-up-heading)
 
 )
 
