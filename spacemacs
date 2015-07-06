@@ -31,6 +31,7 @@
      python
      shell-scripts
      color
+     themes-megapack
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
@@ -66,9 +67,10 @@ before layers configuration."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(solarized-dark
+   dotspacemacs-themes '(flatland
+                         solarized-dark
                          solarized-light
-                         leuven
+                         spacegray
                          monokai
                          zenburn)
    ;; If non nil the cursor color matches the state color.
@@ -157,8 +159,8 @@ before layers configuration."
     ;;;; GENERAL SETTINGS ;;;;
 
     ;; themes
-    ;; (set-mouse-color "white")
-    (set-mouse-color "black")
+    (set-mouse-color "white")
+    ;; (set-mouse-color "black")
 
     ;; power-line
     (setq powerline-default-separator 'slant)
