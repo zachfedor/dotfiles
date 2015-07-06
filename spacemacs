@@ -67,12 +67,16 @@ before layers configuration."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(flatland
+   dotspacemacs-themes '(monokai
                          solarized-dark
                          solarized-light
                          spacegray
-                         monokai
-                         zenburn)
+                         material-dark
+                         material-light
+                         gotham
+                         zenburn
+                         sanityinc-tomorrow-night
+                         darktooth)
    ;; If non nil the cursor color matches the state color.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
@@ -163,7 +167,7 @@ before layers configuration."
     ;; (set-mouse-color "black")
 
     ;; power-line
-    (setq powerline-default-separator 'slant)
+    (setq powerline-default-separator 'arrow)
 
     ;; switching command and option keys in osx
     (setq mac-option-modifier 'super)

@@ -83,7 +83,11 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
         fi
     }
 
-    PS1="$RS[$FCYN\u$RS][$FCYN\w$RS][$FCYN\$(current_git_branch)\[$RESET\]$RS]\n[$FCYN>$RS] "
+    # Prompts
+    # green
+    PS1="$RS[$FGRN\u$RS][$FGRN\w$RS][$FGRN\$(current_git_branch)\[$RESET\]$RS]\n[$FGRN>$RS] "
+    # blue
+    #PS1="$RS[$FGRN\u$RS][$FGRN\w$RS][$FGRN\$(current_git_branch)\[$RESET\]$RS]\n[$FGRN>$RS] "
     #PS1="$RS[$FCYN\u$RS][$FCYN\w$RS]\n[$FCYN>$RS] "
 
 
