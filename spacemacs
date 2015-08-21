@@ -44,6 +44,11 @@
   "Initialization function.
 This function is called at the very startup of Spacemacs initialization
 before layers configuration."
+  (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                           ("marmalade" . "https://marmalade-repo.org/packages/")
+                           ("melpa" . "http://melpa.org/packages/")))
+  ;; set the path variable (mostly for annoying tern fix)
+  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
