@@ -102,6 +102,8 @@ if [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] ; then
     fi
 	alias dir="dir --color=auto"
 	alias grep="grep --color=auto"
+    alias errlog="tail ~/sites/error_log"
+    alias errlogf="tail -f ~/sites/error_log"
 
     # git aliases
     alias ga="git add "
