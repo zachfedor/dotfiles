@@ -9,7 +9,7 @@
   (setq-default
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (ie. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path '()
+   dotspacemacs-configuration-layer-path '("~/code/dotfiles/emacs.d/")
    ;; List of configuration layers to load. If it is the symbol `all' instead
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
@@ -18,23 +18,29 @@
      ;; Example of useful layers you may want to use right away
      ;; Uncomment a layer name and press C-c C-c to install it
      ;; --------------------------------------------------------
+     ;; personal
      auto-completion
      better-defaults
+     colors
      ;; (git :variables
      ;;      git-gutter-use-fringe t)
-     markdown
-     org
-     syntax-checking
      html
      javascript
-     ;; php
+     lua
+     markdown
+     org
+     osx
+     php
      python
+     restclient
      shell-scripts
-     color
+     syntax-checking
      themes-megapack
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
+   ;; A list of additional packages that will be installed and loaded
+   dotspacemacs-additional-packages '(base16-theme)
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
    ;; the list `dotspacemacs-configuration-layers'
@@ -44,11 +50,8 @@
   "Initialization function.
 This function is called at the very startup of Spacemacs initialization
 before layers configuration."
-  (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                           ("marmalade" . "https://marmalade-repo.org/packages/")
-                           ("melpa" . "http://melpa.org/packages/")))
   ;; set the path variable (mostly for annoying tern fix)
-  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+  ;; (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
@@ -72,7 +75,8 @@ before layers configuration."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(monokai
+   dotspacemacs-themes '(base16-bespin-dark
+                         monokai
                          solarized-dark
                          solarized-light
                          spacegray
@@ -86,8 +90,9 @@ before layers configuration."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   ;; dotspacemacs-default-font '("Source Code Pro"
+    dotspacemacs-default-font '("Menlo"
+                               :size 14
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -160,12 +165,16 @@ before layers configuration."
   ;; User initialization goes here
   )
 
-(defun dotspacemacs/config ()
+(defun dotspacemacs/user-config ()
     "Configuration function.
     This function is called at the very end of Spacemacs initialization after
     layers configuration."
 
     ;;;; GENERAL SETTINGS ;;;;
+
+    ;; homebrew installed packages are here:
+    (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
+        (normal-top-level-add-subdirs-to-load-path))
 
     ;; themes
     (set-mouse-color "white")
@@ -175,8 +184,8 @@ before layers configuration."
     (setq powerline-default-separator 'arrow)
 
     ;; switching command and option keys in osx
-    (setq mac-option-modifier 'super)
-    (setq mac-command-modifier 'meta)
+    ;; (setq mac-option-modifier 'super)
+    ;; (setq mac-command-modifier 'meta)
 
     ;; enable C-x k to close emacsclient
     (add-hook 'server-switch-hook
@@ -194,6 +203,19 @@ before layers configuration."
 
     ;; Set php files to open in Web-Mode by default
     (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+
+
+    ;;;; PERSONAL KEYBINDINGS ;;;;
+
+    ;; create the prefix for all bindings
+    (spacemacs/declare-prefix "o" "personal-prefix")
+
+    ;; open default org file
+    (defun open-org-inbox ()
+      "Opens the default org-mode file in a new buffer."
+      (interactive)
+      (find-file "~/org/inbox.txt"))
+    (evil-leader/set-key "oo" 'open-org-inbox)
 
 
     ;;;; ORG-MODE SETTINGS ;;;;
@@ -232,11 +254,9 @@ before layers configuration."
         "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
         (interactive
         (let ((src-code-types
-                '("emacs-lisp" "python" "C" "shell" "java" "js" "clojure" "C++" "css"
-                    "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
-                    "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
-                    "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
-                    "scheme" "sqlite")))
+                '("emacs-lisp" "python" "C" "shell" "java" "js" "clojure" "C++"
+                  "css" "php" "R" "sass" "scss" "less" "sql" "awk" "latex"
+                  "lisp" "org" "perl" "ruby" "scheme" "sqlite")))
             (list (ido-completing-read "Source code type: " src-code-types))))
         (progn
             (newline-and-indent)
@@ -264,3 +284,69 @@ before layers configuration."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   ["#272822" "#F92672" "#A6E22E" "#E6DB74" "#66D9EF" "#FD5FF0" "#A1EFE4" "#F8F8F2"])
+ '(ansi-term-color-vector
+   [unspecified "#14191f" "#d15120" "#81af34" "#deae3e" "#7e9fc9" "#a878b5" "#7e9fc9" "#dcdddd"])
+ '(compilation-message-face (quote default))
+ '(custom-safe-themes
+   (quote
+    ("196cc00960232cfc7e74f4e95a94a5977cb16fd28ba7282195338f68c84058ec" "357d5abe6f693f2875bb3113f5c031b7031f21717e8078f90d9d9bc3a14bcbd8" default)))
+ '(fci-rule-character-color "#192028")
+ '(fci-rule-color "#49483E" t)
+ '(highlight-changes-colors (quote ("#FD5FF0" "#AE81FF")))
+ '(highlight-tail-colors
+   (quote
+    (("#49483E" . 0)
+     ("#67930F" . 20)
+     ("#349B8D" . 30)
+     ("#21889B" . 50)
+     ("#968B26" . 60)
+     ("#A45E0A" . 70)
+     ("#A41F99" . 85)
+     ("#49483E" . 100))))
+ '(hl-sexp-background-color "#1c1f26")
+ '(magit-diff-use-overlays nil)
+ '(nrepl-message-colors
+   (quote
+    ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
+ '(pos-tip-background-color "#36473A")
+ '(pos-tip-foreground-color "#FFFFC8")
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#F92672")
+     (40 . "#CF4F1F")
+     (60 . "#C26C0F")
+     (80 . "#E6DB74")
+     (100 . "#AB8C00")
+     (120 . "#A18F00")
+     (140 . "#989200")
+     (160 . "#8E9500")
+     (180 . "#A6E22E")
+     (200 . "#729A1E")
+     (220 . "#609C3C")
+     (240 . "#4E9D5B")
+     (260 . "#3C9F79")
+     (280 . "#A1EFE4")
+     (300 . "#299BA6")
+     (320 . "#2896B5")
+     (340 . "#2790C3")
+     (360 . "#66D9EF"))))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list
+   (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
+ '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
