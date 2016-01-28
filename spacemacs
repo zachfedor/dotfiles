@@ -51,7 +51,7 @@
 This function is called at the very startup of Spacemacs initialization
 before layers configuration."
   ;; set the path variable (mostly for annoying tern fix)
-  ;; (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
