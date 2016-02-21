@@ -9,15 +9,25 @@
 " -----------------------------------------------------------------
 " general
 " -----------------------------------------------------------------
-let mapleader=" "           " map <space> to leader
-nnoremap <leader>a :echo ("\<leader\> works! it is set to <leader>")<CR>
-set nocompatible            " always vim, never vi
-set scrolloff=8             " line buffer to scroll off screen
-set ignorecase              " ignore case in search
-set smartcase               " uppercase search pattern override
+                        " map <space> to leader
+let mapleader=" "
+                        " always vim, never vi
+set nocompatible
+                        " line buffer to scroll off screen
+set scrolloff=8
+                        " allow hidden buffers
+set hidden
+                        " ignore case in search
+set ignorecase
+                        " uppercase search pattern override
+set smartcase
+                        " natural split opening sides
+set splitbelow
+set splitright
 
 if has("mouse")
-    set mouse=a             " allow mouse in all modes
+                        " allow mouse in all modes
+    set mouse=a
 endif
 
 if has("vms")
@@ -41,7 +51,9 @@ endif
 set softtabstop=4           " indent width for editing
 set shiftwidth=4            " indent width for autoindent
 set expandtab               " convert tabs to spaces
-set number                  " show line numbers
+                            " show current line number with relative numbers
+set number
+set relativenumber
 
 
 " -----------------------------------------------------------------
@@ -51,15 +63,28 @@ set number                  " show line numbers
 inoremap jk <ESC>
                             " mapping to copy to system clipboard
 vmap <leader>y "+y
+                            " mappings to navigate buffers
+nmap <leader>bn :bn<CR>
+nnoremap K :bn<CR>
+nmap <leader>bp :bp<CR>
+nnoremap J :bp<CR>
+                            " mapping to close buffer
+nmap <leader>bd :bd<CR>
+                            " mapping to navigate splits
+nnoremap <C-H> <C-W><C-H>
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
 
 
 " -----------------------------------------------------------------
 " language
 " -----------------------------------------------------------------
-" markdown -----------
-if has("autocmd")
+augroup LanguageSupport
+    autocmd!
     autocmd BufNewFile,BufReadPost *.md set filetype=markdown
-endif
+    " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
+augroup END
 
 
 " -----------------------------------------------------------------
@@ -98,6 +123,7 @@ Plug 'xuyuanp/nerdtree-git-plugin'
 " languages -----------
 Plug 'hail2u/vim-css3-syntax'
 Plug 'marijnh/tern_for_vim'
+Plug 'mustache/vim-mustache-handlebars'
 Plug 'pangloss/vim-javascript'
 Plug 'plasticboy/vim-markdown'  " needs: godlygeek/tabular
 Plug 'shutnik/jshint2.vim'
@@ -105,6 +131,8 @@ Plug 'shutnik/jshint2.vim'
 " writing -----------
 Plug 'reedes/vim-pencil'
 Plug 'reedes/vim-wordy'
+" Plug 'vimwiki/vimwiki'
+Plug '~/code/vimwiki'
 
 call plug#end()
 
@@ -114,6 +142,19 @@ call plug#end()
 " -----------------------------------------------------------------
 " base16-vim -----------
 let base16colorspace=256
+
+" ctrlp -----------
+function CtrlPSettings()
+if exists(":CtrlP")
+                                    " use nearest .git/ as current project
+    let g:ctrlp_working_path_mode = 'r'
+                                    " ignore files in .gitignore
+    let g:ctrlp_user_command      = ['.git', 'cd %s && git ls-files']
+                                    " mapping for fuzzy find
+    nmap <leader>ff :CtrlP<CR>
+    nmap <leader>bf :CtrlPBuffer<CR>
+endif
+endfunction
 
 " jshint2.vim -----------
 let jshint2_command = '/usr/local/bin/jshint'   " path to jshint
@@ -131,11 +172,28 @@ if exists(":NeoCompleteToggle")
 endif
 endfunction
 
-" syntastic -----------                 " recommended settings
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list            = 1
-let g:syntastic_check_on_open            = 1
-let g:syntastic_check_on_wq              = 0
+" nerdtree -----------
+function NerdTreeSettings()
+if exists(":NERDTree")
+    nmap <leader>ft :NERDTree<CR>
+endif
+endfunction
+
+" syntastic -----------
+function SyntasticSettings()
+if exists(":SyntasticCheck")
+                                        " recommended settings
+    let g:syntastic_always_populate_loc_list = 1
+    let g:syntastic_auto_loc_list            = 1
+    let g:syntastic_check_on_open            = 0
+    let g:syntastic_check_on_wq              = 0
+                                        " use html5 version
+    let g:syntastic_html_tidy_exec           = '/usr/bin/tidy'
+                                        " mapping to turn off error buffer
+    nmap <leader>sr :SyntasticReset<CR>
+endif
+endfunction
+
 
 " tabular -----------
 function TabularSettings()
@@ -169,8 +227,10 @@ endfunction
 " let g:thematic#theme_name = 'bespin'
 
 " vim-airline  -----------
-let g:airline_left_sep=" "
-let g:airline_right_sep=" "
+let g:airline_left_sep                   = " "  " use space to create squared sections
+let g:airline_right_sep                  = " "
+let g:airline#extensions#tabline#enabled = 1    " enable the tab bar at top
+" let g:airline#extensions#tabline#fnamemod = ':t'
 
 " vim-gitgutter -----------
 function VimGitGutterSettings()
@@ -186,22 +246,25 @@ let g:vim_markdown_folding_level = 1      " folds headings 4 levels deep
 let g:vim_markdown_frontmatter   = 1      " highlight jekyll frontmatter
 
 " vim-wiki -----------
-let wiki             = {}               " create vimwiki object
+let wiki             = {}               " create general wiki
 let wiki.path        = '~/Dropbox/wiki/'
 let wiki.syntax      = 'markdown'
 let wiki.ext         = '.md'
-let blog             = {}               " create vimwiki object
-let blog.path        = '~/Dropbox/wiki/blog/'
-let blog.path_html   = '~/Dropbox/wiki/html/'
-let blog.auto_export = 1
+let blog             = {}               " create work wiki
+let blog.path        = '~/sites/zachfedor.github.io/'
+let blog.syntax      = 'markdown'
+let blog.ext         = '.md'
 
 let g:vimwiki_list   = [wiki, blog]     " init wiki objects
 
 " settings functions -----------
 augroup PluginSettings
     autocmd!
+    autocmd VimEnter * :call CtrlPSettings()
+    autocmd VimEnter * :call NerdTreeSettings()
     autocmd VimEnter * :call NeoCompleteSettings()
     autocmd VimEnter * :call TabularSettings()
+    autocmd VimEnter * :call SyntasticSettings()
     autocmd VimEnter * :call VimGitGutterSettings()
 augroup END
 
@@ -210,7 +273,7 @@ augroup END
 " style
 " -----------------------------------------------------------------
 set background=dark
-colorscheme base16-bespin
+colorscheme base16-eighties
                             " set colors of line number column
                             " as fix for thematic plugin
 " augroup mystylesforvim
@@ -226,7 +289,7 @@ colorscheme base16-bespin
 
                             " set colors of line number column
 highlight LineNr ctermbg=00
-highlight LineNr ctermfg=18
+" highlight LineNr ctermfg=18
                             " set colors of gitgutter column
 highlight SignColumn ctermbg=00
 highlight GitGutterAdd ctermbg=00
