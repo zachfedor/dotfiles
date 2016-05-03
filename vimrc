@@ -75,6 +75,13 @@ nnoremap <C-H> <C-W><C-H>
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
+                            " mapping to create timestamps
+nnoremap <leader>dd "=strftime("%Y-%m-%d")<CR>P
+inoremap <C-d><C-d> <C-R>=strftime("%Y-%m-%d")<CR>
+nnoremap <leader>dt "=strftime("%H:%M:%S")<CR>P
+inoremap <C-d><C-t> <C-R>=strftime("%H:%M:%S")<CR>
+nnoremap <leader>ds "=strftime("%Y-%m-%d %H:%M:%S")<CR>P
+inoremap <C-d><C-s> <C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR>
 
 
 " -----------------------------------------------------------------
@@ -106,6 +113,7 @@ Plug 'vim-airline/vim-airline'
 
 " development -----------
 " Plug 'mattn/emmet-vim'
+Plug 'editorconfig/editorconfig-vim'
 Plug 'raimondi/delimitmate'
 Plug 'scrooloose/syntastic'
 Plug 'shougo/neocomplete.vim'
@@ -118,15 +126,21 @@ Plug 'airblade/vim-gitgutter'
 Plug 'godlygeek/tabular'
 Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-speeddating'
 Plug 'xuyuanp/nerdtree-git-plugin'
 
 " languages -----------
-Plug 'hail2u/vim-css3-syntax'
 Plug 'marijnh/tern_for_vim'
-Plug 'mustache/vim-mustache-handlebars'
-Plug 'pangloss/vim-javascript'
+" Javascript
+Plug 'othree/yajs.vim'
+Plug 'gavocanov/vim-js-indent'
+Plug 'mxw/vim-jsx'
+Plug 'elzr/vim-json'
+" CSS
+Plug 'hail2u/vim-css3-syntax'
+" Other
 Plug 'plasticboy/vim-markdown'  " needs: godlygeek/tabular
-Plug 'shutnik/jshint2.vim'
+Plug 'mustache/vim-mustache-handlebars'
 
 " writing -----------
 Plug 'reedes/vim-pencil'
@@ -156,10 +170,9 @@ if exists(":CtrlP")
 endif
 endfunction
 
-" jshint2.vim -----------
-let jshint2_command = '/usr/local/bin/jshint'   " path to jshint
-let jshint2_read    = 1                 " run jshint on file read
-let jshint2_save    = 1                 " run jshint on file save
+" editorconfig -----------
+let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 
 " neocomplete -----------
 function NeoCompleteSettings()
@@ -189,7 +202,10 @@ if exists(":SyntasticCheck")
     let g:syntastic_check_on_wq              = 0
                                         " use html5 version
     let g:syntastic_html_tidy_exec           = '/usr/bin/tidy'
+                                        " use eslint instead of jshint
+    let g:syntastic_javascript_checkers = ['eslint']
                                         " mapping to turn off error buffer
+    nmap <leader>ss :SyntasticCheck<CR>
     nmap <leader>sr :SyntasticReset<CR>
 endif
 endfunction
@@ -241,6 +257,9 @@ if exists(":GitGutterToggle")
 endif
 endfunction
 
+" vim-jsx -----------
+let g:jsx_ext_required = 0              " allow JSX in normal .js files
+
 " vim-markdown -----------
 let g:vim_markdown_folding_level = 1      " folds headings 4 levels deep
 let g:vim_markdown_frontmatter   = 1      " highlight jekyll frontmatter
@@ -250,12 +269,19 @@ let wiki             = {}               " create general wiki
 let wiki.path        = '~/Dropbox/wiki/'
 let wiki.syntax      = 'markdown'
 let wiki.ext         = '.md'
-let blog             = {}               " create work wiki
+let work             = {}               " create work wiki
+let work.path        = '~/Dropbox/wiki/work'
+let work.syntax      = 'markdown'
+let work.ext         = '.md'
+let blog             = {}               " create blog wiki
 let blog.path        = '~/sites/zachfedor.github.io/'
 let blog.syntax      = 'markdown'
 let blog.ext         = '.md'
 
-let g:vimwiki_list   = [wiki, blog]     " init wiki objects
+let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
+let g:vimwiki_hl_headers = 1
+let g:vimwiki_hl_cb_checked = 1
+let g:vimwiki_listsyms = ' ...x'
 
 " settings functions -----------
 augroup PluginSettings
