@@ -1,0 +1,79 @@
+#!/bin/sh
+
+# --------------------- #
+# Weekly Review Process #
+# --------------------- #
+
+
+# setup
+NOW=$(date +%Y.%W)
+PAST=$(date -v-1w  +%Y.%W)
+CURRENT="${HOME}/wiki/review/current.md"
+PASTFILE="${HOME}/wiki/review/${PAST}.md"
+
+
+# check for current review
+if ! [ -f $CURRENT ]; then
+    echo "Sorry, can't find your current review."
+    exit 1
+# check for previous review
+elif [ -f $PASTFILE ]; then
+    echo "Last week's review was already completed."
+    echo ${PASTFILE}
+    echo
+    read -p "Would you like to continue using a backup file? y/n  " answer
+    case ${answer:0:1} in
+        y|Y ) PASTFILE="${HOME}/wiki/review/${PAST}-conflict.md";;
+        * ) exit 1;;
+    esac
+fi
+
+
+# grab previous review from current file
+echo "Completing Review for ${PAST}..."
+# paste it into it's own archive
+sed -n '/^-----/,$ {//!p;}' ${CURRENT} | sed '1d' > ${PASTFILE}
+# and edit/append accordingly
+vim ${PASTFILE}
+
+
+# replace previous review with blank review template
+echo "Starting Review for ${NOW}..."
+# TODO: hook up a quote API to replace the quote every week
+cat << EOF > ${CURRENT}
+# Current Review
+
+The best laid plans of mice and men often go awry.
+
+*Plan Anyway!*
+
+-----
+
+# ${NOW}
+
+
+## Goals:
+
+- [ ]
+
+
+## Time:
+
+- Work:
+- People:
+- Elective - Productive:
+- Elective - Play:
+- Health:
+- Sleep:
+
+
+## Review:
+
+EOF
+# and edit/append accordingly
+vim ${CURRENT}
+
+# exit
+echo
+echo "Good work. A planned week makes a prepared person."
+

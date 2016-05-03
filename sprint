@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# -------------------------- #
+# Start Notes for New Sprint #
+# -------------------------- #
+
+
+# PARAMS
+# TODO: validate input
+SPRINT_NAME=$1;
+TODAY=$(date +"%Y.%m.%d");
+
+
+# CHECK FOR FILE
+if [ -f "${HOME}/wiki/work/${SPRINT_NAME}.md" ]; then
+    echo "Notes already exist for Sprint ${SPRINT_NAME}"
+    exit 1
+fi
+
+
+# CREATE TEMPLATE
+cat << EOF > ~/wiki/work/$SPRINT_NAME.md
+# Sprint $SPRINT_NAME
+
+$(date +"%A") $TODAY - $(date -v+11d +"%A %Y.%m.%d")
+
+
+## Focus
+
+- <Client Code> <Project Name>
+
+
+## Days
+
+### $(date +"%A") $TODAY
+
+
+### $(date -v+1d +"%A %Y.%m.%d")
+
+
+### $(date -v+2d +"%A %Y.%m.%d")
+
+
+### $(date -v+3d +"%A %Y.%m.%d")
+
+
+### $(date -v+4d +"%A %Y.%m.%d")
+
+
+-----
+
+### $(date -v+7d +"%A %Y.%m.%d")
+
+
+### $(date -v+8d +"%A %Y.%m.%d")
+
+
+### $(date -v+9d +"%A %Y.%m.%d")
+
+
+### $(date -v+10d +"%A %Y.%m.%d")
+
+
+### $(date -v+11d +"%A %Y.%m.%d")
+EOF
+
+
+# EXIT
+echo "Created Sprint Notes"
