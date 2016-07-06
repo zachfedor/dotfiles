@@ -24,6 +24,10 @@ set smartcase
                         " natural split opening sides
 set splitbelow
 set splitright
+                        " add autocomplete with spell check
+set complete+=kspell
+                        " point to a spellfile symlinked to dotfiles
+set spellfile=$HOME/.vim/spell-en.utf-8.add
 
 if has("mouse")
                         " allow mouse in all modes
@@ -87,9 +91,13 @@ inoremap <C-d><C-s> <C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR>
 " -----------------------------------------------------------------
 " language
 " -----------------------------------------------------------------
+let g:html_indent_inctags = "html,body,head,tbody"
+
 augroup LanguageSupport
     autocmd!
     autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+    autocmd FileType markdown setlocal spell
+    autocmd FileType gitcommit setlocal spell
     " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
 augroup END
 
@@ -132,15 +140,16 @@ Plug 'xuyuanp/nerdtree-git-plugin'
 " languages -----------
 Plug 'marijnh/tern_for_vim'
 " Javascript
-Plug 'othree/yajs.vim'
+Plug 'elzr/vim-json'
 Plug 'gavocanov/vim-js-indent'
 Plug 'mxw/vim-jsx'
-Plug 'elzr/vim-json'
+Plug 'othree/yajs.vim'
 " CSS
 Plug 'hail2u/vim-css3-syntax'
 " Other
-Plug 'plasticboy/vim-markdown'  " needs: godlygeek/tabular
+Plug 'jamshedvesuna/vim-markdown-preview'
 Plug 'mustache/vim-mustache-handlebars'
+Plug 'plasticboy/vim-markdown'  " needs: godlygeek/tabular
 
 " writing -----------
 Plug 'reedes/vim-pencil'
@@ -173,6 +182,14 @@ endfunction
 " editorconfig -----------
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
+
+" emmet-vim -----------
+" let g:user_emmet_leader_key = '<C-m>'
+" let g:user_emmet_expandabbr_key = '<C-m>m'
+" let g:user_emmet_balancetaginward_key = '<C-m>a'
+" let g:user_emmet_balancetagoutward_key = '<C-m>i'
+" let g:user_emmet_next_key = '<C-m>n'
+" let g:user_emmet_prev_key = '<C-m>p'
 
 " neocomplete -----------
 function NeoCompleteSettings()
@@ -261,8 +278,11 @@ endfunction
 let g:jsx_ext_required = 0              " allow JSX in normal .js files
 
 " vim-markdown -----------
-let g:vim_markdown_folding_level = 1      " folds headings 4 levels deep
-let g:vim_markdown_frontmatter   = 1      " highlight jekyll frontmatter
+let g:vim_markdown_folding_level = 1    " folds headings 4 levels deep
+let g:vim_markdown_frontmatter   = 1    " highlight jekyll frontmatter
+
+" vim-markdown-preview -----------
+let vim_markdown_preview_hotkey='<space>m'    " changes default hotkey of <C-p>
 
 " vim-wiki -----------
 let wiki             = {}               " create general wiki
@@ -282,6 +302,14 @@ let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
+                            " mapping to open common notes
+nnoremap <leader>wf <Plug>VimwikiUISelect
+nnoremap <leader>wr :find ~/wiki/review/current.md<CR>
+nnoremap <leader>ws :find ~/wiki/work/current.md<CR>
+nnoremap <leader>wb :find ~/sites/zachfedor.github.io/index.md<CR>
+nnoremap <leader>w<leader>r <Plug>VimwikiRenameLink
+nnoremap <leader>w= <Plug>VimwikiAddHeaderLevel
+nnoremap <leader>w- <Plug>VimwikiRemoveHeaderLevel
 
 " settings functions -----------
 augroup PluginSettings
@@ -299,7 +327,7 @@ augroup END
 " style
 " -----------------------------------------------------------------
 set background=dark
-colorscheme base16-eighties
+colorscheme base16-twilight
                             " set colors of line number column
                             " as fix for thematic plugin
 " augroup mystylesforvim
@@ -322,3 +350,105 @@ highlight GitGutterAdd ctermbg=00
 highlight GitGutterChange ctermbg=00
 highlight GitGutterDelete ctermbg=00
 highlight GitGutterChangeDelete ctermbg=00
+
+
+" -----------------------------------------------------------------
+" functions
+" -----------------------------------------------------------------
+" markdown header levels
+function!EditMarkdownHeader(dir)
+    " get current line
+    let line = getline('.')
+    if strlen(line) > 0
+        " split into array of words
+        let linearray = split(line)
+        " split first word into array of characters
+        let pre = split(linearray[0], '\zs')
+
+        if a:dir
+            " increase header
+            if index(pre, '#') > -1
+                " line is already a header
+                let line = '#' . line
+            else
+                " line is not a header
+                let line = '# ' . line
+            endif
+        else
+            " decrease header
+            if index(pre, '#') > -1
+                " line is a header
+                if linearray[0] ==# '#'
+                    " line is an h1
+                    " remove header entirely
+                    let line = join(linearray[1:])
+                else
+                    " line is h2 or higher
+                    " remove just one '#'
+                    let line = join(pre[1:], '') . ' ' . join(linearray[1:])
+                endif
+            endif
+            " else line is not a header, do nothing
+        endif
+
+        " replace current line with altered line
+        call setline('.', line)
+    endif
+endfunction
+    " mapping to edit markdown header levels
+nnoremap = :call EditMarkdownHeader(1)<CR>
+nnoremap - :call EditMarkdownHeader(0)<CR>
+
+
+" preview markdown -----------
+function!PreviewMarkdown()
+    " src: https://gist.github.com/natesilva/960015
+    " let MARKDOWN_CMD = 'grip'
+    let MARKDOWN_CMD = 'markdown'
+    let BROWSER_CMD = 'open'
+
+    silent update
+    let output_name = tempname() . '.html'
+
+    let original_encoding = &fileencoding
+    let original_bomb = &bomb
+    if original_encoding != 'utf-8' || original_bomb == 1
+        set nobomb
+        set fileencoding=utf-8
+        silent update
+    endif
+
+    let file_header = ["<!DOCTYPE html>", '<html>', '<head>',
+        \ '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
+        \ '<title>Markdown Preview</title>',
+        \ '<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">',
+        \ '<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssbase/base-min.css">',
+        \ '<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssfonts/fonts-min.css">',
+        \ '<style>body{padding:20px;}div#container{background-color:#F2F2F2;padding:0 20px;margin:0px;border:solid #D0D0D0 1px;}</style>',
+        \ '</head>', '<body>', '<div id="container">']
+    call writefile(file_header, output_name)
+
+    let markdown_cmd = '!' . MARKDOWN_CMD . ' "' . expand('%:p') . '" >> "' .
+        \ output_name . '"'
+    silent exec markdown_cmd
+
+    silent exec '!echo "</div></body></html>" >> "' .
+        \ output_name . '"'
+
+
+    if original_encoding != 'utf-8' || original_bomb == 1
+        if original_bomb == 1
+            set bomb
+        endif
+        silent exec 'set fileencoding=' . original_encoding
+        silent update
+    endif
+
+    silent exec '!' . BROWSER_CMD . ' "' . output_name . '"'
+
+    exec input('Press ENTER to continue...')
+    echo
+    exec delete(output_name)
+endfunction
+
+" map <leader>mp :call PreviewMarkdown()<CR>
