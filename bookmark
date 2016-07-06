@@ -52,14 +52,14 @@ read -rp "Description:  " DESC
 #------------------------------
 # check if file already exists
 FILE="$(echo ${TITLE//" "/"-"} | tr '[:upper:]' '[:lower:]').md"
-PATH="${HOME}/wiki/bookmarks/${FILE}"
-if [ -f ${PATH} ]; then
+FILEPATH="${HOME}/wiki/bookmarks/${FILE}"
+if [ -f ${FILEPATH} ]; then
     echo "Sorry, looks like that title is already taken: ${FILE}"
     exit 1
 fi
 
 # print to file
-/bin/cat << EOF > ${PATH}
+cat << EOF > ${FILEPATH}
 # ${TITLE}
 
 [${URL}]()
@@ -71,9 +71,9 @@ fi
 EOF
 
 # verify new file
-if [ -f ${PATH} ]; then
+if [ -f ${FILEPATH} ]; then
     echo
-    /bin/cat ${PATH}
+    cat ${FILEPATH}
     exit 0
 else
     echo "There was an error creating the bookmark..."
