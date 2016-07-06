@@ -5,32 +5,70 @@
 # -------------------------- #
 
 
-# PARAMS
-# TODO: validate input
-SPRINT_NAME=$1;
-TODAY=$(date +"%Y.%m.%d");
+# setup
+CURRENT="${HOME}/wiki/work/current.md"
+TODAY=$( date +%Y.%m.%d );
 
-
-# CHECK FOR FILE
-if [ -f "${HOME}/wiki/work/${SPRINT_NAME}.md" ]; then
-    echo "Notes already exist for Sprint ${SPRINT_NAME}"
+# check for current file
+if ! [ -f ${CURRENT} ]; then
+    echo "Sorry, can't find your current sprint notes."
     exit 1
 fi
 
 
+# ask for input
+read -rp "Which sprint are you creating notes for?  " SPRINT
+# TODO: validate input
+SPRINTFILE="${HOME}/wiki/work/${SPRINT}.md"
+# check for file, just in case
+if [ -f ${SPRINTFILE} ]; then
+    echo "It seems you already have those sprint notes:"
+    echo ${SPRINTFILE}
+    exit 1
+fi
+
+
+# get old sprint number
+OLD=$(grep -om 1 '[0-9]\{4\}.[0-9]\{1,2\}' ${CURRENT})
+OLDFILE="${HOME}/wiki/work/${OLD}.md"
+# check for file, just in case
+if [ -f ${OLDFILE} ]; then
+    echo "The old sprint notes may have already been archived:"
+    echo ${OLDFILE}
+    exit 1
+fi
+
+
+# paste previous sprint notes into it's own archive
+sed -n '/^-----/,$ {//!p;}' ${CURRENT} | sed '1d' > ${OLDFILE}
+
+
 # CREATE TEMPLATE
-cat << EOF > ~/wiki/work/$SPRINT_NAME.md
-# Sprint $SPRINT_NAME
+cat << EOF > ${CURRENT}
+# Current Sprint
+
+some quote should go here
+
+*Plan Anyway!*
+
+-----
+
+# ${SPRINT}
 
 $(date +"%A") $TODAY - $(date -v+11d +"%A %Y.%m.%d")
 
 
-## Focus
+## Goals
 
-- <Client Code> <Project Name>
+- [ ]
 
 
-## Days
+## Stories
+
+- [ ] JIRA-123
+
+
+## Daily Notes
 
 ### $(date +"%A") $TODAY
 
@@ -63,6 +101,10 @@ $(date +"%A") $TODAY - $(date -v+11d +"%A %Y.%m.%d")
 
 ### $(date -v+11d +"%A %Y.%m.%d")
 EOF
+
+
+# edit/append to notes as necessary
+vim ${OLDFILE} ${CURRENT}
 
 
 # EXIT

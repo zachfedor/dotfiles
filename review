@@ -6,39 +6,60 @@
 
 
 # setup
-NOW=$(date +%Y.%W)
-PAST=$(date -v-1w  +%Y.%W)
 CURRENT="${HOME}/wiki/review/current.md"
+
+NOW=$( date +%Y.%W )
+NOWFILE="${HOME}/wiki/review/${NOW}.md"
+
+PAST=$( date -v-1w  +%Y.%W )
 PASTFILE="${HOME}/wiki/review/${PAST}.md"
 
+NEXT=$( date -v+1w  +%Y.%W )
 
-# check for current review
+
+# check for current review file at path above
 if ! [ -f $CURRENT ]; then
     echo "Sorry, can't find your current review."
     exit 1
-# check for previous review
-elif [ -f $PASTFILE ]; then
-    echo "Last week's review was already completed."
-    echo ${PASTFILE}
+fi
+
+# check for previous review file at path above
+if [ -f $PASTFILE ]; then
+    # last week's review has been completed so we need to end the current
+    # review at ${NOW} and start the new review at ${NEXT}
+    echo "Last week's review was already completed. See " + ${PASTFILE}
     echo
-    read -p "Would you like to continue using a backup file? y/n  " answer
+    read -rp "Would you like to end the current review now and create next week's review? y/n  " answer
     case ${answer:0:1} in
-        y|Y ) PASTFILE="${HOME}/wiki/review/${PAST}-conflict.md";;
-        * ) exit 1;;
+        y|Y )
+            END=${NOW}
+            ENDFILE=${NOWFILE}
+
+            START=${NEXT}
+            ;;
+        * )
+            exit 1
+            ;;
     esac
+else
+    # last week's review is not yet completed, so let's do it now. end current
+    # review at ${PAST} and start new review at ${NOW}
+    END=${PAST}
+    ENDFILE=${PASTFILE}
+
+    START=${NOW}
 fi
 
 
 # grab previous review from current file
-echo "Completing Review for ${PAST}..."
+echo "Completing Review for ${END}..."
 # paste it into it's own archive
-sed -n '/^-----/,$ {//!p;}' ${CURRENT} | sed '1d' > ${PASTFILE}
-# and edit/append accordingly
-vim ${PASTFILE}
+sed -n '/^-----/,$ {//!p;}' ${CURRENT} | sed '1d' > ${ENDFILE}
+# will edit/append later
 
 
 # replace previous review with blank review template
-echo "Starting Review for ${NOW}..."
+echo "Starting Review for ${START}..."
 # TODO: hook up a quote API to replace the quote every week
 cat << EOF > ${CURRENT}
 # Current Review
@@ -49,7 +70,7 @@ The best laid plans of mice and men often go awry.
 
 -----
 
-# ${NOW}
+# ${START}
 
 
 ## Goals:
@@ -70,8 +91,9 @@ The best laid plans of mice and men often go awry.
 ## Review:
 
 EOF
-# and edit/append accordingly
-vim ${CURRENT}
+
+# time to edit/append both files accordingly
+vim ${ENDFILE} ${CURRENT}
 
 # exit
 echo
