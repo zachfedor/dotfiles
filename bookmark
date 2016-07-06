@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# Bookmark
+#
+# author: zachfedor
+# date: 2016-07-06
+#
+# Simple shell utility for saving a bookmark with metadata. Bookmark grabs the URL from your
+# clipboard and creates a small markdown note containing the values you enter with it.
+#
+# TODO: validate filename
+# TODO: create search function
+
+
+#------------------------------
+# Validate Initial Values
+#------------------------------
+# get contents from clipboard
+URL=$(pbpaste)
+
+# validate url
+REGEX='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+if [[ ${URL} =~ ${REGEX} ]]; then
+    echo "Creating bookmark for: ${URL}"
+else
+    echo "Clipboard didn't contain a valid URL."
+    exit 1
+fi
+
+
+#------------------------------
+# Get Metadata
+#------------------------------
+# get title
+read -rp "Title:        " TITLE
+
+# get tags
+read -rp "Tags:         " TAG_STR
+TAG_ARR=(${TAG_STR})
+TAGS=""
+for i in "${TAG_ARR[@]}"
+do
+    TAGS="${TAGS} #${i}"
+done
+
+# get description
+read -rp "Description:  " DESC
+
+
+#------------------------------
+# Create File
+#------------------------------
+# check if file already exists
+FILE="$(echo ${TITLE//" "/"-"} | tr '[:upper:]' '[:lower:]').md"
+PATH="${HOME}/wiki/bookmarks/${FILE}"
+if [ -f ${PATH} ]; then
+    echo "Sorry, looks like that title is already taken: ${FILE}"
+    exit 1
+fi
+
+# print to file
+/bin/cat << EOF > ${PATH}
+# ${TITLE}
+
+[${URL}]()
+
+
+**Tags:** ${TAGS}
+
+**Description:** ${DESC}
+EOF
+
+# verify new file
+if [ -f ${PATH} ]; then
+    echo
+    /bin/cat ${PATH}
+    exit 0
+else
+    echo "There was an error creating the bookmark..."
+    exit 1
+fi
