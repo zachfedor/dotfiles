@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# pomo
+
+# TODO: allow body content to be entered
+BODY="Your Focus Block Is Over"
+TITLE="Pomodoro"
+SOUND="default"
+
+echo "Starting A Focus Block..."
+sleep 1500
+terminal-notifier -message "${BODY}" -title "${TITLE}" -sound "${SOUND}"
+echo
+echo "Time's up. Nice Work."
