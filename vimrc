@@ -67,11 +67,12 @@ set relativenumber
 inoremap jk <ESC>
                             " mapping to copy to system clipboard
 vmap <leader>y "+y
+                            " mappings to scroll faster
+nnoremap K 10k
+nnoremap J 10j
                             " mappings to navigate buffers
 nmap <leader>bn :bn<CR>
-nnoremap K :bn<CR>
 nmap <leader>bp :bp<CR>
-nnoremap J :bp<CR>
                             " mapping to close buffer
 nmap <leader>bd :bd<CR>
                             " mapping to navigate splits
@@ -262,7 +263,7 @@ endfunction
 " vim-airline  -----------
 let g:airline_left_sep                   = " "  " use space to create squared sections
 let g:airline_right_sep                  = " "
-let g:airline#extensions#tabline#enabled = 1    " enable the tab bar at top
+" let g:airline#extensions#tabline#enabled = 1    " enable the tab bar at top
 " let g:airline#extensions#tabline#fnamemod = ':t'
 
 " vim-gitgutter -----------
@@ -310,6 +311,12 @@ nnoremap <leader>wb :find ~/sites/zachfedor.github.io/index.md<CR>
 nnoremap <leader>w<leader>r <Plug>VimwikiRenameLink
 nnoremap <leader>w= <Plug>VimwikiAddHeaderLevel
 nnoremap <leader>w- <Plug>VimwikiRemoveHeaderLevel
+
+" vim-wheel -----------
+                            " " ∆ is <Alt-j>
+" let g:wheel#map#up   = '<A-j>'
+                            " " ˚ is <Alt-k>
+" let g:wheel#map#down = '<A-k>'
 
 " settings functions -----------
 augroup PluginSettings
