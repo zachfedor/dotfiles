@@ -150,6 +150,48 @@ hs.hotkey.bind({"cmd", "ctrl"}, "N", function()
     win:setFrame(f)
 end)
 
+-- Right Third
+hs.hotkey.bind({"cmd", "ctrl"}, ".", function()
+    local win = hs.window.focusedWindow()
+    local f = win:frame()
+    local screen = win:screen()
+    local max = screen:frame()
+
+    f.x = max.w - ((max.w / 1.6) + (gutter / 2))
+    f.y = max.y + gutter
+    f.w = (max.w / 1.6) - gutter
+    f.h = max.h - (gutter * 1.5)
+    win:setFrame(f)
+end)
+
+-- Left Third
+hs.hotkey.bind({"cmd", "ctrl"}, ",", function()
+    local win = hs.window.focusedWindow()
+    local f = win:frame()
+    local screen = win:screen()
+    local max = screen:frame()
+
+    f.x = max.x + gutter
+    f.y = max.y + gutter
+    f.w = (max.w / 1.6) - gutter
+    f.h = max.h - (gutter * 1.5)
+    win:setFrame(f)
+end)
+
+-- Middle
+hs.hotkey.bind({"cmd", "ctrl"}, "/", function()
+    local win = hs.window.focusedWindow()
+    local f = win:frame()
+    local screen = win:screen()
+    local max = screen:frame()
+
+    f.x = max.w * 0.2
+    f.y = max.h * 0.2
+    f.w = max.w * 0.6
+    f.h = max.h * 0.6
+    win:setFrame(f)
+end)
+
 -----------------------
 --  Window Movement  --
 -----------------------
