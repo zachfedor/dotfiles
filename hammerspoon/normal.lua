@@ -157,7 +157,7 @@ hs.hotkey.bind({"cmd", "ctrl"}, ".", function()
     local screen = win:screen()
     local max = screen:frame()
 
-    f.x = max.w - ((max.w / 1.6) + (gutter / 2))
+    f.x = max.w - (max.w / 1.6)
     f.y = max.y + gutter
     f.w = (max.w / 1.6) - gutter
     f.h = max.h - (gutter * 1.5)
