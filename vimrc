@@ -176,7 +176,7 @@ if exists(":CtrlP")
     let g:ctrlp_user_command      = ['.git', 'cd %s && git ls-files']
                                     " mapping for fuzzy find
     nmap <leader>ff :CtrlP<CR>
-    nmap <leader>bf :CtrlPBuffer<CR>
+    nmap <leader>bb :CtrlPBuffer<CR>
 endif
 endfunction
 
@@ -298,6 +298,7 @@ let blog             = {}               " create blog wiki
 let blog.path        = '~/sites/zachfedor.github.io/'
 let blog.syntax      = 'markdown'
 let blog.ext         = '.md'
+let blog.index       = 'readme'
 
 let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
 let g:vimwiki_hl_headers = 1
