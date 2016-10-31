@@ -58,6 +58,8 @@ set expandtab               " convert tabs to spaces
                             " show current line number with relative numbers
 set number
 set relativenumber
+                            " sets invisibles
+set listchars=eol:↩,extends:⇨,precedes:⇦,trail:◦,space:·,tab:»-
 
 
 " -----------------------------------------------------------------
@@ -65,16 +67,20 @@ set relativenumber
 " -----------------------------------------------------------------
                             " mapping to escape insert
 inoremap jk <ESC>
+                            " mapping to edit vimrc
+nnoremap <leader>sve :split $MYVIMRC<cr>
+                            " mapping to source vimrc
+nnoremap <leader>svs :source $MYVIMRC<cr>
                             " mapping to copy to system clipboard
-vmap <leader>y "+y
+vnoremap <leader>y "+y
                             " mappings to scroll faster
 nnoremap K 10k
 nnoremap J 10j
                             " mappings to navigate buffers
-nmap <leader>bn :bn<CR>
-nmap <leader>bp :bp<CR>
+nnoremap <leader>bn :bn<CR>
+nnoremap <leader>bp :bp<CR>
                             " mapping to close buffer
-nmap <leader>bd :bd<CR>
+nnoremap <leader>bd :bd<CR>
                             " mapping to navigate splits
 nnoremap <C-H> <C-W><C-H>
 nnoremap <C-J> <C-W><C-J>
@@ -87,6 +93,9 @@ nnoremap <leader>dt "=strftime("%H:%M:%S")<CR>P
 inoremap <C-d><C-t> <C-R>=strftime("%H:%M:%S")<CR>
 nnoremap <leader>ds "=strftime("%Y-%m-%d %H:%M:%S")<CR>P
 inoremap <C-d><C-s> <C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR>
+
+                            " mapping to toggle writing modes
+nnoremap <leader>mw :Goyo<CR>
 
 
 " -----------------------------------------------------------------
@@ -102,6 +111,10 @@ augroup LanguageSupport
     " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
 augroup END
 
+                            " abbreviations
+iabbrev z@ zachfedor@gmail.com
+iabbrev z. http://zachfedor.me
+
 
 " -----------------------------------------------------------------
 " plugins
@@ -116,9 +129,11 @@ Plug 'tpope/vim-sensible'
 
 " style -----------
 Plug 'chriskempson/base16-vim'
+Plug 'morhetz/gruvbox'
 Plug 'reedes/vim-colors-pencil'
 " Plug 'reedes/vim-thematic'
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 " development -----------
 " Plug 'mattn/emmet-vim'
@@ -153,6 +168,8 @@ Plug 'mustache/vim-mustache-handlebars'
 Plug 'plasticboy/vim-markdown'  " needs: godlygeek/tabular
 
 " writing -----------
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
 Plug 'reedes/vim-pencil'
 Plug 'reedes/vim-wordy'
 " Plug 'vimwiki/vimwiki'
@@ -165,7 +182,7 @@ call plug#end()
 " plugin config
 " -----------------------------------------------------------------
 " base16-vim -----------
-let base16colorspace=256
+" let base16colorspace=256
 
 " ctrlp -----------
 function CtrlPSettings()
@@ -191,6 +208,17 @@ let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 " let g:user_emmet_balancetagoutward_key = '<C-m>i'
 " let g:user_emmet_next_key = '<C-m>n'
 " let g:user_emmet_prev_key = '<C-m>p'
+
+" goyo -----------
+                            " toggle writing tools with goyo
+autocmd! User GoyoEnter Limelight | SoftPencil
+autocmd! User GoyoLeave Limelight! | NoPencil
+
+" goyo -----------
+                            " in case of incompatible color schemes
+let g:limelight_conceal_ctermfg     = 'DarkGray'
+let g:limelight_conceal_guifg       = 'DarkGray'
+let g:limelight_default_coefficient = 0.4
 
 " neocomplete -----------
 function NeoCompleteSettings()
@@ -261,9 +289,10 @@ endfunction
 " let g:thematic#theme_name = 'bespin'
 
 " vim-airline  -----------
-let g:airline_left_sep                   = " "  " use space to create squared sections
-let g:airline_right_sep                  = " "
-" let g:airline#extensions#tabline#enabled = 1    " enable the tab bar at top
+let g:airline_left_sep                      = " "  " use space to create squared sections
+let g:airline_right_sep                     = " "
+let g:airline_theme                         = "gruvbox" " match terminal base16 theme
+" let g:airline#extensions#tabline#enabled  = 1    " enable the tab bar at top
 " let g:airline#extensions#tabline#fnamemod = ':t'
 
 " vim-gitgutter -----------
@@ -335,7 +364,12 @@ augroup END
 " style
 " -----------------------------------------------------------------
 set background=dark
-colorscheme base16-twilight
+" if filereadable(expand("~/.vimrc_background"))
+"   let base16colorspace=256
+"   source ~/.vimrc_background
+" endif
+
+colorscheme gruvbox
                             " set colors of line number column
                             " as fix for thematic plugin
 " augroup mystylesforvim
