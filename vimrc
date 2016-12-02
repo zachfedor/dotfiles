@@ -15,6 +15,8 @@ let mapleader=" "
 set nocompatible
                         " line buffer to scroll off screen
 set scrolloff=8
+                        " highlight all search matches
+set hlsearch
                         " allow hidden buffers
 set hidden
                         " ignore case in search
@@ -148,6 +150,7 @@ Plug 'tpope/vim-commentary'
 " tools -----------
 Plug 'airblade/vim-gitgutter'
 Plug 'godlygeek/tabular'
+" Plug 'itchyny/calendar.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-speeddating'
@@ -183,6 +186,9 @@ call plug#end()
 " -----------------------------------------------------------------
 " base16-vim -----------
 " let base16colorspace=256
+
+" calendar.vim -----------
+
 
 " ctrlp -----------
 function CtrlPSettings()
@@ -333,14 +339,6 @@ let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
-                            " mapping to open common notes
-nnoremap <leader>wf <Plug>VimwikiUISelect
-nnoremap <leader>wr :find ~/wiki/review/current.md<CR>
-nnoremap <leader>ws :find ~/wiki/work/current.md<CR>
-nnoremap <leader>wb :find ~/sites/zachfedor.github.io/index.md<CR>
-nnoremap <leader>w<leader>r <Plug>VimwikiRenameLink
-nnoremap <leader>w= <Plug>VimwikiAddHeaderLevel
-nnoremap <leader>w- <Plug>VimwikiRemoveHeaderLevel
 
 " vim-wheel -----------
                             " " ∆ is <Alt-j>
@@ -364,12 +362,11 @@ augroup END
 " style
 " -----------------------------------------------------------------
 set background=dark
-" if filereadable(expand("~/.vimrc_background"))
-"   let base16colorspace=256
-"   source ~/.vimrc_background
-" endif
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
 
-colorscheme gruvbox
                             " set colors of line number column
                             " as fix for thematic plugin
 " augroup mystylesforvim
