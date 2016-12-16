@@ -297,7 +297,7 @@ endfunction
 " vim-airline  -----------
 let g:airline_left_sep                      = " "  " use space to create squared sections
 let g:airline_right_sep                     = " "
-let g:airline_theme                         = "gruvbox" " match terminal base16 theme
+let g:airline_theme                         = "base16" " match terminal base16 theme
 " let g:airline#extensions#tabline#enabled  = 1    " enable the tab bar at top
 " let g:airline#extensions#tabline#fnamemod = ':t'
 
@@ -339,6 +339,8 @@ let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
+nnoremap <Leader>wn :VimwikiDiaryNextDay<CR>
+nnoremap <Leader>wp :VimwikiDiaryPrevDay<CR>
 
 " vim-wheel -----------
                             " " ∆ is <Alt-j>
