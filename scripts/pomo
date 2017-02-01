@@ -9,6 +9,7 @@ SOUND="default"
 
 echo "Starting A Focus Block..."
 sleep 1500
-terminal-notifier -message "${BODY}" -title "${TITLE}" -sound "${SOUND}"
 echo
 echo "Time's up. Nice Work."
+terminal-notifier -message "${BODY}" -title "${TITLE}" -sound "${SOUND}"
+exit

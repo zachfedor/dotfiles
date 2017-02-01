@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+# --------------------- #
+# Jekyll Post Generator #
+# --------------------- #
+#
+# A simple python script to generate jekyll files with included front matter
+# 2016-08-28
+#
+# source:
+# http://stackoverflow.com/questions/6309587/call-up-an-editor-vim-from-a-python-script
+
+
+# imports
+# --------------------- #
+import os, sys, tempfile
+from subprocess import call
+
+
+# TODO: wrap this in the main function call to make sure its
+# been ran directly
+# TODO: implement argument parsing to generate posts, pages, etc.
+
+
+# setup
+# --------------------- #
+blog_dir = "/Users/zach/sites/zachfedor.github.io/"
+posts_dir = os.path.join(blog_dir, '_posts')
+
+if not os.path.isdir(posts_dir):
+    print "Sorry, can't find your Jekyll project."
+    sys.exit(1)
+
+
+# file templates
+# --------------------- #
+# TODO: create better template
+initial_message = "first line"
+# TODO: programmatically determine date
+
+
+# open and write the file
+# --------------------- #
+with tempfile.NamedTemporaryFile(suffix=".tmp") as tf:
+    # TODO: figure out how to change path and name of file.
+    # maybe not use  tempfile?
+    tf.write(initial_message)
+    tf.flush()
+    call(['vim', tf.name])
+
+    # TODO: figure out what this does
+    # do the parsing with `tf` using regular File operations.
+    # for instance:
+    tf.seek(0)
+    edited_message = tf.read()
+
+sys.exit()
