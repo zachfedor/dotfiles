@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Convert quicktime screen capture to gif
+
+# default gif name
+TARGET="screen-cap.gif"
+# temporary palette file
+PALETTE="/var/tmp/palette.png"
+# default gif width
+WIDTH=300
+
+# Get arguments
+while getopts ":s:t:w:" opt; do
+  case $opt in
+    s)
+      # source file
+      SOURCE=$OPTARG
+      ;;
+    t)
+      # target file
+      TARGET=${OPTARG}
+      ;;
+    w)
+      WIDTH=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Require an source and target file
+if [[ -z $SOURCE || -z $TARGET ]]; then
+  echo "Usage: -s path/to/source.mov -t path/to/target.gif (-w 300)"
+  exit 1
+fi
+
+# Make sure source file exists
+if ! [ -f ${SOURCE} ]; then
+  echo "That source file doesn't exist. Try again." >&2
+  exit 1
+fi
+
+# Don't overwrite target file if it exists
+if [ -f ${TARGET} ]; then
+  echo "That target file already exists so I won't overwrite it." >&2
+  exit 1
+fi
+
+# Start Conversion
+echo "Creating a palette..." >&2
+ffmpeg -y -i ${SOURCE} -loglevel quiet -vf \
+    fps=10,scale=${WIDTH}:-1:flags=lanczos,palettegen ${PALETTE}
+
+echo "Creating gif..." >&2
+ffmpeg -i ${SOURCE} -i ${PALETTE} -loglevel quiet -filter_complex \
+    "fps=10,scale=${WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse" ${TARGET}
+
+echo "Cleaning temp files..." >&2
+if [ -f ${PALETTE} ]; then
+  rm ${PALETTE}
+fi
+
+echo "Success! Here's your gif: ${TARGET}" >&2
+exit 0
+
