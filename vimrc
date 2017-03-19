@@ -9,42 +9,55 @@
 " -----------------------------------------------------------------
 " general
 " -----------------------------------------------------------------
-                        " map <space> to leader
+" map <space> to leader
 let mapleader=" "
-                        " always vim, never vi
+
+" always vim, never vi
 set nocompatible
-                        " line buffer to scroll off screen
+
+" line buffer to scroll off screen
 set scrolloff=8
-                        " highlight all search matches
+
+" highlight all search matches
 set hlsearch
-                        " allow hidden buffers
+
+" allow hidden buffers
 set hidden
-                        " ignore case in search
+
+" ignore case in search
 set ignorecase
-                        " uppercase search pattern override
+" uppercase search pattern override
 set smartcase
-                        " natural split opening sides
+
+" natural split opening sides
 set splitbelow
 set splitright
-                        " add autocomplete with spell check
+
+" add autocomplete with spell check
 set complete+=kspell
-                        " point to a spellfile symlinked to dotfiles
+" point to a spellfile symlinked to dotfiles
 set spellfile=$HOME/.vim/spell-en.utf-8.add
 
 if has("mouse")
-                        " allow mouse in all modes
+    " allow mouse in all modes
     set mouse=a
 endif
 
 if has("vms")
-    set nobackup            " use versions if they exist
+    " use versions if they exist
+    set nobackup
 else
-    set backup              " if not, use backups
+    " if not, use backups
+    set backup
 endif
-set backupdir=~/.vim-tmp    " centralize all backup files
-set directory=~/.vim-tmp    " centralize all swap files
 
-if has("autocmd")           " remember last cursor position
+" centralize all backup files
+set backupdir=~/.vim/tmp,/tmp,/var/tmp
+" centralize all swap files
+set directory=~/.vim/tmp,/tmp,/var/tmp
+
+if has("autocmd")
+    " remember last cursor position
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
         \ exe "normal! g'\"" |
         \ endif
@@ -54,41 +67,53 @@ endif
 " -----------------------------------------------------------------
 " editor settings
 " -----------------------------------------------------------------
-set softtabstop=4           " indent width for editing
-set shiftwidth=4            " indent width for autoindent
-set expandtab               " convert tabs to spaces
-                            " show current line number with relative numbers
+" indent width for editing
+set softtabstop=4
+" indent width for autoindent
+set shiftwidth=4
+" convert tabs to spaces
+set expandtab
+
+" show current line number with relative numbers
 set number
 set relativenumber
-                            " sets invisibles
+
+" sets invisibles
 set listchars=eol:↩,extends:⇨,precedes:⇦,trail:◦,space:·,tab:»-
 
 
 " -----------------------------------------------------------------
 " keybindings
 " -----------------------------------------------------------------
-                            " mapping to escape insert
+" mapping to escape insert
 inoremap jk <ESC>
-                            " mapping to edit vimrc
+
+" mapping to edit vimrc
 nnoremap <leader>sve :split $MYVIMRC<cr>
-                            " mapping to source vimrc
+" mapping to source vimrc
 nnoremap <leader>svs :source $MYVIMRC<cr>
-                            " mapping to copy to system clipboard
+
+" mapping to copy to system clipboard
 vnoremap <leader>y "+y
-                            " mappings to scroll faster
+
+" mappings to scroll faster
 nnoremap K 10k
 nnoremap J 10j
-                            " mappings to navigate buffers
+
+" mappings to navigate buffers
 nnoremap <leader>bn :bn<CR>
 nnoremap <leader>bp :bp<CR>
-                            " mapping to close buffer
+
+" mapping to close buffer
 nnoremap <leader>bd :bd<CR>
-                            " mapping to navigate splits
+
+" mapping to navigate splits
 nnoremap <C-H> <C-W><C-H>
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
-                            " mapping to create timestamps
+
+" mapping to create timestamps
 nnoremap <leader>dd "=strftime("%Y-%m-%d")<CR>P
 inoremap <C-d><C-d> <C-R>=strftime("%Y-%m-%d")<CR>
 nnoremap <leader>dt "=strftime("%H:%M:%S")<CR>P
@@ -96,7 +121,7 @@ inoremap <C-d><C-t> <C-R>=strftime("%H:%M:%S")<CR>
 nnoremap <leader>ds "=strftime("%Y-%m-%d %H:%M:%S")<CR>P
 inoremap <C-d><C-s> <C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR>
 
-                            " mapping to toggle writing modes
+" mapping to toggle writing modes
 nnoremap <leader>mw :Goyo<CR>
 
 
@@ -113,7 +138,7 @@ augroup LanguageSupport
     " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
 augroup END
 
-                            " abbreviations
+" abbreviations
 iabbrev z@ zachfedor@gmail.com
 iabbrev z. http://zachfedor.me
 
@@ -163,6 +188,8 @@ Plug 'elzr/vim-json'
 Plug 'gavocanov/vim-js-indent'
 Plug 'mxw/vim-jsx'
 Plug 'othree/yajs.vim'
+" Elm
+Plug 'lambdatoast/elm.vim'
 " CSS
 Plug 'hail2u/vim-css3-syntax'
 " Other
@@ -175,8 +202,8 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'reedes/vim-pencil'
 Plug 'reedes/vim-wordy'
-" Plug 'vimwiki/vimwiki'
-Plug '~/code/vimwiki'
+Plug 'vimwiki/vimwiki'
+" Plug '~/code/vimwiki'
 
 call plug#end()
 
@@ -184,20 +211,17 @@ call plug#end()
 " -----------------------------------------------------------------
 " plugin config
 " -----------------------------------------------------------------
-" base16-vim -----------
-" let base16colorspace=256
-
 " calendar.vim -----------
 
 
 " ctrlp -----------
-function CtrlPSettings()
+function!ZFSettingsCtrlP()
 if exists(":CtrlP")
-                                    " use nearest .git/ as current project
+    " use nearest .git/ as current project
     let g:ctrlp_working_path_mode = 'r'
-                                    " ignore files in .gitignore
+    " ignore files in .gitignore
     let g:ctrlp_user_command      = ['.git', 'cd %s && git ls-files']
-                                    " mapping for fuzzy find
+    " mapping for fuzzy find
     nmap <leader>ff :CtrlP<CR>
     nmap <leader>bb :CtrlPBuffer<CR>
 endif
@@ -206,6 +230,7 @@ endfunction
 " editorconfig -----------
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
+
 
 " emmet-vim -----------
 " let g:user_emmet_leader_key = '<C-m>'
@@ -216,47 +241,55 @@ let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 " let g:user_emmet_prev_key = '<C-m>p'
 
 " goyo -----------
-                            " toggle writing tools with goyo
+" toggle writing tools with goyo
 autocmd! User GoyoEnter Limelight | SoftPencil
 autocmd! User GoyoLeave Limelight! | NoPencil
 
 " goyo -----------
-                            " in case of incompatible color schemes
+" in case of incompatible color schemes
 let g:limelight_conceal_ctermfg     = 'DarkGray'
 let g:limelight_conceal_guifg       = 'DarkGray'
 let g:limelight_default_coefficient = 0.4
 
 " neocomplete -----------
-function NeoCompleteSettings()
+function!ZFSettingsNeoComplete()
 if exists(":NeoCompleteToggle")
-    let g:acp_enableAtStartup           = 0 " disable autocomplete at start
-    let g:neocomplete#enable_at_startup = 0 " disable neocomplete at start
-    let g:neocomplete#enable_smart_case = 1 " ignore case unless specified
-                                        " mapping to toggle autocomplete
+    " disable autocomplete at start
+    let g:acp_enableAtStartup           = 0
+    " disable neocomplete at start
+    let g:neocomplete#enable_at_startup = 0
+    " ignore case unless specified
+    let g:neocomplete#enable_smart_case = 1
+
+    " mapping to toggle autocomplete
     nmap <leader>ac :NeoCompleteToggle
 endif
 endfunction
 
 " nerdtree -----------
-function NerdTreeSettings()
+function!ZFSettingsNerdTree()
 if exists(":NERDTree")
     nmap <leader>ft :NERDTree<CR>
 endif
 endfunction
 
 " syntastic -----------
-function SyntasticSettings()
+function!ZFSettingsSyntastic()
 if exists(":SyntasticCheck")
-                                        " recommended settings
+    " recommended settings
     let g:syntastic_always_populate_loc_list = 1
     let g:syntastic_auto_loc_list            = 1
     let g:syntastic_check_on_open            = 0
     let g:syntastic_check_on_wq              = 0
-                                        " use html5 version
-    let g:syntastic_html_tidy_exec           = '/usr/bin/tidy'
-                                        " use eslint instead of jshint
+
+    " use html5 version
+    let g:syntastic_html_tidy_exec      = '/usr/bin/tidy'
+    " use eslint instead of jshint
     let g:syntastic_javascript_checkers = ['eslint']
-                                        " mapping to turn off error buffer
+    " use sass checker
+    let g:syntastic_scss_checkers       = ['sass']
+
+    " mapping to turn off error buffer
     nmap <leader>ss :SyntasticCheck<CR>
     nmap <leader>sr :SyntasticReset<CR>
 endif
@@ -264,15 +297,17 @@ endfunction
 
 
 " tabular -----------
-function TabularSettings()
+function!ZFSettingsTabular()
 if exists(":Tabularize")
-                                        " mapping to align by =
+    " mapping to align by =
     nmap <leader>te :Tabularize /=<CR>
     vmap <leader>te :Tabularize /=<CR>
-                                        " mapping to align by :
+
+    " mapping to align by :
     nmap <leader>tc :Tabularize /:<CR>
     vmap <leader>tc :Tabularize /:<CR>
-                                        " mapping to align by |
+
+    " mapping to align by |
     nmap <leader>tt :Tabularize /\|<CR>
     vmap <leader>tt :Tabularize /\|<CR>
 endif
@@ -295,68 +330,88 @@ endfunction
 " let g:thematic#theme_name = 'bespin'
 
 " vim-airline  -----------
-let g:airline_left_sep                      = " "  " use space to create squared sections
-let g:airline_right_sep                     = " "
-let g:airline_theme                         = "base16" " match terminal base16 theme
-" let g:airline#extensions#tabline#enabled  = 1    " enable the tab bar at top
+" use space to create squared sections
+let g:airline_left_sep  = " "
+let g:airline_right_sep = " "
+
+" match terminal base16 theme
+" let g:airline_theme = "base16"
+let g:airline_theme   = "hybrid"
+
+" enable the tab bar at top
+" let g:airline#extensions#tabline#enabled  = 1
 " let g:airline#extensions#tabline#fnamemod = ':t'
 
 " vim-gitgutter -----------
-function VimGitGutterSettings()
+function!ZFSettingsVimGitGutter()
 if exists(":GitGutterToggle")
-                                        " mapping gutter toggle
+    " mapping gutter toggle
     nmap <leader>gg :GitGutterToggle<CR>
+
     let g:gitgutter_override_sign_column_highlight = 0
 endif
 endfunction
 
 " vim-jsx -----------
-let g:jsx_ext_required = 0              " allow JSX in normal .js files
+" allow JSX in normal .js files
+let g:jsx_ext_required = 0
 
 " vim-markdown -----------
-let g:vim_markdown_folding_level = 1    " folds headings 4 levels deep
-let g:vim_markdown_frontmatter   = 1    " highlight jekyll frontmatter
+" folds headings 4 levels deep
+let g:vim_markdown_folding_level = 1
+" highlight jekyll frontmatter
+let g:vim_markdown_frontmatter   = 1
 
 " vim-markdown-preview -----------
-let vim_markdown_preview_hotkey='<space>m'    " changes default hotkey of <C-p>
+" changes default hotkey of <C-p>
+let vim_markdown_preview_hotkey='<space>m'
 
 " vim-wiki -----------
-let wiki             = {}               " create general wiki
+" create general wiki
+let wiki             = {}
 let wiki.path        = '~/Dropbox/wiki/'
 let wiki.syntax      = 'markdown'
 let wiki.ext         = '.md'
-let work             = {}               " create work wiki
+" create work wiki
+let work             = {}
 let work.path        = '~/Dropbox/wiki/work'
 let work.syntax      = 'markdown'
 let work.ext         = '.md'
-let blog             = {}               " create blog wiki
+" create blog wiki
+let blog             = {}
 let blog.path        = '~/sites/zachfedor.github.io/'
 let blog.syntax      = 'markdown'
 let blog.ext         = '.md'
 let blog.index       = 'readme'
 
-let g:vimwiki_list   = [wiki, work, blog]   " init wiki objects
+" init wiki objects
+let g:vimwiki_list   = [wiki, work, blog]
+
+" wiki options
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
+
+" mapping for navigating vimwiki diary pages
 nnoremap <Leader>wn :VimwikiDiaryNextDay<CR>
 nnoremap <Leader>wp :VimwikiDiaryPrevDay<CR>
 
 " vim-wheel -----------
-                            " " ∆ is <Alt-j>
+" TODO: get this to work
+" " ∆ is <Alt-j>
 " let g:wheel#map#up   = '<A-j>'
-                            " " ˚ is <Alt-k>
+" " ˚ is <Alt-k>
 " let g:wheel#map#down = '<A-k>'
 
 " settings functions -----------
 augroup PluginSettings
     autocmd!
-    autocmd VimEnter * :call CtrlPSettings()
-    autocmd VimEnter * :call NerdTreeSettings()
-    autocmd VimEnter * :call NeoCompleteSettings()
-    autocmd VimEnter * :call TabularSettings()
-    autocmd VimEnter * :call SyntasticSettings()
-    autocmd VimEnter * :call VimGitGutterSettings()
+    autocmd VimEnter * :call ZFSettingsCtrlP()
+    autocmd VimEnter * :call ZFSettingsNerdTree()
+    autocmd VimEnter * :call ZFSettingsNeoComplete()
+    autocmd VimEnter * :call ZFSettingsTabular()
+    autocmd VimEnter * :call ZFSettingsSyntastic()
+    autocmd VimEnter * :call ZFSettingsVimGitGutter()
 augroup END
 
 
@@ -369,8 +424,8 @@ if filereadable(expand("~/.vimrc_background"))
   source ~/.vimrc_background
 endif
 
-                            " set colors of line number column
-                            " as fix for thematic plugin
+" set colors of line number column
+" as fix for thematic plugin
 " augroup mystylesforvim
 "     autocmd!
 "     autocmd BufEnter * highlight LineNr ctermbg=00
@@ -382,10 +437,11 @@ endif
 "     autocmd BufEnter * highlight GitGutterChangeDelete ctermbg=00
 " augroup END
 
-                            " set colors of line number column
+" set colors of line number column
 highlight LineNr ctermbg=00
 " highlight LineNr ctermfg=18
-                            " set colors of gitgutter column
+
+" set colors of gitgutter column
 highlight SignColumn ctermbg=00
 highlight GitGutterAdd ctermbg=00
 highlight GitGutterChange ctermbg=00
@@ -436,7 +492,8 @@ function!EditMarkdownHeader(dir)
         call setline('.', line)
     endif
 endfunction
-    " mapping to edit markdown header levels
+
+" mapping to edit markdown header levels
 nnoremap = :call EditMarkdownHeader(1)<CR>
 nnoremap - :call EditMarkdownHeader(0)<CR>
 
