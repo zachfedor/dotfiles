@@ -129,7 +129,10 @@ brew_install_or_upgrade 'editorconfig'
 brew_install_or_upgrade 'git'
 brew_install_or_upgrade 'gnu-tar'
 brew_install_or_upgrade 'heroku'
+brew_install_or_upgrade 'openssl'
+brew_install_or_upgrade 'the_silver_searcher'
 brew_install_or_upgrade 'tmux'
+brew_install_or_upgrade 'tree'
 
 # php
 brew_install_or_upgrade 'php56'
@@ -152,6 +155,13 @@ brew_install_or_upgrade 'ruby-build'
 brew_install_or_upgrade 'pyenv'
 brew_install_or_upgrade 'pyenv-virtualenv'
 
+# lisp
+brew_install_or_upgrade 'guile'
+brew_install_or_upgrade 'mit-scheme'
+
+# lua
+brew_install_or_upgrade 'lua'
+
 # databases
 brew_install_or_upgrade 'postgresql'
 
@@ -162,6 +172,7 @@ brew_install_or_upgrade 'gifsicle'
 
 # programs
 cask_install 'atom'
+cask_install 'calibre'
 cask_install 'dropbox'
 cask_install 'filezilla'
 cask_install 'firefoxdeveloperedition'
@@ -169,9 +180,30 @@ cask_install 'flux'
 cask_install 'google-chrome'
 cask_install 'hammerspoon'
 cask_install 'iterm2-nightly'
+cask_install 'kindle'
+cask_install 'kobo'
 cask_install 'openemu'
 cask_install 'private-internet-access'
+cask_install 'steam'
 cask_install 'toggldesktop'
 cask_install 'vagrant'
 cask_install 'virtualbox'
 cask_install 'vlc'
+
+
+# TODO: create npm_install function
+# npm_install 'astrum'
+# npm_install 'compass'
+# npm_install 'create-react-app'
+# npm_install 'eslint'
+# npm_install 'http-server'
+
+# TODO: create gem_install function
+# gem_install 'bundler'
+# gem_install 'jekyll'
+
+# TODO: create git_clone function, take a username arg?
+# git_clone 'chriskempson' 'base16-iterm2'
+# git_clone 'chriskempson' 'base16-shell'
+# git_clone 'reactjs' 'redux'
+# git_clone 'ws' 'ws'
