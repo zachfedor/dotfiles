@@ -1,0 +1,6 @@
+# zshrc local
+
+# github access token
+HOMEBREW_GITHUB_API_TOKEN=#TODO: get a token
+export HOMEBREW_GITHUB_API_TOKEN
+

@@ -1,0 +1,18 @@
+Host github
+    User git
+    HostName github.com
+    # TODO: generate a new key
+    # IdentityFile ~/.ssh/some-key
+
+Host gitlab
+    User git
+    HostName git.theindustrialresolution.net
+    # TODO: generate a new key
+    # IdentityFile ~/.ssh/some-key
+
+Host pantheon
+    User ssh
+    HostName drush.in
+    # TODO: generate a new key
+    # IdentityFile ~/.ssh/some-key
+
