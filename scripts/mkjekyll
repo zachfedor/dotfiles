@@ -24,8 +24,9 @@ from subprocess import call
 
 # setup
 # --------------------- #
-blog_dir = "/Users/zach/sites/zachfedor.github.io/"
+blog_dir = "/Users/zach/code/zachfedor.github.io/"
 posts_dir = os.path.join(blog_dir, '_posts')
+drafts_dir = os.path.join(blog_dir, '_drafts')
 
 if not os.path.isdir(posts_dir):
     print "Sorry, can't find your Jekyll project."
