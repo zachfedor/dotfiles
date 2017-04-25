@@ -15,6 +15,9 @@ let mapleader=" "
 " always vim, never vi
 set nocompatible
 
+" show the current command
+set showcmd
+
 " line buffer to scroll off screen
 set scrolloff=8
 
