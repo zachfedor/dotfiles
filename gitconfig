@@ -1,5 +1,13 @@
 [user]
-	name = zachfedor
-	email = zachfedor@gmail.com
+    name = zachfedor
+    email = zachfedor@gmail.com
 [core]
-	editor = vim
+    editor = vim
+[push]
+    default = simple
+[github]
+    user = zachfedor
+    password = 
+    oauth-token =
+[credential]
+    helper = osxkeychain
