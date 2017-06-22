@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# -----
+# Start a New Session
+# -----
+# where the options are
+# 2: force 256-color mode
+# d: don't attach it yet
+# s: session name
+# c: start directory
+
+# TODO: figure out how to grab these session names from shell arguments
+SESSION="work"
+DIR=~/by
+echo "creating new session named $SESSION"
+tmux -2 new-session -d -s $SESSION -c "$DIR" -n 1
+
+# -----
+# Add Window
+# -----
+# TODO: figure out how to add this window ONLY IF it doesn't already exist
+# tmux new-window -t $SESSION -n '1'
+tmux split-window -h -c "$DIR" 
+tmux select-pane -t 0
+tmux resize-pane -R 10
+# tmux send-keys "echo \"good morning\"" C-m
+tmux select-pane -t 1
+# tmux send-keys "echo \"good afternoon\"" C-m
+tmux split-window -v -c "$DIR" 
+tmux resize-pane -D 10
+# tmux send-keys "echo \"good night\"" C-m
+
+# TODO: add new window instead of third pane?
+
+# -----
+# Set Default Window
+# -----
+tmux select-window -t $SESSION
+
+# -----
+# Attach to Session
+# -----
+tmux -2 attach-session -t $SESSION
+
+
