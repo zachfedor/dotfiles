@@ -32,6 +32,9 @@ set ignorecase
 " uppercase search pattern override
 set smartcase
 
+" setup osx system clipboard
+set clipboard=unnamed
+
 " natural split opening sides
 set splitbelow
 set splitright
@@ -71,9 +74,9 @@ endif
 " editor settings
 " -----------------------------------------------------------------
 " indent width for editing
-set softtabstop=4
+set softtabstop=2
 " indent width for autoindent
-set shiftwidth=4
+set shiftwidth=2
 " convert tabs to spaces
 set expandtab
 
@@ -90,6 +93,9 @@ set listchars=eol:↩,extends:⇨,precedes:⇦,trail:◦,space:·,tab:»-
 " -----------------------------------------------------------------
 " mapping to escape insert
 inoremap jk <ESC>
+
+" mapping to enter command
+nnoremap <leader><leader> :
 
 " mapping to edit vimrc
 nnoremap <leader>sve :split $MYVIMRC<cr>
