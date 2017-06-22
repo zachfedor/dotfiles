@@ -1,13 +1,95 @@
 [user]
-    name = zachfedor
-    email = zachfedor@gmail.com
+  name = zachfedor
+  email = zachfedor@gmail.com
 [core]
-    editor = vim
+  editor = vim
 [push]
-    default = simple
+  default = simple
 [github]
-    user = zachfedor
-    password = 
-    oauth-token =
+  user = zachfedor
+  password = 
+  oauth-token =
 [credential]
-    helper = osxkeychain
+  helper = osxkeychain
+[alias]
+  # Adding
+  #---------
+  # shortcut
+  a = add
+  # add all
+  aa = add -A
+  # add interactively
+  ai = add -i
+
+  # Branching
+  # -----------
+  # rename a branch to <branch>-rebased
+  brr = "!f() { git branch | grep "$1" | cut -c 3- | grep -v rebased | xargs -I{} git branch -m {} {}-rebased; }; f"
+  # remove local branches that have been merged 
+  # trim = "!f() { git branch --merged ${1-dev} | grep -v " ${1-dev}$" | xargs git branch -d; }; f"
+
+  # Checkout
+  #-----------
+  # shortcut
+  co = checkout
+  # new branch
+  cob = checkout -b
+
+  # Commit
+  #---------
+  # shortcut
+  c = commit
+  # commit with message
+  cm = commit -m
+  # commit all modified/deleted
+  ca = commit -a
+  # commit all, even unstaged
+  cA = commit -A
+
+  # Config
+  #---------
+  # edit config file
+  cfge = config -e
+  # show config file
+  cfgl = config -l
+  # show aliases
+  cfga = "!git config -l | grep alias | cut -c 7-"
+
+  # Grepping
+  #-----------
+  g = grep -Ii
+
+  # Logging
+  #----------
+  # simple list of commits
+  l = log --oneline --decorate
+  # list commits with color-coded branch and tag annotations
+  ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+  # list commits and files changed with color-coded branch and tag annotations
+  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  # list commits in short form without colors to pipe to other commands
+  lsc = log --pretty=format:"%h\\ %s\\ [%cn]"
+  # list commits with dates
+  lsd = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  # list commits with relative dates
+  lsr = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+  # list commits relating to a single file
+  lf = log -u
+
+  # show new commits after a fetch
+  new = ls ../origin/master
+
+  # Status
+  #----------
+  # shortcut
+  s = status
+  # short format
+  ss = status -s
+
+  # Submodule
+  #------------
+  # initialize submodules
+  sin = submodule init
+  # update submodules
+  sup = submodule update
+
