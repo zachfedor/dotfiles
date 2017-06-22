@@ -160,7 +160,7 @@ hs.hotkey.bind({"cmd", "ctrl"}, ".", function()
     f.x = max.w - (max.w / 1.6)
     f.y = max.y + gutter
     f.w = (max.w / 1.6) - gutter
-    f.h = max.h - (gutter * 1.5)
+    f.h = max.h - (gutter * 2)
     win:setFrame(f)
 end)
 
@@ -174,7 +174,7 @@ hs.hotkey.bind({"cmd", "ctrl"}, ",", function()
     f.x = max.x + gutter
     f.y = max.y + gutter
     f.w = (max.w / 1.6) - gutter
-    f.h = max.h - (gutter * 1.5)
+    f.h = max.h - (gutter * 2)
     win:setFrame(f)
 end)
 
