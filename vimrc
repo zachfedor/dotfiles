@@ -9,6 +9,9 @@
 " -----------------------------------------------------------------
 " general
 " -----------------------------------------------------------------
+" force encoding
+scriptencoding utf-8
+
 " map <space> to leader
 let mapleader=" "
 
@@ -58,9 +61,11 @@ else
 endif
 
 " centralize all backup files
-set backupdir=~/.vim/tmp,/tmp,/var/tmp
-" centralize all swap files
-set directory=~/.vim/tmp,/tmp,/var/tmp
+set backupdir=~/.vim/backups//,/tmp//,/var/tmp//
+" centralize all swap files if pwd is unwriteable
+set directory=.,~/.vim/swaps//,/tmp//,/var/tmp//
+" note: `//` allows saving full path, i.e. prevents `some/index.html` from
+" overwriting `other/index.html` on backup or crash
 
 if has("autocmd")
     " remember last cursor position
@@ -164,6 +169,7 @@ Plug 'rking/ag.vim'
 Plug 'tpope/vim-sensible'
 
 " style -----------
+Plug 'chrisbra/Colorizer'
 Plug 'chriskempson/base16-vim'
 Plug 'morhetz/gruvbox'
 Plug 'reedes/vim-colors-pencil'
@@ -222,6 +228,17 @@ call plug#end()
 " -----------------------------------------------------------------
 " calendar.vim -----------
 
+" colorizer -----------
+function!ZFSettingsColorizer()
+if exists(":ColorHighlight")
+  " autostart colorizer on matching filetype
+  let g:colorizer_auto_filetype='scss,css,html'
+  " don't colorize text (e.g. 'red', 'aliceblue')
+  let g:colorizer_colornames = 0
+
+  nmap <leader>mc :ColorToggle<CR>
+endif
+endfunction
 
 " ctrlp -----------
 function!ZFSettingsCtrlP()
@@ -503,8 +520,8 @@ function!EditMarkdownHeader(dir)
 endfunction
 
 " mapping to edit markdown header levels
-nnoremap = :call EditMarkdownHeader(1)<CR>
-nnoremap - :call EditMarkdownHeader(0)<CR>
+nnoremap <leader>= :call EditMarkdownHeader(1)<CR>
+nnoremap <leader>- :call EditMarkdownHeader(0)<CR>
 
 
 " preview markdown -----------
