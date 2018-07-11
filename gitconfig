@@ -21,8 +21,21 @@
   # add interactively
   ai = add -i
 
+  # Archiving
+  # -----------
+  # tag a branch as archive and delete it
+  archive = "!f() { git tag archive/"$1" "$1" && git bd "$1";}; f"
+
   # Branching
   # -----------
+  # show branches
+  b = branch
+  # show all branches
+  ba = branch -a
+  # delete branch
+  bd = branch -d
+  # delete unmerged branch
+  bdd = branch -D
   # rename a branch to <branch>-rebased
   brr = "!f() { git branch | grep "$1" | cut -c 3- | grep -v rebased | xargs -I{} git branch -m {} {}-rebased; }; f"
   # remove local branches that have been merged 
@@ -43,8 +56,6 @@
   cm = commit -m
   # commit all modified/deleted
   ca = commit -a
-  # commit all, even unstaged
-  cA = commit -A
 
   # Config
   #---------
@@ -64,15 +75,17 @@
   # simple list of commits
   l = log --oneline --decorate
   # list commits with color-coded branch and tag annotations
-  ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+  lc = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
   # list commits and files changed with color-coded branch and tag annotations
   ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  # graph commits and files changed with color-coded branch and tag annotations
+  lg = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --graph
   # list commits in short form without colors to pipe to other commands
-  lsc = log --pretty=format:"%h\\ %s\\ [%cn]"
+  lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
   # list commits with dates
-  lsd = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  lcd = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
   # list commits with relative dates
-  lsr = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+  lcr = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
   # list commits relating to a single file
   lf = log -u
 
@@ -89,7 +102,12 @@
   # Submodule
   #------------
   # initialize submodules
-  sin = submodule init
+  subin = submodule init
   # update submodules
-  sup = submodule update
+  subup = submodule update --init --recursive
 
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
