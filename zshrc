@@ -60,6 +60,9 @@ bashcompinit
 # We don't do much drupal work anymore
 # source $HOME/.bin/drush.complete.sh
 
+# TODO: does this change?
+echo $PATH
+
 #homebrew path fix for 10.10.2
 #added rbenv to path
 export PATH="$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.yarn/bin:$HOME/.rbenv/bin:$HOME/.pyenv/shims:/usr/local/bin:$PATH:/usr/local/sbin"
@@ -101,3 +104,5 @@ export KEYTIMEOUT=1
 
 
 [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
+
+export PATH="$HOME/scripts:$PATH"
