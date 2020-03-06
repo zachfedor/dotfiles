@@ -17,7 +17,7 @@ BACKUP_DIR="$HOME"/.dotfiles_old    # old dotfiles backup directory
 SSH_DIR="$HOME"/.ssh                # ssh 
 SSH_CONFIG="$SSH_DIR"/config
 # list of files/folders to symlink in homedir
-FILES="bash_profile bashrc dir_colors emacs.d gitconfig hammerspoon spacemacs tmux.conf vimrc vimrc_background zshrc zshrc.local"
+FILES="bash_profile bashrc dir_colors emacs.d gitconfig hammerspoon spacemacs tmux.conf vimrc vimrc_background zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 
@@ -29,6 +29,10 @@ case "$SHELL" in
   *)
     fancy_echo "Changing your shell to zsh ..."
     chsh -s "$(which zsh)"
+
+    if [ ! -f "$HOME"/.zsh.local ]; then
+      fancy_echo "TODO: Get a copy of your ~/.zsh.local for API tokens!!!"
+    fi
     ;;
 esac
 
@@ -159,6 +163,13 @@ cask_install 'vlc'
 if ! command -v npm >/dev/null; then
   fancy_echo "npm isn't installed. Skipping ..."
 else
+  # npm configuration
+  npm config set init-author-name 'Zach Fedor'
+  npm config set init-author-email 'zachfedor@gmail.com'
+  npm config set init-author-url 'http://zachfedor.me'
+  npm config set init-license 'MIT'
+  npm config set init-version '0.0.1'
+
   # node versioning
   npm_install 'n'
   npm_install 'avn'

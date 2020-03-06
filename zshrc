@@ -60,8 +60,6 @@ bashcompinit
 # We don't do much drupal work anymore
 # source $HOME/.bin/drush.complete.sh
 
-# TODO: does this change?
-echo $PATH
 
 #homebrew path fix for 10.10.2
 #added rbenv to path

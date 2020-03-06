@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# --------------------- #
+# zn: quick note script #
+# --------------------- #
+
+# setup
+WIKI_DIR="${HOME}/wiki"
+GTD="${WIKI_DIR}/gtd.md"
+INBOX="${WIKI_DIR}/inbox.md"
+
+if ! [ -f ${GTD} ]; then
+  echo "Sorry, can't find your note at: ${GTD}"
+  exit 1
+fi
+
+if ! [ -f ${INBOX} ]; then
+  echo "Sorry, can't find your note at: ${INBOX}"
+  exit 1
+fi
+
+if [ -z "$1" ]; then
+  vim "${GTD}"
+else
+  echo "- [ ] ${1}" >> "${INBOX}"
+fi
+
+exit 0
+
