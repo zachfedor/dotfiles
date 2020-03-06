@@ -11,7 +11,7 @@
 
 # TODO: figure out how to grab these session names from shell arguments
 SESSION="work"
-DIR=~/by
+DIR=~/cset
 echo "creating new session named $SESSION"
 tmux -2 new-session -d -s $SESSION -c "$DIR" -n 1
 

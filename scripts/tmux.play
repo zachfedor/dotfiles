@@ -22,12 +22,12 @@ tmux -2 new-session -d -s $SESSION -c ~ -n 1
 tmux split-window -h
 tmux select-pane -t 0
 tmux resize-pane -R 10
-/* tmux send-keys "echo \"good morning\"" C-m */
+# tmux send-keys "echo \"good morning\"" C-m
 tmux select-pane -t 1
-/* tmux send-keys "echo \"good afternoon\"" C-m */
+# tmux send-keys "echo \"good afternoon\"" C-m
 tmux split-window -v
 tmux resize-pane -D 10
-/* tmux send-keys "echo \"good night\"" C-m */
+# tmux send-keys "echo \"good night\"" C-m
 
 # TODO: add new window instead of third pane?
 
