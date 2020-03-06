@@ -11,6 +11,7 @@
 " -----------------------------------------------------------------
 " force encoding
 scriptencoding utf-8
+set encoding=utf-8
 
 " map <space> to leader
 let mapleader=" "
@@ -18,11 +19,27 @@ let mapleader=" "
 " always vim, never vi
 set nocompatible
 
-" show the current command
+" allow syntax highlighting
+syntax enable
+
+" allow plugins
+filetype plugin indent on
+
+" recursive searching using file-related commands
+set path+=**
+
+" display matching files on tab complete
+set wildmenu
+
+" show current unfinished command
 set showcmd
 
 " line buffer to scroll off screen
 set scrolloff=8
+
+" enable folding
+set foldmethod=indent
+set foldlevel=99
 
 " highlight all search matches
 set hlsearch
@@ -62,7 +79,7 @@ endif
 
 " centralize all backup files
 set backupdir=~/.vim/backups//,/tmp//,/var/tmp//
-" centralize all swap files if pwd is unwriteable
+" centralize all swap files if cwd is unwriteable
 set directory=.,~/.vim/swaps//,/tmp//,/var/tmp//
 " note: `//` allows saving full path, i.e. prevents `some/index.html` from
 " overwriting `other/index.html` on backup or crash
@@ -91,6 +108,8 @@ set relativenumber
 
 " sets invisibles
 set listchars=eol:↩,extends:⇨,precedes:⇦,trail:◦,space:·,tab:»-
+" use `:set list` and `:set nolist` to toggle for entire file
+" use `:list` to see a single line printed in statusline
 
 
 " -----------------------------------------------------------------
@@ -121,6 +140,10 @@ nnoremap <leader>bp :bp<CR>
 " mapping to close buffer
 nnoremap <leader>bd :bd<CR>
 
+" mapping to toggle folds
+nnoremap <leader>z za
+" TODO: look at competing fold plugins
+
 " mapping to navigate splits
 nnoremap <C-H> <C-W><C-H>
 nnoremap <C-J> <C-W><C-J>
@@ -137,7 +160,18 @@ inoremap <C-d><C-s> <C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR>
 
 " mapping to toggle writing modes
 nnoremap <leader>mw :Goyo<CR>
+nnoremap <leader>ml :Limelight!!0.4<CR>
 
+" mapping to turn on spellcheck
+nnoremap <leader>ms :setlocal spell spelllang=en_us<CR>
+nnoremap <leader>mns :setlocal nospell<CR>
+
+" mapping to toggle paste/nopaste
+nnoremap <leader>mp :set paste<CR>
+nnoremap <leader>mnp :set nopaste<CR>
+
+" mapping to clear search highlights
+nnoremap <leader>hh :nohlsearch<CR>
 
 " -----------------------------------------------------------------
 " language
@@ -146,9 +180,28 @@ let g:html_indent_inctags = "html,body,head,tbody"
 
 augroup LanguageSupport
     autocmd!
+
+    " html/css/js
+    autocmd BufNewFile,BufRead *.html,*.css,*.scss,*.js
+      \ set tabstop=2 |
+      \ set softtabstop=2 |
+      \ set shiftwidth=2
+
+    " markdown
     autocmd BufNewFile,BufReadPost *.md set filetype=markdown
     autocmd FileType markdown setlocal spell
     autocmd FileType gitcommit setlocal spell
+
+    " python
+    autocmd BufNewFile,BufRead *.py
+      \ set tabstop=4 |
+      \ set softtabstop=4 |
+      \ set shiftwidth=4 |
+      \ set textwidth=79 |
+      \ set autoindent |
+      \ set fileformat=unix
+
+    " html template engines
     " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
 augroup END
 
@@ -164,11 +217,15 @@ call plug#begin('~/.vim/plugged')
 
 " general -----------
 Plug 'ctrlpvim/ctrlp.vim'
+Plug 'ervandew/supertab'
+Plug 'honza/vim-snippets' " list of snippets
 Plug 'reedes/vim-wheel'
 Plug 'rking/ag.vim'
+Plug 'SirVer/ultisnips' " snippet engine
 Plug 'tpope/vim-sensible'
 
 " style -----------
+Plug 'arcticicestudio/nord-vim'
 Plug 'chrisbra/Colorizer'
 Plug 'chriskempson/base16-vim'
 Plug 'morhetz/gruvbox'
@@ -180,29 +237,30 @@ Plug 'vim-airline/vim-airline-themes'
 " development -----------
 " Plug 'mattn/emmet-vim'
 Plug 'editorconfig/editorconfig-vim'
-Plug 'raimondi/delimitmate'
+Plug 'jiangmiao/auto-pairs'
 Plug 'scrooloose/syntastic'
-Plug 'shougo/neocomplete.vim'
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
-" Plug 'valloric/youcompleteme'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+" Plug 'ycm-core/youcompleteme'
 
 " tools -----------
 Plug 'airblade/vim-gitgutter'
 Plug 'godlygeek/tabular'
 " Plug 'itchyny/calendar.vim'
+" Plug 'ludovicchabant/vim-gutentags'
 Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-speeddating'
 Plug 'xuyuanp/nerdtree-git-plugin'
 
 " languages -----------
-Plug 'marijnh/tern_for_vim'
 " Javascript
-Plug 'elzr/vim-json'
-Plug 'gavocanov/vim-js-indent'
-Plug 'mxw/vim-jsx'
-Plug 'othree/yajs.vim'
+Plug 'marijnh/tern_for_vim'
+Plug 'pangloss/vim-javascript', { 'for': ['javascript', 'javascript.jsx'] }
+Plug 'mxw/vim-jsx', { 'for': ['javascript', 'javascript.jsx'] }
+" Python
+Plug 'glench/vim-jinja2-syntax'
 " Elm
 Plug 'lambdatoast/elm.vim'
 " CSS
@@ -229,7 +287,7 @@ call plug#end()
 " calendar.vim -----------
 
 " colorizer -----------
-function!ZFSettingsColorizer()
+function! s:SettingsColorizer()
 if exists(":ColorHighlight")
   " autostart colorizer on matching filetype
   let g:colorizer_auto_filetype='scss,css,html'
@@ -241,7 +299,7 @@ endif
 endfunction
 
 " ctrlp -----------
-function!ZFSettingsCtrlP()
+function! s:SettingsCtrlP()
 if exists(":CtrlP")
     " use nearest .git/ as current project
     let g:ctrlp_working_path_mode = 'r'
@@ -257,7 +315,6 @@ endfunction
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 
-
 " emmet-vim -----------
 " let g:user_emmet_leader_key = '<C-m>'
 " let g:user_emmet_expandabbr_key = '<C-m>m'
@@ -268,39 +325,30 @@ let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 
 " goyo -----------
 " toggle writing tools with goyo
+function! s:goyo_leave()
+    Limelight!
+    NoPencil
+    call ResetBGColors()
+endfunction
+
 autocmd! User GoyoEnter Limelight | SoftPencil
-autocmd! User GoyoLeave Limelight! | NoPencil
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
 " goyo -----------
 " in case of incompatible color schemes
-let g:limelight_conceal_ctermfg     = 'DarkGray'
-let g:limelight_conceal_guifg       = 'DarkGray'
+" let g:limelight_conceal_ctermfg     = 'DarkGray'
+" let g:limelight_conceal_guifg       = 'DarkGray'
 let g:limelight_default_coefficient = 0.4
 
-" neocomplete -----------
-function!ZFSettingsNeoComplete()
-if exists(":NeoCompleteToggle")
-    " disable autocomplete at start
-    let g:acp_enableAtStartup           = 0
-    " disable neocomplete at start
-    let g:neocomplete#enable_at_startup = 0
-    " ignore case unless specified
-    let g:neocomplete#enable_smart_case = 1
-
-    " mapping to toggle autocomplete
-    nmap <leader>ac :NeoCompleteToggle
-endif
-endfunction
-
 " nerdtree -----------
-function!ZFSettingsNerdTree()
+function! s:SettingsNerdTree()
 if exists(":NERDTree")
-    nmap <leader>ft :NERDTree<CR>
+    nmap <leader>ft :NERDTreeToggle<CR>
 endif
 endfunction
 
 " syntastic -----------
-function!ZFSettingsSyntastic()
+function! s:SettingsSyntastic()
 if exists(":SyntasticCheck")
     " recommended settings
     let g:syntastic_always_populate_loc_list = 1
@@ -316,14 +364,15 @@ if exists(":SyntasticCheck")
     let g:syntastic_scss_checkers       = ['sass']
 
     " mapping to turn off error buffer
-    nmap <leader>ss :SyntasticCheck<CR>
+    nmap <leader>sc :SyntasticCheck<CR>
     nmap <leader>sr :SyntasticReset<CR>
+    nmap <leader>st :SyntasticToggleMode<CR>
 endif
 endfunction
 
 
 " tabular -----------
-function!ZFSettingsTabular()
+function! s:SettingsTabular()
 if exists(":Tabularize")
     " mapping to align by =
     nmap <leader>te :Tabularize /=<CR>
@@ -355,6 +404,12 @@ endfunction
 " \ }
 " let g:thematic#theme_name = 'bespin'
 
+" ultisnips -----------
+" unset ^k mapping to allow jumping back through snippet params
+inoremap <c-x><c-k> <c-x><c-k>
+" force ultisnips to find python3
+let g:UltiSnipsUsePythonVersion = 3
+
 " vim-airline  -----------
 " use space to create squared sections
 let g:airline_left_sep  = " "
@@ -369,7 +424,7 @@ let g:airline_theme   = "hybrid"
 " let g:airline#extensions#tabline#fnamemod = ':t'
 
 " vim-gitgutter -----------
-function!ZFSettingsVimGitGutter()
+function! s:SettingsVimGitGutter()
 if exists(":GitGutterToggle")
     " mapping gutter toggle
     nmap <leader>gg :GitGutterToggle<CR>
@@ -377,6 +432,10 @@ if exists(":GitGutterToggle")
     let g:gitgutter_override_sign_column_highlight = 0
 endif
 endfunction
+
+" vim-javascript -----------
+" enable syntax highlighting of jsdoc strings
+let g:javascript_plugin_jsdoc = 1
 
 " vim-jsx -----------
 " allow JSX in normal .js files
@@ -398,11 +457,6 @@ let wiki             = {}
 let wiki.path        = '~/Dropbox/wiki/'
 let wiki.syntax      = 'markdown'
 let wiki.ext         = '.md'
-" create work wiki
-let work             = {}
-let work.path        = '~/Dropbox/wiki/work'
-let work.syntax      = 'markdown'
-let work.ext         = '.md'
 " create blog wiki
 let blog             = {}
 let blog.path        = '~/sites/zachfedor.github.io/'
@@ -411,16 +465,42 @@ let blog.ext         = '.md'
 let blog.index       = 'readme'
 
 " init wiki objects
-let g:vimwiki_list   = [wiki, work, blog]
+let g:vimwiki_list   = [wiki, blog]
 
 " wiki options
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
 
+" mappings for deleting and renaming wiki links
+nnoremap <Leader>wx <Plug>VimwikiDeleteLink
+nnoremap <Leader>wr <Plug>VimwikiRenameLink
+
+" mappings for opening the main gtd and inbox files
+nnoremap <Leader>wo :e ~/wiki/gtd.md<CR>
+nnoremap <Leader>wi :e ~/wiki/inbox.md<CR>
+
+" mapping for opening the diary index
+nnoremap <Leader>wd <Plug>VimwikiDiaryIndex
+
 " mapping for navigating vimwiki diary pages
 nnoremap <Leader>wn :VimwikiDiaryNextDay<CR>
 nnoremap <Leader>wp :VimwikiDiaryPrevDay<CR>
+nnoremap <Leader>wgy :VimwikiMakeYesterdayDiaryNote
+
+" mappings to generate wiki links within main and diary indexes
+nnoremap <Leader>wgl :VimwikiGenerateLinks<CR>
+nnoremap <Leader>wgd :VimwikiDiaryGenerateLinks<CR>
+
+" mapping to generate a table (2x2 by default)
+nnoremap <Leader>wgt :VimwikiTable 2 2
+
+" mappings to add GTD contexts to end of task
+nnoremap <Leader>wcd A  `@desk`<ESC>
+nnoremap <Leader>wce A  `@errand`<ESC>
+nnoremap <Leader>wch A  `@home`<ESC>
+nnoremap <Leader>wcp A  `@phone`<ESC>
+nnoremap <Leader>wcw A  `@work`<ESC>
 
 " vim-wheel -----------
 " TODO: get this to work
@@ -429,15 +509,25 @@ nnoremap <Leader>wp :VimwikiDiaryPrevDay<CR>
 " " ˚ is <Alt-k>
 " let g:wheel#map#down = '<A-k>'
 
+" youcompleteme -----------
+function! s:SettingsYouCompleteMe()
+if exists(":YcmCompleter")
+  " set char count too high to avoid seeing id popups
+  let g:ycm_min_num_of_chars_for_completion = 99
+
+  nnoremap gd :YcmCompleter GoTo<CR>
+endif
+endfunction
+
 " settings functions -----------
 augroup PluginSettings
     autocmd!
-    autocmd VimEnter * :call ZFSettingsCtrlP()
-    autocmd VimEnter * :call ZFSettingsNerdTree()
-    autocmd VimEnter * :call ZFSettingsNeoComplete()
-    autocmd VimEnter * :call ZFSettingsTabular()
-    autocmd VimEnter * :call ZFSettingsSyntastic()
-    autocmd VimEnter * :call ZFSettingsVimGitGutter()
+    autocmd VimEnter * :call <SID>SettingsCtrlP()
+    autocmd VimEnter * :call <SID>SettingsNerdTree()
+    autocmd VimEnter * :call <SID>SettingsTabular()
+    autocmd VimEnter * :call <SID>SettingsSyntastic()
+    autocmd VimEnter * :call <SID>SettingsVimGitGutter()
+    " autocmd VimEnter * :call <SID>SettingsYouCompleteMe()
 augroup END
 
 
@@ -463,17 +553,19 @@ endif
 "     autocmd BufEnter * highlight GitGutterChangeDelete ctermbg=00
 " augroup END
 
-" set colors of line number column
-highlight LineNr ctermbg=00
-" highlight LineNr ctermfg=18
+function!ResetBGColors()
+    " set colors of line number column
+    highlight LineNr ctermbg=00
+    " highlight LineNr ctermfg=18
 
-" set colors of gitgutter column
-highlight SignColumn ctermbg=00
-highlight GitGutterAdd ctermbg=00
-highlight GitGutterChange ctermbg=00
-highlight GitGutterDelete ctermbg=00
-highlight GitGutterChangeDelete ctermbg=00
-
+    " set colors of gitgutter column
+    highlight SignColumn ctermbg=00
+    highlight GitGutterAdd ctermbg=00
+    highlight GitGutterChange ctermbg=00
+    highlight GitGutterDelete ctermbg=00
+    highlight GitGutterChangeDelete ctermbg=00
+endfunction
+call ResetBGColors()
 
 " -----------------------------------------------------------------
 " functions
