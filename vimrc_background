@@ -1,3 +1,3 @@
-if !exists('g:colors_name') || g:colors_name != 'base16-harmonic-light'
-  colorscheme base16-harmonic-light
+if !exists('g:colors_name') || g:colors_name != 'base16-ocean'
+  colorscheme base16-ocean
 endif

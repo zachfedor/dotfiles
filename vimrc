@@ -77,6 +77,8 @@ else
     set backup
 endif
 
+" backup method is copy then save, not rename
+set backupcopy=yes
 " centralize all backup files
 set backupdir=~/.vim/backups//,/tmp//,/var/tmp//
 " centralize all swap files if cwd is unwriteable
@@ -181,19 +183,27 @@ let g:html_indent_inctags = "html,body,head,tbody"
 augroup LanguageSupport
     autocmd!
 
+    " add syntax completion for all available filetypes
+    if exists("+omnifunc")
+        autocmd Filetype *
+                \	if &omnifunc == "" |
+                \		setlocal omnifunc=syntaxcomplete#Complete |
+                \	endif
+    endif
+    
     " html/css/js
-    autocmd BufNewFile,BufRead *.html,*.css,*.scss,*.js
+    autocmd BufNewFile,BufRead *.html,*.css,*.scss,*.js,*.ts
       \ set tabstop=2 |
       \ set softtabstop=2 |
       \ set shiftwidth=2
 
     " markdown
-    autocmd BufNewFile,BufReadPost *.md set filetype=markdown
-    autocmd FileType markdown setlocal spell
+    " autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+    " autocmd FileType markdown setlocal spell
     autocmd FileType gitcommit setlocal spell
 
-    " python
-    autocmd BufNewFile,BufRead *.py
+    " clang, python
+    autocmd BufNewFile,BufRead *.c,*.py
       \ set tabstop=4 |
       \ set softtabstop=4 |
       \ set shiftwidth=4 |
@@ -238,6 +248,7 @@ Plug 'vim-airline/vim-airline-themes'
 " Plug 'mattn/emmet-vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'jiangmiao/auto-pairs'
+Plug 'sbdchd/neoformat'
 Plug 'scrooloose/syntastic'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
@@ -259,6 +270,8 @@ Plug 'xuyuanp/nerdtree-git-plugin'
 Plug 'marijnh/tern_for_vim'
 Plug 'pangloss/vim-javascript', { 'for': ['javascript', 'javascript.jsx'] }
 Plug 'mxw/vim-jsx', { 'for': ['javascript', 'javascript.jsx'] }
+Plug 'epilande/vim-es2015-snippets'
+Plug 'epilande/vim-react-snippets'
 " Python
 Plug 'glench/vim-jinja2-syntax'
 " Elm
@@ -284,6 +297,10 @@ call plug#end()
 " -----------------------------------------------------------------
 " plugin config
 " -----------------------------------------------------------------
+" ag.vim -----------
+nnoremap <leader>fs :Ag 
+nnoremap <leader>bs :AgBuffer  
+
 " calendar.vim -----------
 
 " colorizer -----------
@@ -304,7 +321,7 @@ if exists(":CtrlP")
     " use nearest .git/ as current project
     let g:ctrlp_working_path_mode = 'r'
     " ignore files in .gitignore
-    let g:ctrlp_user_command      = ['.git', 'cd %s && git ls-files']
+    let g:ctrlp_user_command      = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
     " mapping for fuzzy find
     nmap <leader>ff :CtrlP<CR>
     nmap <leader>bb :CtrlPBuffer<CR>
@@ -339,6 +356,12 @@ autocmd! User GoyoLeave nested call <SID>goyo_leave()
 " let g:limelight_conceal_ctermfg     = 'DarkGray'
 " let g:limelight_conceal_guifg       = 'DarkGray'
 let g:limelight_default_coefficient = 0.4
+
+" neoformat -----------
+augroup nfmt
+  autocmd!
+  autocmd BufWritePre * try | undojoin | Neoformat | catch /^Vim\%((\a\+)\)\=:E790/ | finally | silent Neoformat | endtry
+augroup END
 
 " nerdtree -----------
 function! s:SettingsNerdTree()
@@ -409,6 +432,8 @@ endfunction
 inoremap <c-x><c-k> <c-x><c-k>
 " force ultisnips to find python3
 let g:UltiSnipsUsePythonVersion = 3
+" add html.snippets to javascript for jsx in react projects
+nnoremap <leader>mj :UltiSnipsAddFiletypes javascript.html<CR>
 
 " vim-airline  -----------
 " use space to create squared sections
@@ -472,28 +497,31 @@ let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_listsyms = ' ...x'
 
+" mapping for generating wiki links
+nnoremap <Leader><CR> S]yi[h%a(<ESC>p
+
 " mappings for deleting and renaming wiki links
-nnoremap <Leader>wx <Plug>VimwikiDeleteLink
-nnoremap <Leader>wr <Plug>VimwikiRenameLink
+nnoremap <Leader>wx :VimwikiDeleteLink<CR>
+nnoremap <Leader>wr :VimwikiRenameLink<CR>
 
 " mappings for opening the main gtd and inbox files
 nnoremap <Leader>wo :e ~/wiki/gtd.md<CR>
-nnoremap <Leader>wi :e ~/wiki/inbox.md<CR>
+" nnoremap <Leader>wi :e ~/wiki/inbox.md<CR>
 
 " mapping for opening the diary index
-nnoremap <Leader>wd <Plug>VimwikiDiaryIndex
+nnoremap <Leader>wd :VimwikiDiaryIndex<CR>
 
 " mapping for navigating vimwiki diary pages
 nnoremap <Leader>wn :VimwikiDiaryNextDay<CR>
 nnoremap <Leader>wp :VimwikiDiaryPrevDay<CR>
-nnoremap <Leader>wgy :VimwikiMakeYesterdayDiaryNote
+nnoremap <Leader>wgy :VimwikiMakeYesterdayDiaryNote<CR>
 
 " mappings to generate wiki links within main and diary indexes
 nnoremap <Leader>wgl :VimwikiGenerateLinks<CR>
 nnoremap <Leader>wgd :VimwikiDiaryGenerateLinks<CR>
 
 " mapping to generate a table (2x2 by default)
-nnoremap <Leader>wgt :VimwikiTable 2 2
+nnoremap <Leader>wgt :VimwikiTable 2 2<CR>
 
 " mappings to add GTD contexts to end of task
 nnoremap <Leader>wcd A  `@desk`<ESC>

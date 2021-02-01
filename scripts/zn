@@ -20,7 +20,7 @@ if ! [ -f ${INBOX} ]; then
 fi
 
 if [ -z "$1" ]; then
-  vim "${GTD}"
+  vim "${INBOX}"
 else
   echo "- [ ] ${1}" >> "${INBOX}"
 fi

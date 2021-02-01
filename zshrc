@@ -71,8 +71,10 @@ export GIT_SSH=$HOME/.bin/ssh-git.sh
 
 
 # base16-shell
-BASE16_SHELL=$HOME/git/base16-shell/
-[ -n "$PS1" ] && [ -s $BASE16_SHELL/profile_helper.sh ] && eval "$($BASE16_SHELL/profile_helper.sh)"
+BASE16_SHELL=$HOME/.config/base16-shell/
+[ -n "$PS1" ] &&\
+  [ -s $BASE16_SHELL/profile_helper.sh ] &&\
+  eval "$($BASE16_SHELL/profile_helper.sh)"
 
 # aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
@@ -95,6 +97,16 @@ rainbows() {
   }'
 }
 
+countdown() {
+  local time_now=$(date +%s)
+  local time_end=$((time_now + $1))
+  while (( time_now < time_end )); do
+    printf "%s\r" "$(date -u -j -f %s $((time_end - time_now)) +%T)"
+    sleep 0.25
+    time_now=$(date +%s)
+  done
+  echo
+}
 
 # vim mode
 bindkey -v
