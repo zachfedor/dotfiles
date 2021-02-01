@@ -9,9 +9,9 @@ hs.hotkey.bind({"cmd", "ctrl"}, "Tab", function()
 end)
 
 -- toggle modes
-modal = hs.hotkey.modal.new({"cmd", "ctrl"}, "Space")
-function modal:entered() hs.alert.show(" Window Manager Active ", 999999) end
-function modal:exited() hs.alert.closeAll() end
+-- modal = hs.hotkey.modal.new({"cmd", "ctrl"}, "Space")
+-- function modal:entered() hs.alert.show(" Window Manager Active ", 999999) end
+-- function modal:exited() hs.alert.closeAll() end
 
-modal:bind('', 'Escape', function() modal:exit() end)
-modal:bind('', 'Return', function() modal:exit() end)
+-- modal:bind('', 'Escape', function() modal:exit() end)
+-- modal:bind('', 'Return', function() modal:exit() end)

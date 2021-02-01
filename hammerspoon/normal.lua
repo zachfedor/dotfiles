@@ -157,9 +157,23 @@ hs.hotkey.bind({"cmd", "ctrl"}, ".", function()
     local screen = win:screen()
     local max = screen:frame()
 
-    f.x = max.w - (max.w / 1.6)
+    f.x = max.x + (max.w * 0.6) + (gutter / 2)
     f.y = max.y + gutter
-    f.w = (max.w / 1.6) - gutter
+    f.w = (max.w * 0.4) - (gutter * 1.5)
+    f.h = max.h - (gutter * 2)
+    win:setFrame(f)
+end)
+
+-- Right Two/Thirds
+hs.hotkey.bind({"cmd", "ctrl", "shift"}, ".", function()
+    local win = hs.window.focusedWindow()
+    local f = win:frame()
+    local screen = win:screen()
+    local max = screen:frame()
+
+    f.x = max.x + (max.w * 0.4) + (gutter / 2)
+    f.y = max.y + gutter
+    f.w = (max.w * 0.6) - (gutter * 1.5)
     f.h = max.h - (gutter * 2)
     win:setFrame(f)
 end)
@@ -173,7 +187,21 @@ hs.hotkey.bind({"cmd", "ctrl"}, ",", function()
 
     f.x = max.x + gutter
     f.y = max.y + gutter
-    f.w = (max.w / 1.6) - gutter
+    f.w = (max.w * 0.4) - (gutter * 1.5)
+    f.h = max.h - (gutter * 2)
+    win:setFrame(f)
+end)
+
+-- Left Two/Thirds
+hs.hotkey.bind({"cmd", "ctrl", "shift"}, ",", function()
+    local win = hs.window.focusedWindow()
+    local f = win:frame()
+    local screen = win:screen()
+    local max = screen:frame()
+
+    f.x = max.x + gutter
+    f.y = max.y + gutter
+    f.w = (max.w * 0.6) - (gutter * 1.5)
     f.h = max.h - (gutter * 2)
     win:setFrame(f)
 end)
@@ -304,6 +332,38 @@ hs.hotkey.bind({"cmd", "ctrl", "alt"}, "J", function()
   win:moveOneScreenSouth()
 end)
 
+
+---------------------
+-- Audio Switcher  --
+---------------------
+function cycleOutputDevice()
+  -- load all output devices into a table
+  local allDevices = hs.audiodevice.allOutputDevices()
+  local current = 0 -- key of currently selected output
+  local devices = 0 -- number of all devices in table
+
+  for key,device in ipairs(allDevices) do
+    devices = devices + 1 -- update device count
+    if device:name() == hs.audiodevice.current().name then
+      current = key -- set the current output device
+    end
+  end
+
+  if current < devices then
+    current = current + 1 -- increment key to cycle to next device
+  else
+    current = 1 -- or wrap around to beginning of table
+  end
+
+  -- set the new output device and alert user, or show error
+  if allDevices[current]:setDefaultOutputDevice() then
+    hs.alert.show("Audio Output: " .. allDevices[current]:name())
+  else
+    hs.alert.show("Error Selecting Audio Output")
+  end
+end
+
+hs.hotkey.bind({"cmd", "ctrl"}, "S", cycleOutputDevice)
 
 ---------------------
 -- Pomodoro Timer  --
