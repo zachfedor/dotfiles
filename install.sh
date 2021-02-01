@@ -44,8 +44,9 @@ else
 fi
 
 
-# Install via Homebrew
-# --------------------
+# Setup Homebrew
+# --------------
+# check if homebrew is installed
 if ! command -v brew >/dev/null; then
   fancy_echo "Installing Homebrew..."
   curl -fsS \
@@ -56,106 +57,143 @@ else
   fancy_echo "Homebrew already installed. Skipping..."
 fi
 
+# access alternative formulas
 fancy_echo "Tapping homebrew repos..."
-brew_tap 'homebrew/homebrew-php'  # for all PHP related formulas
-brew_tap 'caskroom/cask'          # for all macOS application formulas
-brew_tap 'caskroom/versions'      # "
-brew_tap 'thoughtbot/formulae'    # for all Thoughtbot formulas
-brew_tap 'osx-cross/avr'          # for QMK build tools
-brew_tap 'PX4/homebrew-px4'       # "
+TAPS=(
+  'caskroom/cask'          # for macOS application formulas
+  'caskroom/versions'      # for common alternative builds (e.g. beta, nightly)
+  'thoughtbot/formulae'    # for Thoughtbot formulas
+  'osx-cross/avr'          # for QMK build tools
+  'PX4/homebrew-px4'       # "
+  'homebrew/cask-fonts'    # for font files!
+  'chrokh/tap'             # for Base16 repos
+)
+for tap in "${TAPS[@]}"
+do
+  brew_tap $tap
+done
 
-fancy_echo "Updating formulas..."
+# make sure everything is updated
 brew update
 
 if ! command -v rcup >/dev/null; then
-  brew_install_or_upgrade 'rcm'
+  brew_install 'rcm'
 fi
 
-# tools
-brew_install_or_upgrade 'docker'
-brew_install_or_upgrade 'editorconfig'
-brew_install_or_upgrade 'git'
-brew_install_or_upgrade 'gnu-tar'
-brew_install_or_upgrade 'heroku'
-brew_install_or_upgrade 'openssl'
-brew_install_or_upgrade 'p7zip'
-brew_install_or_upgrade 'reattach-to-user-namespace'
-brew_install_or_upgrade 'the_silver_searcher'
-brew_install_or_upgrade 'tmux'
-brew_install_or_upgrade 'tree'
-brew_install_or_upgrade 'vim'
 
-# php
-brew_install_or_upgrade 'php56'
-brew_install_or_upgrade 'php56-xdebug'
-brew_install_or_upgrade 'composer'
-composer self-update
+# Install via Homebrew
+# --------------------
+FORMULAS=(
+  # tools
+  'base16-manager'
+  'editorconfig'
+  'git'
+  'gnu-tar'
+  'heroku'
+  'htop'
+  'neovim'
+  'openssl'
+  'pandoc'
+  'p7zip'
+  'reattach-to-user-namespace'
+  'the_silver_searcher'
+  'tmux'
+  'tree'
+  'vim'
 
-# javascript
-brew_install_or_upgrade 'node'
-brew_install_or_upgrade 'yarn'
+  # html/css/javascript
+  'tidy-html5'
+  'node'
+  'yarn'
 
-# ruby
-brew_install_or_upgrade 'rbenv'
-brew_install_or_upgrade 'ruby-build'
+  # ruby
+  'rbenv'
+  'ruby-build'
 
-# python
-brew_install_or_upgrade 'pyenv'
-brew_install_or_upgrade 'pyenv-virtualenv'
+  # python
+  'pyenv'
+  'pyenv-virtualenv'
 
-# lisp
-brew_install_or_upgrade 'guile'
-brew_install_or_upgrade 'mit-scheme'
+  # lisp
+  'clojure'
+  'guile'
+  'leiningen'
+  'mit-scheme'
 
-# databases
-brew_install_or_upgrade 'postgresql'
+  # databases
+  'mongodb-community'
+  'postgresql'
+  'sqlite'
 
-# other
-brew_install_or_upgrade 'elm'
-brew_install_or_upgrade 'ffmpeg'
-brew_install_or_upgrade 'gifsicle'
-brew_install_or_upgrade 'lua'
+  # other
+  'elm'
+  'ffmpeg'
+  'gifsicle'
+  'lua'
+  'nethack'
+  'zork'
 
-# QMK build tools
-brew_install_or_upgrade 'avr-gcc'
-brew_install_or_upgrade 'dfu-programmer'
-brew_install_or_upgrade 'gcc-arm-none-eabi'
-brew_install_or_upgrade 'avrdude'
-brew_install_or_upgrade 'teensy_loader_cli'
+  # QMK build tools
+  'avr-gcc'
+  'dfu-programmer'
+  'gcc-arm-none-eabi'
+  'avrdude'
+  'teensy_loader_cli'
+)
+for formula in "${FORMULAS[@]}"
+do
+  brew_install $formula
+done
 
 
 # Install via Homebrew Cask
 # --------------------
-cask_install 'atom'
-cask_install 'calibre'
-cask_install 'discord'
-cask_install 'dropbox'
-cask_install 'filezilla'
-cask_install 'firefoxdeveloperedition'
-cask_install 'flux'
-cask_install 'google-chrome'
-cask_install 'hammerspoon'
-# cask_install 'xquartz' # dependency of inkscape
-# cask_install 'inkscape'
-cask_install 'iterm2-nightly'
-cask_install 'jdiskreport'
-# cask_install 'karabiner'
-# cask_install 'keycastr'
-cask_install 'kindle'
-cask_install 'kobo'
-cask_install 'openemu'
-# cask_install 'openmw'
-cask_install 'private-internet-access'
-cask_install 'slack'
-cask_install 'skyfonts'
-cask_install 'skype'
-cask_install 'steam'
-# cask_install 'toggldesktop'
-cask_install 'transmission'
-cask_install 'tunnelblick'
-cask_install 'vagrant'
-cask_install 'virtualbox'
-cask_install 'vlc'
+CASKS=(
+  # Applications
+  'atom'
+  'calibre'
+  'discord'
+  'dropbox'
+  'emacs'
+  'firefox'
+  'google-chrome'
+  'hammerspoon'
+  'iterm2-nightly'
+  'jdiskreport'
+  'kindle'
+  'kobo'
+  'notion'
+  'obs'
+  'openemu'
+  'slack'
+  'steam'
+  'transmission'
+  'tunnelblick'
+  'virtualbox'
+  'visual-studio-code'
+  'vlc'
+
+  # Fonts
+  'font-cormorant'
+  'font-cutive-mono'
+  'font-fira-sans'
+  'font-firacode-nerd-font'
+  'font-firamono-nerd-font'
+  'font-hack-nerd-font'
+  'font-inconsolata-nerd-font'
+  'font-lato'
+  'font-lora'
+  'font-merriweather'
+  'font-merriweather-sans'
+  'font-source-code-pro'
+  'font-source-sans-pro'
+  'font-source-serif-pro'
+  'font-vt323'
+)
+for cask in "${CASKS[@]}"
+do
+  cask_install $cask
+done
 
 
 # Install via NPM
@@ -163,6 +201,9 @@ cask_install 'vlc'
 if ! command -v npm >/dev/null; then
   fancy_echo "npm isn't installed. Skipping ..."
 else
+  # update npm
+  npm install -g npm
+
   # npm configuration
   npm config set init-author-name 'Zach Fedor'
   npm config set init-author-email 'zachfedor@gmail.com'
@@ -181,10 +222,9 @@ else
   fi
 
   npm_install 'astrum'
-  npm_install 'compass'
-  npm_install 'create-react-app'
   npm_install 'eslint'
   npm_install 'http-server'
+  npm_install 'prettier'
 fi
 
 

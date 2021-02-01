@@ -51,7 +51,9 @@ symlink_dotfile() {
 
 
 # Install or upgrade program via Homebrew
-brew_install_or_upgrade() {
+brew_install() {
+  cask=$(( "$2" == true ? true : false ))
+
   if brew_is_installed "$1"; then
     if brew_is_upgradable "$1"; then
       fancy_echo "Upgrading %s ..." "$1"
@@ -61,15 +63,18 @@ brew_install_or_upgrade() {
     fi
   else
     fancy_echo "Installing %s ..." "$1"
-    brew install "$@"
+    if [ "$cask" == true ]; then
+      brew install "$@"
+    else
+      brew install --cask "$@"
+    fi
   fi
 }
 
 
 # Install OSX application via Homebrew Cask
 cask_install() {
-  fancy_echo "Installing %s ..." "$1"
-  brew cask install "$@"
+  brew_install "$@" true
 }
 
 
@@ -104,19 +109,26 @@ brew_tap() {
 # Install a program via Node's npm
 npm_install() {
   if npm_is_installed "$1"; then
-    fancy_echo "Already using the latest version of %s. Skipping ..." "$1"
+    if npm_is_outdated "$1"; then
+      npm update -g "$@"
+    else
+      fancy_echo "Already using the latest version of %s. Skipping ..." "$1"
+    fi
   else
     fancy_echo "Installing %s ..." "$1"
     npm install -g "$@"
   fi
 }
 
-
 # Determine if a program is installed via Node's npm
 npm_is_installed() {
   npm list -g --depth=0 | grep -Fqx "$1"
 }
 
+# Determine if a program needs updated via npm
+npm_is_outdated() {
+  npm outdated -g | grep -Fqx "$1"
+}
 
 # Initiate rbenv and set global Ruby to latest stable version 
 check_rbenv() {
