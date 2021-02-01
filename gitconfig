@@ -3,8 +3,11 @@
   email = zachfedor@gmail.com
 [core]
   editor = vim
+  excludesfile = /Users/zach/.gitignore_global
 [push]
   default = simple
+[pull]
+  rebase = true
 [github]
   user = zachfedor
   password = 
@@ -12,6 +15,10 @@
 [credential]
   helper = osxkeychain
 [alias]
+  # Run on all subdirectories
+  # --------
+  all = "!f() { ls | xargs -I % git -C % $1; }; f"
+
   # Adding
   #---------
   # shortcut
@@ -66,6 +73,10 @@
   # show aliases
   cfga = "!git config -l | grep alias | cut -c 7-"
 
+  # Diffing
+  #----------
+  d = diff
+
   # Grepping
   #-----------
   g = grep -Ii
@@ -107,7 +118,7 @@
   subup = submodule update --init --recursive
 
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
