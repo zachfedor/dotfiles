@@ -61,13 +61,24 @@ bashcompinit
 # source $HOME/.bin/drush.complete.sh
 
 
+# vim mode
+bindkey -v
+export KEYTIMEOUT=1
+
 #homebrew path fix for 10.10.2
 #added rbenv to path
-export PATH="$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.yarn/bin:$HOME/.rbenv/bin:$HOME/.pyenv/shims:/usr/local/bin:$PATH:/usr/local/sbin"
-
-eval "$(rbenv init -)"
-
+export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rbenv/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 export GIT_SSH=$HOME/.bin/ssh-git.sh
+
+
+# Language version managers
+if command -v rbenv 1>/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+[[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
 
 
 # base16-shell
@@ -76,11 +87,13 @@ BASE16_SHELL=$HOME/.config/base16-shell/
   [ -s $BASE16_SHELL/profile_helper.sh ] &&\
   eval "$($BASE16_SHELL/profile_helper.sh)"
 
+
 # aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local
 
 
+# Functions
 rainbows() {
   awk 'BEGIN{
     s="/\\/\\/\\/\\/\\"; s=s s s s s s s s;
@@ -107,12 +120,3 @@ countdown() {
   done
   echo
 }
-
-# vim mode
-bindkey -v
-export KEYTIMEOUT=1
-
-
-[[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
-
-export PATH="$HOME/scripts:$PATH"

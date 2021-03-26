@@ -15,7 +15,7 @@
 DOTFILES_DIR="$HOME"/.dotfiles      # dotfiles directory
 BACKUP_DIR="$HOME"/.dotfiles_old    # backup directory for old dotfiles
 # list of files/folders to symlink in homedir
-FILES="bash_profile bashrc dir_colors doom.d gitconfig hammerspoon tmux.conf vimrc vimrc_background zshrc"
+FILES="bash_profile bashrc dir_colors emacs.d gitconfig hammerspoon spacemacs tmux.conf vimrc vimrc_background zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 
@@ -64,8 +64,7 @@ TAPS=(
   'homebrew/cask-fonts'     # for font files!
   'osx-cross/avr'           # for QMK build tools
   'PX4/homebrew-px4'        # "
-  # 'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
-  'd12frosted/emacs-plus'   # for Mitsuharu's emacs-mac port
+  'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
   'thoughtbot/formulae'     # for Thoughtbot formulas
 )
 for tap in "${TAPS[@]}"
@@ -84,15 +83,11 @@ fi
 # Install via Homebrew
 # --------------------
 FORMULAS=(
-  # dependencies
-  'git'
-  'coreutils' # for doom-emacs
-  'fd'        # for doom-emacs
-  'rip-grep'  # for doom-emacs
-
   # tools
+  'coreutils' # emacs doom dependency
   'editorconfig'
-  'emacs-plus'
+  'fd' # emacs doom dependency
+  'git'
   'gnu-tar'
   'heroku'
   'htop'
@@ -101,6 +96,7 @@ FORMULAS=(
   'pandoc'
   'p7zip'
   'reattach-to-user-namespace'
+  'rip-grep' # emacs doom dependency
   'the_silver_searcher'
   'tmux'
   'tree'
@@ -302,21 +298,11 @@ if [ ! -e "$SSH_CONFIG" ]; then
   ln -s "$DOTFILES_DIR"/ssh/config "$SSH_CONFIG"
 fi
 
-
 # Setup Applications
 # --------------------
-
-# Emacs
-EMACS_APP=/Applications/Emacs.app
-if [ -f "$EMACS_APP" ] && [ ! -L "$EMACS_APP" ]; then
-  # create symbolic link for emacs application if it isn't already
-  ln -s /usr/local/opt/emacs-plus/Emacs.app $EMACS_APP
-fi
-
-
 # Übersicht
-UBERSICHT_DIR="$Home"/Library/Application\ Support/Übersicht/widgets
+UBERSICHT_DIR = "$Home"/Library/Application\ Support/Übersicht/widgets
 if [ -f "$UBERSICHT_DIR" ] && [ ! -L "$UBERSICHT_DIR" ]; then
   # create symlink for widget directory if it isn't already
   ln -s "$DOTFILES_DIR"/ubersicht/widgets $UBERSICHT_DIR
-fi
+fi 

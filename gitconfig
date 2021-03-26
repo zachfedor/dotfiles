@@ -27,6 +27,8 @@
   aa = add -A
   # add interactively
   ai = add -i
+  # add interactively, jumping straight into patch mode
+  ap = add -p
 
   # Archiving
   # -----------
