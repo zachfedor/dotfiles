@@ -21,17 +21,17 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-(setq doom-font (font-spec :family "Fira Code" :size 16 :weight 'medium)
+(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 14 :weight 'semi-light)
       ;; doom-serif-font (font-spec :family "EtBembo" :size 18)
-      doom-variable-pitch-font (font-spec :family "EtBembo" :size 18)
+      doom-variable-pitch-font (font-spec :family "FiraCode Nerd Font" :size 16)
       ;; doom-unicode-font (font-spec :family "Source Code Pro" :size 18)
-      doom-big-font (font-spec :family "Fira Code Medium" :size 24))
+      doom-big-font (font-spec :family "FiraCode Nerd Font Medium" :size 24))
 
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-solarized-light)
+(setq doom-theme 'doom-nord)
 
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -72,8 +72,8 @@
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(top . 18))
 (add-to-list 'default-frame-alist '(left . 18))
-(add-to-list 'default-frame-alist '(width . 170))
-(add-to-list 'default-frame-alist '(height . 45))
+(add-to-list 'default-frame-alist '(width . 154))
+(add-to-list 'default-frame-alist '(height . 49))
 
 
 ;;; Org mode
@@ -166,6 +166,10 @@ Inspired by above z/org-downcase-keywords function"
 (use-package! org-superstar
   :config (setq org-superstar-cycle-headline-bullets nil  ;; don't cycle, just repeat the last bullet in list
                 org-superstar-headline-bullets-list '(?◉ ?○ ?▷)))
+
+;;; Undo-Tree
+(after! undo-tree
+        (setq undo-tree-auto-save-history nil))
 
 ;; Keybindings
 (map!
@@ -278,6 +282,9 @@ Inspired by above z/org-downcase-keywords function"
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
   (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+
+;; Treemacs
+(map! :leader :desc "open file tree" :ne "ft" #'+treemacs/toggle)
 
 
 ;; Calibre

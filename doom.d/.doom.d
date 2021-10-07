@@ -1,1 +1,0 @@
-/Users/zach/.doom.d

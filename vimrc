@@ -65,16 +65,16 @@ set complete+=kspell
 set spellfile=$HOME/.vim/spell-en.utf-8.add
 
 if has("mouse")
-    " allow mouse in all modes
-    set mouse=a
+  " allow mouse in all modes
+  set mouse=a
 endif
 
 if has("vms")
-    " use versions if they exist
-    set nobackup
+  " use versions if they exist
+  set nobackup
 else
-    " if not, use backups
-    set backup
+  " if not, use backups
+  set backup
 endif
 
 " backup method is copy then save, not rename
@@ -87,8 +87,8 @@ set directory=.,~/.vim/swaps//,/tmp//,/var/tmp//
 " overwriting `other/index.html` on backup or crash
 
 if has("autocmd")
-    " remember last cursor position
-    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
+  " remember last cursor position
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
         \ exe "normal! g'\"" |
         \ endif
 endif
@@ -175,44 +175,51 @@ nnoremap <leader>mnp :set nopaste<CR>
 " mapping to clear search highlights
 nnoremap <leader>hh :nohlsearch<CR>
 
+" mapping for window management
+" TODO: do these symbols need to be escaped???
+" nnoremap <leader>w- :sp<CR>  " split window horizontally
+" nnoremap <leader>w_ :sp      " same as above, but prompt for file
+" nnoremap <leader>w\ :vsp<CR> " split window vertically
+" nnoremap <leader>w| :vsp     " same as above, but prompt for file
+
 " -----------------------------------------------------------------
 " language
 " -----------------------------------------------------------------
 let g:html_indent_inctags = "html,body,head,tbody"
 
 augroup LanguageSupport
-    autocmd!
+  autocmd!
 
-    " add syntax completion for all available filetypes
-    if exists("+omnifunc")
-        autocmd Filetype *
-                \	if &omnifunc == "" |
-                \		setlocal omnifunc=syntaxcomplete#Complete |
-                \	endif
-    endif
-    
-    " html/css/js
-    autocmd BufNewFile,BufRead *.html,*.css,*.scss,*.js,*.ts
-      \ set tabstop=2 |
-      \ set softtabstop=2 |
-      \ set shiftwidth=2
+  " add syntax completion for all available filetypes
+  if exists("+omnifunc")
+    autocmd Filetype *
+          \ if &omnifunc == "" |
+          \   setlocal omnifunc=syntaxcomplete#Complete |
+          \ endif
+  endif
 
-    " markdown
-    " autocmd BufNewFile,BufReadPost *.md set filetype=markdown
-    " autocmd FileType markdown setlocal spell
-    autocmd FileType gitcommit setlocal spell
+  " html/css/js
+  autocmd BufNewFile,BufRead *.html,*.css,*.scss,*.js,*.ts
+        \ set tabstop=2 |
+        \ set softtabstop=2 |
+        \ set shiftwidth=2
 
-    " clang, python
-    autocmd BufNewFile,BufRead *.c,*.py
-      \ set tabstop=4 |
-      \ set softtabstop=4 |
-      \ set shiftwidth=4 |
-      \ set textwidth=79 |
-      \ set autoindent |
-      \ set fileformat=unix
+  " markdown
+  " autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+  " autocmd FileType markdown setlocal spell
+  autocmd FileType gitcommit setlocal spell
 
-    " html template engines
-    " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
+  " clang, python
+  autocmd BufNewFile,BufRead *.c,*.py
+        \ set tabstop=4 |
+        \ set softtabstop=4 |
+        \ set shiftwidth=4 |
+        \ set textwidth=79 |
+        \ set autoindent |
+        \ set fileformat=unix
+
+  " html template engines
+  " autocmd BufNewFile,BufReadPost *.hbs set filetype=html
 augroup END
 
 " abbreviations
@@ -248,12 +255,13 @@ Plug 'vim-airline/vim-airline-themes'
 " Plug 'mattn/emmet-vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'jiangmiao/auto-pairs'
-Plug 'sbdchd/neoformat'
-Plug 'scrooloose/syntastic'
+" Plug 'sbdchd/neoformat'
+" Plug 'scrooloose/syntastic'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 " Plug 'ycm-core/youcompleteme'
+Plug 'dense-analysis/ale'
 
 " tools -----------
 Plug 'airblade/vim-gitgutter'
@@ -298,26 +306,54 @@ call plug#end()
 " plugin config
 " -----------------------------------------------------------------
 " ag.vim -----------
-nnoremap <leader>fs :Ag 
-nnoremap <leader>bs :AgBuffer  
+nnoremap <leader>fs :Ag
+nnoremap <leader>bs :AgBuffer
+
+" ale
+let g:ale_fixers = {
+      \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+      \ 'css': ['prettier'],
+      \ 'html': ['prettier'],
+      \ 'javascript': ['eslint', 'prettier'],
+      \ 'json': ['prettier'],
+      \ 'markdown': ['prettier'],
+      \ 'scss': ['prettier'],
+      \ 'typescript': ['prettier'],
+      \ 'yaml': ['prettier'],
+      \}
+let g:ale_completion_enabled = 0
+let g:ale_fix_on_save = 0
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_text_changed = 'never'
+
+nnoremap <leader>cd :ALEGoToDefinition<CR>
+nnoremap <leader>cD :ALEGoToTypeDefinition<CR>
+nnoremap <leader>cf :ALEFix<CR>
+nnoremap <leader>cF :ALEFixSuggest<CR>
+nnoremap <leader>ch :ALEHover<CR>
+nnoremap <leader>cj :ALENextWrap<CR>
+nnoremap <leader>ck :ALEPreviousWrap<CR>
+nnoremap <leader>cl :ALELint<CR>
+nnoremap <leader>cr :ALERename<CR>
+nnoremap <leader>ct :ALEToggle<CR>
 
 " calendar.vim -----------
 
 " colorizer -----------
 function! s:SettingsColorizer()
-if exists(":ColorHighlight")
-  " autostart colorizer on matching filetype
-  let g:colorizer_auto_filetype='scss,css,html'
-  " don't colorize text (e.g. 'red', 'aliceblue')
-  let g:colorizer_colornames = 0
+  if exists(":ColorHighlight")
+    " autostart colorizer on matching filetype
+    let g:colorizer_auto_filetype='scss,css,html'
+    " don't colorize text (e.g. 'red', 'aliceblue')
+    let g:colorizer_colornames = 0
 
-  nmap <leader>mc :ColorToggle<CR>
-endif
+    nmap <leader>mc :ColorToggle<CR>
+  endif
 endfunction
 
 " ctrlp -----------
 function! s:SettingsCtrlP()
-if exists(":CtrlP")
+  if exists(":CtrlP")
     " use nearest .git/ as current project
     let g:ctrlp_working_path_mode = 'r'
     " ignore files in .gitignore
@@ -325,7 +361,7 @@ if exists(":CtrlP")
     " mapping for fuzzy find
     nmap <leader>ff :CtrlP<CR>
     nmap <leader>bb :CtrlPBuffer<CR>
-endif
+  endif
 endfunction
 
 " editorconfig -----------
@@ -343,9 +379,9 @@ let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
 " goyo -----------
 " toggle writing tools with goyo
 function! s:goyo_leave()
-    Limelight!
-    NoPencil
-    call ResetBGColors()
+  Limelight!
+  NoPencil
+  call ResetBGColors()
 endfunction
 
 autocmd! User GoyoEnter Limelight | SoftPencil
@@ -358,45 +394,73 @@ autocmd! User GoyoLeave nested call <SID>goyo_leave()
 let g:limelight_default_coefficient = 0.4
 
 " neoformat -----------
-augroup nfmt
-  autocmd!
-  autocmd BufWritePre * try | undojoin | Neoformat | catch /^Vim\%((\a\+)\)\=:E790/ | finally | silent Neoformat | endtry
-augroup END
+" Run formatter on save, but undojoin command will put any changes made by
+" Neoformat into the same undo-block as the preceding edit. Undojoin snippet
+" in Neoformat's readme has a bug, see https://github.com/sbdchd/neoformat/issues/134
+" augroup nfmt
+"   autocmd!
+"   autocmd BufWritePre * try | undojoin | Neoformat | catch /^Vim\%((\a\+)\)\=:E790/ | finally | silent Neoformat | endtry
+" augroup END
+
+" configure formatters for filetypes
+" let g:neoformat_enabled_css = ['prettier']
+" let g:neoformat_enabled_html = ['prettier']
+" let g:neoformat_enabled_javascript = ['prettier']
+" let g:neoformat_enabled_json = ['prettier']
+" let g:neoformat_enabled_less = ['prettier']
+" let g:neoformat_enabled_markdown = ['prettier']
+" let g:neoformat_enabled_scss = ['prettier']
+" let g:neoformat_enabled_typescript = ['prettier']
+" let g:neoformat_enabled_yaml = ['prettier']
+
+" enable basic formatting when there is no matching filetype
+" let g:neoformat_basic_format_align = 1 " fix indentation?
+" let g:neoformat_basic_format_retab = 1 " convert tabs to spaces
+" let g:neoformat_basic_format_trim  = 1 " trim trailing whitespace
+
+" if you need to debug formatter
+" let g:neoformat_only_msg_on_error = 1
+" let g:neoformat_verbose = 1
+
+" nmap <leader>sf :Neoformat<CR>
+" vmap <leader>sf :Neoformat<CR>
+" nmap <leader>sF :Neoformat!
+" vmap <leader>sF :Neoformat!
 
 " nerdtree -----------
 function! s:SettingsNerdTree()
-if exists(":NERDTree")
+  if exists(":NERDTree")
     nmap <leader>ft :NERDTreeToggle<CR>
-endif
+  endif
 endfunction
 
 " syntastic -----------
-function! s:SettingsSyntastic()
-if exists(":SyntasticCheck")
-    " recommended settings
-    let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_loc_list            = 1
-    let g:syntastic_check_on_open            = 0
-    let g:syntastic_check_on_wq              = 0
+" function! s:SettingsSyntastic()
+"   if exists(":SyntasticCheck")
+"     " recommended settings
+"     let g:syntastic_always_populate_loc_list = 1
+"     let g:syntastic_auto_loc_list            = 1
+"     let g:syntastic_check_on_open            = 0
+"     let g:syntastic_check_on_wq              = 0
 
-    " use html5 version
-    let g:syntastic_html_tidy_exec      = '/usr/bin/tidy'
-    " use eslint instead of jshint
-    let g:syntastic_javascript_checkers = ['eslint']
-    " use sass checker
-    let g:syntastic_scss_checkers       = ['sass']
+"     " use html5 version
+"     let g:syntastic_html_tidy_exec      = '/usr/bin/tidy'
+"     " use eslint instead of jshint
+"     let g:syntastic_javascript_checkers = ['eslint']
+"     " use sass checker
+"     let g:syntastic_scss_checkers       = ['sass']
 
-    " mapping to turn off error buffer
-    nmap <leader>sc :SyntasticCheck<CR>
-    nmap <leader>sr :SyntasticReset<CR>
-    nmap <leader>st :SyntasticToggleMode<CR>
-endif
-endfunction
+"     " mapping to turn off error buffer
+"     nmap <leader>sc :SyntasticCheck<CR>
+"     nmap <leader>sr :SyntasticReset<CR>
+"     nmap <leader>st :SyntasticToggleMode<CR>
+"   endif
+" endfunction
 
 
 " tabular -----------
 function! s:SettingsTabular()
-if exists(":Tabularize")
+  if exists(":Tabularize")
     " mapping to align by =
     nmap <leader>te :Tabularize /=<CR>
     vmap <leader>te :Tabularize /=<CR>
@@ -408,7 +472,7 @@ if exists(":Tabularize")
     " mapping to align by |
     nmap <leader>tt :Tabularize /\|<CR>
     vmap <leader>tt :Tabularize /\|<CR>
-endif
+  endif
 endfunction
 
 " thematic -----------
@@ -428,6 +492,8 @@ endfunction
 " let g:thematic#theme_name = 'bespin'
 
 " ultisnips -----------
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
 " unset ^k mapping to allow jumping back through snippet params
 inoremap <c-x><c-k> <c-x><c-k>
 " force ultisnips to find python3
@@ -450,12 +516,12 @@ let g:airline_theme   = "hybrid"
 
 " vim-gitgutter -----------
 function! s:SettingsVimGitGutter()
-if exists(":GitGutterToggle")
+  if exists(":GitGutterToggle")
     " mapping gutter toggle
     nmap <leader>gg :GitGutterToggle<CR>
 
     let g:gitgutter_override_sign_column_highlight = 0
-endif
+  endif
 endfunction
 
 " vim-javascript -----------
@@ -539,23 +605,23 @@ nnoremap <Leader>wcw A  `@work`<ESC>
 
 " youcompleteme -----------
 function! s:SettingsYouCompleteMe()
-if exists(":YcmCompleter")
-  " set char count too high to avoid seeing id popups
-  let g:ycm_min_num_of_chars_for_completion = 99
+  if exists(":YcmCompleter")
+    " set char count too high to avoid seeing id popups
+    let g:ycm_min_num_of_chars_for_completion = 99
 
-  nnoremap gd :YcmCompleter GoTo<CR>
-endif
+    nnoremap gd :YcmCompleter GoTo<CR>
+  endif
 endfunction
 
 " settings functions -----------
 augroup PluginSettings
-    autocmd!
-    autocmd VimEnter * :call <SID>SettingsCtrlP()
-    autocmd VimEnter * :call <SID>SettingsNerdTree()
-    autocmd VimEnter * :call <SID>SettingsTabular()
-    autocmd VimEnter * :call <SID>SettingsSyntastic()
-    autocmd VimEnter * :call <SID>SettingsVimGitGutter()
-    " autocmd VimEnter * :call <SID>SettingsYouCompleteMe()
+  autocmd!
+  autocmd VimEnter * :call <SID>SettingsCtrlP()
+  autocmd VimEnter * :call <SID>SettingsNerdTree()
+  autocmd VimEnter * :call <SID>SettingsTabular()
+  " autocmd VimEnter * :call <SID>SettingsSyntastic()
+  autocmd VimEnter * :call <SID>SettingsVimGitGutter()
+  " autocmd VimEnter * :call <SID>SettingsYouCompleteMe()
 augroup END
 
 
@@ -582,16 +648,16 @@ endif
 " augroup END
 
 function!ResetBGColors()
-    " set colors of line number column
-    highlight LineNr ctermbg=00
-    " highlight LineNr ctermfg=18
+  " set colors of line number column
+  highlight LineNr ctermbg=00
+  " highlight LineNr ctermfg=18
 
-    " set colors of gitgutter column
-    highlight SignColumn ctermbg=00
-    highlight GitGutterAdd ctermbg=00
-    highlight GitGutterChange ctermbg=00
-    highlight GitGutterDelete ctermbg=00
-    highlight GitGutterChangeDelete ctermbg=00
+  " set colors of gitgutter column
+  highlight SignColumn ctermbg=00
+  highlight GitGutterAdd ctermbg=00
+  highlight GitGutterChange ctermbg=00
+  highlight GitGutterDelete ctermbg=00
+  highlight GitGutterChangeDelete ctermbg=00
 endfunction
 call ResetBGColors()
 
@@ -600,43 +666,43 @@ call ResetBGColors()
 " -----------------------------------------------------------------
 " markdown header levels
 function!EditMarkdownHeader(dir)
-    " get current line
-    let line = getline('.')
-    if strlen(line) > 0
-        " split into array of words
-        let linearray = split(line)
-        " split first word into array of characters
-        let pre = split(linearray[0], '\zs')
+  " get current line
+  let line = getline('.')
+  if strlen(line) > 0
+    " split into array of words
+    let linearray = split(line)
+    " split first word into array of characters
+    let pre = split(linearray[0], '\zs')
 
-        if a:dir
-            " increase header
-            if index(pre, '#') > -1
-                " line is already a header
-                let line = '#' . line
-            else
-                " line is not a header
-                let line = '# ' . line
-            endif
+    if a:dir
+      " increase header
+      if index(pre, '#') > -1
+        " line is already a header
+        let line = '#' . line
+      else
+        " line is not a header
+        let line = '# ' . line
+      endif
+    else
+      " decrease header
+      if index(pre, '#') > -1
+        " line is a header
+        if linearray[0] ==# '#'
+          " line is an h1
+          " remove header entirely
+          let line = join(linearray[1:])
         else
-            " decrease header
-            if index(pre, '#') > -1
-                " line is a header
-                if linearray[0] ==# '#'
-                    " line is an h1
-                    " remove header entirely
-                    let line = join(linearray[1:])
-                else
-                    " line is h2 or higher
-                    " remove just one '#'
-                    let line = join(pre[1:], '') . ' ' . join(linearray[1:])
-                endif
-            endif
-            " else line is not a header, do nothing
+          " line is h2 or higher
+          " remove just one '#'
+          let line = join(pre[1:], '') . ' ' . join(linearray[1:])
         endif
-
-        " replace current line with altered line
-        call setline('.', line)
+      endif
+      " else line is not a header, do nothing
     endif
+
+    " replace current line with altered line
+    call setline('.', line)
+  endif
 endfunction
 
 " mapping to edit markdown header levels
@@ -646,23 +712,23 @@ nnoremap <leader>- :call EditMarkdownHeader(0)<CR>
 
 " preview markdown -----------
 function!PreviewMarkdown()
-    " src: https://gist.github.com/natesilva/960015
-    " let MARKDOWN_CMD = 'grip'
-    let MARKDOWN_CMD = 'markdown'
-    let BROWSER_CMD = 'open'
+  " src: https://gist.github.com/natesilva/960015
+  " let MARKDOWN_CMD = 'grip'
+  let MARKDOWN_CMD = 'markdown'
+  let BROWSER_CMD = 'open'
 
+  silent update
+  let output_name = tempname() . '.html'
+
+  let original_encoding = &fileencoding
+  let original_bomb = &bomb
+  if original_encoding != 'utf-8' || original_bomb == 1
+    set nobomb
+    set fileencoding=utf-8
     silent update
-    let output_name = tempname() . '.html'
+  endif
 
-    let original_encoding = &fileencoding
-    let original_bomb = &bomb
-    if original_encoding != 'utf-8' || original_bomb == 1
-        set nobomb
-        set fileencoding=utf-8
-        silent update
-    endif
-
-    let file_header = ["<!DOCTYPE html>", '<html>', '<head>',
+  let file_header = ["<!DOCTYPE html>", '<html>', '<head>',
         \ '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
         \ '<title>Markdown Preview</title>',
         \ '<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">',
@@ -670,29 +736,29 @@ function!PreviewMarkdown()
         \ '<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssfonts/fonts-min.css">',
         \ '<style>body{padding:20px;}div#container{background-color:#F2F2F2;padding:0 20px;margin:0px;border:solid #D0D0D0 1px;}</style>',
         \ '</head>', '<body>', '<div id="container">']
-    call writefile(file_header, output_name)
+  call writefile(file_header, output_name)
 
-    let markdown_cmd = '!' . MARKDOWN_CMD . ' "' . expand('%:p') . '" >> "' .
+  let markdown_cmd = '!' . MARKDOWN_CMD . ' "' . expand('%:p') . '" >> "' .
         \ output_name . '"'
-    silent exec markdown_cmd
+  silent exec markdown_cmd
 
-    silent exec '!echo "</div></body></html>" >> "' .
+  silent exec '!echo "</div></body></html>" >> "' .
         \ output_name . '"'
 
 
-    if original_encoding != 'utf-8' || original_bomb == 1
-        if original_bomb == 1
-            set bomb
-        endif
-        silent exec 'set fileencoding=' . original_encoding
-        silent update
+  if original_encoding != 'utf-8' || original_bomb == 1
+    if original_bomb == 1
+      set bomb
     endif
+    silent exec 'set fileencoding=' . original_encoding
+    silent update
+  endif
 
-    silent exec '!' . BROWSER_CMD . ' "' . output_name . '"'
+  silent exec '!' . BROWSER_CMD . ' "' . output_name . '"'
 
-    exec input('Press ENTER to continue...')
-    echo
-    exec delete(output_name)
+  exec input('Press ENTER to continue...')
+  echo
+  exec delete(output_name)
 endfunction
 
 " map <leader>mp :call PreviewMarkdown()<CR>

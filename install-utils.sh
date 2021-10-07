@@ -52,29 +52,33 @@ symlink_dotfile() {
 
 # Install or upgrade program via Homebrew
 brew_install() {
-  cask=$(( "$2" == true ? true : false ))
-
   if brew_is_installed "$1"; then
     if brew_is_upgradable "$1"; then
       fancy_echo "Upgrading %s ..." "$1"
-      brew upgrade "$@"
+      brew upgrade "$1"
     else
       fancy_echo "Already using the latest version of %s. Skipping ..." "$1"
     fi
   else
     fancy_echo "Installing %s ..." "$1"
-    if [ "$cask" == true ]; then
-      brew install "$@"
-    else
-      brew install --cask "$@"
-    fi
+    brew install "$1"
   fi
 }
 
 
 # Install OSX application via Homebrew Cask
 cask_install() {
-  brew_install "$@" true
+  if brew_is_installed "$1"; then
+    if brew_is_upgradable "$1"; then
+      fancy_echo "Upgrading %s ..." "$1"
+      brew upgrade --cask "$1"
+    else
+      fancy_echo "Already using the latest version of %s. Skipping ..." "$1"
+    fi
+  else
+    fancy_echo "Installing %s ..." "$1"
+    brew install --cask "$1"
+  fi
 }
 
 

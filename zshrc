@@ -67,9 +67,8 @@ export KEYTIMEOUT=1
 
 #homebrew path fix for 10.10.2
 #added rbenv to path
-export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rbenv/bin:/usr/local/bin:/usr/local/sbin:$PATH"
-export GIT_SSH=$HOME/.bin/ssh-git.sh
-
+export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.doom.d:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rvm/bin:$HOME/.rbenv/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+# export GIT_SSH=$HOME/.bin/ssh-git.sh
 
 # Language version managers
 if command -v rbenv 1>/dev/null 2>&1; then
@@ -83,9 +82,9 @@ fi
 
 # base16-shell
 BASE16_SHELL=$HOME/.config/base16-shell/
-[ -n "$PS1" ] &&\
-  [ -s $BASE16_SHELL/profile_helper.sh ] &&\
-  eval "$($BASE16_SHELL/profile_helper.sh)"
+[ -n "$PS1" ] && \
+  [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+    eval "$("$BASE16_SHELL/profile_helper.sh")"
 
 
 # aliases

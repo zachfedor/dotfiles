@@ -15,7 +15,7 @@
 DOTFILES_DIR="$HOME"/.dotfiles      # dotfiles directory
 BACKUP_DIR="$HOME"/.dotfiles_old    # backup directory for old dotfiles
 # list of files/folders to symlink in homedir
-FILES="bash_profile bashrc dir_colors doom.d gitconfig hammerspoon tmux.conf vimrc vimrc_background zshrc"
+FILES="bash_profile bashrc dir_colors doom.d gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zprofile zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 
@@ -47,10 +47,9 @@ fi
 # check if homebrew is installed
 if ! command -v brew >/dev/null; then
   fancy_echo "Installing Homebrew..."
-  curl -fsS \
-    'https://raw.githubusercontent.com/Homebrew/install/master/install' | ruby
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  export PATH="/usr/local/bin:$PATH"
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 else
   fancy_echo "Homebrew already installed. Skipping..."
 fi
@@ -58,14 +57,14 @@ fi
 # access alternative formulas
 fancy_echo "Tapping homebrew repos..."
 TAPS=(
-  'caskroom/cask'           # for macOS application formulas
-  'caskroom/versions'       # for common alternative builds (e.g. beta, nightly)
   'chrokh/tap'              # for Base16 repos
   'homebrew/cask-fonts'     # for font files!
+  'homebrew/cask-versions'  # for common alternative builds (e.g. beta, nightly)
   'osx-cross/avr'           # for QMK build tools
   'PX4/homebrew-px4'        # "
-  # 'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
-  'd12frosted/emacs-plus'   # for Mitsuharu's emacs-mac port
+  'heroku/brew'
+  'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
+  # 'd12frosted/emacs-plus'   # for Mitsuharu's emacs-mac port
   'thoughtbot/formulae'     # for Thoughtbot formulas
 )
 for tap in "${TAPS[@]}"
@@ -88,19 +87,19 @@ FORMULAS=(
   'git'
   'coreutils' # for doom-emacs
   'fd'        # for doom-emacs
-  'rip-grep'  # for doom-emacs
+  'ripgrep'  # for doom-emacs
 
   # tools
-  'editorconfig'
-  'emacs-plus'
+  # 'editorconfig' # no bottle available? can try installing from source
+  'railwaycat/emacsmacport/emacs-mac --with-emacs-big-sur-icon --with-modules --with-natural-title-bar'
+  # 'emacs-plus'
   'gnu-tar'
   'heroku'
   'htop'
   'neovim'
   'openssl'
-  'pandoc'
+  # 'pandoc'
   'p7zip'
-  'reattach-to-user-namespace'
   'the_silver_searcher'
   'tmux'
   'tree'
@@ -126,12 +125,13 @@ FORMULAS=(
   'mit-scheme'
 
   # databases
-  'mongodb-community'
+  # 'mongodb-community'
   'postgresql'
+  'redis'
   'sqlite'
 
   # other
-  'elm'
+  # 'elm'
   'ffmpeg'
   'gifsicle'
   'lua'
@@ -139,11 +139,11 @@ FORMULAS=(
   'zork'
 
   # QMK build tools
-  'avr-gcc'
-  'dfu-programmer'
-  'gcc-arm-none-eabi'
-  'avrdude'
-  'teensy_loader_cli'
+  # 'avr-gcc'
+  # 'dfu-programmer'
+  # 'gcc-arm-none-eabi'
+  # 'avrdude'
+  # 'teensy_loader_cli'
 )
 for formula in "${FORMULAS[@]}"
 do
@@ -162,11 +162,11 @@ CASKS=(
   'firefox'
   'google-chrome'
   'hammerspoon'
-  'iterm2-nightly'
+  'iterm2'
   'jdiskreport'
   'kindle'
   'kobo'
-  'notion'
+  # 'notion'
   'obs'
   'openemu'
   'slack'
@@ -181,9 +181,10 @@ CASKS=(
   # Fonts
   'font-cormorant'
   'font-cutive-mono'
+  'font-et-book'
+  'font-fira-code-nerd-font'
+  'font-fira-mono-nerd-font'
   'font-fira-sans'
-  'font-firacode-nerd-font'
-  'font-firamono-nerd-font'
   'font-hack-nerd-font'
   'font-inconsolata-nerd-font'
   'font-lato'
@@ -220,6 +221,17 @@ else
 
   # node versioning
   npm_install 'n'
+  if ! command -v n >/dev/null; then
+    fancy_echo "n isn't installed. Skipping..."
+  else
+    # Steps from https://github.com/tj/n#installation
+    # Make cache folder to hold node versions
+    sudo mkdir -p /usr/local/n
+    # Take ownership
+    sudo chown -R $(whoami) /usr/local/n
+    # Take ownership of Node.js install destination folders
+    sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+  fi
   npm_install 'avn'
   npm_install 'avn-n'
   if ! command -v avn >/dev/null; then
@@ -289,7 +301,7 @@ SSH_DIR="$HOME"/.ssh
 SSH_CONFIG="$SSH_DIR"/config
 if [ ! -d "$SSH_DIR" ]; then
   fancy_echo "Creating the .ssh directory..."
-  mkdir "$SSH_DIR" 
+  mkdir "$SSH_DIR"
 fi
 # backup ssh config if it exists and isn't already a symlink
 if [ -f "$SSH_CONFIG" ] && [ ! -L "$SSH_CONFIG" ]; then
@@ -301,16 +313,31 @@ if [ ! -e "$SSH_CONFIG" ]; then
   fancy_echo "Creating symlink for new .ssh config"
   ln -s "$DOTFILES_DIR"/ssh/config "$SSH_CONFIG"
 fi
+# generate ssh keys if they don't exist
+# see: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+if [[ ! $(compgen -G "${SSH_DIR}/id_*") ]]; then
+  # generate keys
+  ssh-keygen -t ed25519 -C "zachfedor@gmail.com"
+  # start background ssh agent
+  eval "$(ssh-agent -s)"
+  fancy_echo "NOTE: Add new key to .ssh/config to allow keychain storage!"
+  # add passphrase to keychain
+  ssh-add -K ~/.ssh/id_ed25519
+  # see: https://docs.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account
+  fancy_echo "NOTE: Now add new key to GitHub etc."
+fi
 
 
 # Setup Applications
 # --------------------
 
 # Emacs
+# TODO: programmatically install doom emacs
 EMACS_APP=/Applications/Emacs.app
 if [ -f "$EMACS_APP" ] && [ ! -L "$EMACS_APP" ]; then
   # create symbolic link for emacs application if it isn't already
-  ln -s /usr/local/opt/emacs-plus/Emacs.app $EMACS_APP
+  ln -s /opt/homebrew/opt/emacs-mac@27/Emacs.app $EMACS_APP
+  # ln -s /opt/homebrew/opt/emacs-plus@27/Emacs.app $EMACS_APP
 fi
 
 
