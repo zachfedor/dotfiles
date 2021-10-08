@@ -65,11 +65,6 @@ bashcompinit
 bindkey -v
 export KEYTIMEOUT=1
 
-#homebrew path fix for 10.10.2
-#added rbenv to path
-export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.doom.d:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rvm/bin:$HOME/.rbenv/bin:/usr/local/bin:/usr/local/sbin:$PATH"
-# export GIT_SSH=$HOME/.bin/ssh-git.sh
-
 # Language version managers
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
@@ -78,6 +73,11 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
+
+# Customize PATH, note that this happens after language version managers prepend their locations
+# so these custom directories should feature _before_ the version manager scripts
+export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.doom.d:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rvm/bin:$HOME/.rbenv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+# export GIT_SSH=$HOME/.bin/ssh-git.sh
 
 
 # base16-shell
