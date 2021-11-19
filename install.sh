@@ -90,15 +90,15 @@ FORMULAS=(
   'ripgrep'  # for doom-emacs
 
   # tools
-  # 'editorconfig' # no bottle available? can try installing from source
-  'railwaycat/emacsmacport/emacs-mac --with-emacs-big-sur-icon --with-modules --with-natural-title-bar'
+  'editorconfig'
+  'emacs-mac --with-starter --with-rsvg --with-imagemagick --with-emacs-big-sur-icon --with-no-title-bars --with-mac-metal'
   # 'emacs-plus'
   'gnu-tar'
   'heroku'
   'htop'
   'neovim'
   'openssl'
-  # 'pandoc'
+  'pandoc'
   'p7zip'
   'the_silver_searcher'
   'tmux'
@@ -107,8 +107,6 @@ FORMULAS=(
 
   # html/css/javascript
   'tidy-html5'
-  'node'
-  'yarn'
 
   # ruby
   'rbenv'
@@ -220,17 +218,21 @@ else
   npm config set init-version '0.0.1'
 
   # node versioning
+  fancdy_echo "Installing 'n' for managing node versions"
   npm_install 'n'
   if ! command -v n >/dev/null; then
-    fancy_echo "n isn't installed. Skipping..."
+    fancy_echo "Installation failed. Skipping 'n' setup..."
   else
     # Steps from https://github.com/tj/n#installation
-    # Make cache folder to hold node versions
+    # Make cache folder to hold node versions and take ownership
     sudo mkdir -p /usr/local/n
-    # Take ownership
     sudo chown -R $(whoami) /usr/local/n
-    # Take ownership of Node.js install destination folders
+    # Make sure Node.js install destination folders exist and take ownership
     sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+    sudo mkdir -p /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+
+    # Using n, install latest version of node
+    n latest
   fi
   npm_install 'avn'
   npm_install 'avn-n'
@@ -240,10 +242,13 @@ else
     avn setup
   fi
 
+  npm_install 'yarn'
   npm_install 'astrum'
   npm_install 'eslint'
   npm_install 'http-server'
   npm_install 'prettier'
+  npm_install 'typescript'
+  npm_install 'typescript-language-server'
 fi
 
 
@@ -332,17 +337,31 @@ fi
 # --------------------
 
 # Emacs
-# TODO: programmatically install doom emacs
-EMACS_APP=/Applications/Emacs.app
-if [ -f "$EMACS_APP" ] && [ ! -L "$EMACS_APP" ]; then
-  # create symbolic link for emacs application if it isn't already
-  ln -s /opt/homebrew/opt/emacs-mac@27/Emacs.app $EMACS_APP
-  # ln -s /opt/homebrew/opt/emacs-plus@27/Emacs.app $EMACS_APP
+# Symlink brew installed emacs package to apps folder, if it isn't already
+if [ ! -L /Applications/Emacs.app ]; then
+  ln -s /opt/homebrew/opt/emacs-mac/Emacs.app /Applications
 fi
 
+# Emacs - Doom
+if [ ! -d "$HOME"/.emacs.d ]; then
+  # Clone doom repo into emacs directory
+  git clone https://github.com/hlissner/doom-emacs "$HOME"/.emacs.d
+
+  # The following commands are the equivalent of running `doom install`, with the exception of
+  # creating a ~/.doom.d directory and copying the example config files because I should have
+  # already symlinked my custom config files to ~/.doom.d/ by this point
+  # first, sync doom with those custom configs, e.g. install packages defined in init.el
+  "$HOME"/.emacs.d/bin/doom sync
+  # then, ensure envvars are inherited by emacs regardless of where it gets launched
+  "$HOME"/.emacs.d/bin/doom env
+  # lastly, install necessary icon fonts
+  emacs --batch -f all-the-icons-install-fonts
+
+  fancy_echo "Doom Emacs Installed. You might want to run `doom doctor` to check the installation."
+fi
 
 # Übersicht
-UBERSICHT_DIR="$Home"/Library/Application\ Support/Übersicht/widgets
+UBERSICHT_DIR="$HOME"/Library/Application\ Support/Übersicht/widgets
 if [ -f "$UBERSICHT_DIR" ] && [ ! -L "$UBERSICHT_DIR" ]; then
   # create symlink for widget directory if it isn't already
   ln -s "$DOTFILES_DIR"/ubersicht/widgets $UBERSICHT_DIR

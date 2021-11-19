@@ -14,6 +14,7 @@ fancy_echo() {
 
 
 # Create a backup of a dotfile in a dedicated directory
+# TODO: create a new directory timestamped for each attempt at running this script to rollback to certain attempts if need be
 backup_dotfile() {
   BACKUP="$HOME"/."$1"
 
