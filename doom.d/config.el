@@ -22,7 +22,7 @@
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
 (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 14 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "Cormorant Garamond" :style "Regular" :size 14 :weight 'medium)
+      ;; doom-variable-pitch-font (font-spec :family "Cormorant Garamond" :style "Regular" :size 14 :weight 'medium)
       doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 24 :weight 'semi-light))
 
 
@@ -48,7 +48,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-gruvbox
+(setq doom-theme 'doom-solarized-light
       doom-font-increment 1
       line-spacing 0.3)
 (after! doom-theme
@@ -79,18 +79,18 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/Dropbox/notes")
-(defun zf/org-mode-setup ()
-  (setq display-line-numbers nil)
-  ;; (org-indent-mode)
-  )
+;; (defun zf/org-mode-setup ()
+;;   (setq display-line-numbers nil)
+;;   ;; (org-indent-mode)
+;;   )
 (use-package! org
-  :hook (org-mode . zf/org-mode-setup)
+  ;; :hook (org-mode . zf/org-mode-setup)
   :config
   (setq-default major-mode 'org-mode)
   (setq org-deadline-warning-days 7
         org-ellipsis " ▾ "
         org-hide-emphasis-markers t
-        org-list-demote-modify-bullet '(("1." . "a."))
+        org-list-demote-modify-bullet '(("1" . "a") ("a" . "1"))
         org-log-done 'time
         org-log-into-drawer t
         org-roam-directory "~/Dropbox/notes/roam"
@@ -109,8 +109,8 @@
 ;; (add-hook 'org-capture-before-finalize-hook 'add-created-timestamp-property)
 
 ;; TODO: figure out a way to limit this to org-mode, maybe on `SPC m e'
-(map!
- :desc "Eval org src block and print results" "C-c C-c" #'org-babel-execute-src-block)
+;; (map!
+;;  :desc "Eval org src block and print results" "C-c C-c" #'org-babel-execute-src-block)
 
 ;; Zero-width spaces! A hacky way to get syntax formatting to work for adjacent blocks
 (map! :map org-mode-map
@@ -148,18 +148,17 @@
                         '(("^ *\\([-]\\) "
                         (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-(defun zf/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
+;; (defun zf/org-mode-visual-fill ()
+;;   (setq visual-fill-column-width 100
+;;         visual-fill-column-center-text t)
+;;   (visual-fill-column-mode 1))
 
-(use-package! visual-fill-column
-  :hook (org-mode . zf/org-mode-visual-fill))
+;; (use-package! visual-fill-column
+;;   :hook (org-mode . zf/org-mode-visual-fill))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type 'relative)
-
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -177,17 +176,17 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
-(use-package! mixed-pitch
-  :hook (org-mode . mixed-pitch-mode)
-  :config
-  (setq mixed-pitch-set-height t)
-  (set-face-attribute 'variable-pitch nil :height 1.3))
+;; (use-package! mixed-pitch
+;;   :hook (org-mode . mixed-pitch-mode)
+;;   :config
+;;   (setq mixed-pitch-set-height t)
+;;   (set-face-attribute 'variable-pitch nil :height 1.3))
 
 ;; Keybindings
 (use-package! which-key
   :config
   (setq which-key-allow-multiple-replacements t
-        which-key-idle-delay 0.2
+        which-key-idle-delay 0.4
         which-key-use-C-h-commands t)
   (pushnew!
    which-key-replacement-alist
@@ -282,3 +281,12 @@ Inspired by above z/downcase-org-keywords function"
         (setq count (1+ count))
         (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil ))
       (message "Downcased %d matches" count))))
+
+(defun z/cider-debug-toggle-insert-state ()
+  (if cider--debug-mode    ;; Checks if you're entering the debugger
+      (evil-insert-state)  ;; If so, turn on evil-insert-state
+    (evil-normal-state)))  ;; Otherwise, turn on normal-state
+
+(add-hook 'cider--debug-mode-hook 'z/cider-debug-toggle-insert-state)
+
+(setq typescript-indent-level 2)

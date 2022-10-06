@@ -66,6 +66,8 @@ TAPS=(
   'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
   # 'd12frosted/emacs-plus'   # for Mitsuharu's emacs-mac port
   'thoughtbot/formulae'     # for Thoughtbot formulas
+  'clojure/tools'           # for regular clojure releases
+  'clojure-lsp/brew'
 )
 for tap in "${TAPS[@]}"
 do
@@ -117,9 +119,10 @@ FORMULAS=(
   'pyenv-virtualenv'
 
   # lisp
-  'clojure'
-  'guile'
+  'clojure/tools/clojure'
+  'clojure-lsp/brew/clojure-lsp-native'
   'leiningen'
+  'guile'
   'mit-scheme'
 
   # databases

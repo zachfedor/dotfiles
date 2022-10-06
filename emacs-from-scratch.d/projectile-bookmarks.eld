@@ -1,0 +1,1 @@
+("/opt/homebrew/" "~/.dotfiles/" "~/code/blb/" "~/code/test/")

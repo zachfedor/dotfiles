@@ -1,0 +1,14 @@
+which ag
+ag include
+git s
+git a ../assets/theme.css blb-zone-script.liquid
+git s
+git cm 'Fix modal button icons'
+git s
+git s
+git log
+git s
+git a ../assets/theme.css blb-zone-script.liquid
+git s
+which cmake
+exit
