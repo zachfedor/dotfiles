@@ -1,0 +1,15 @@
+---------------------
+--  Audio Devices  --
+---------------------
+
+-- TODO
+-- set up keybinds for each audio setup: CMD + CTRL + <N>
+--   1 :: mbp in/out
+--   2 :: mbp in/office speakers out
+--   3 :: samson in/airpods out
+--   4 :: airpods in/out
+-- for each:
+--   - check if connected/enabled
+--   - if bluetooth is off, enable bluetooth
+--   - connect to device via bluetooth
+--   - then switch to audio device

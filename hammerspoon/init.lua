@@ -3,7 +3,7 @@
 ------------------------
 
 -- Global Variables
--- editor = "Atom"
+-- editor = "emacs"
 
 -- Imports
 require "normal"

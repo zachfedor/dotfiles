@@ -72,6 +72,8 @@
   cm = commit -m
   # commit all modified/deleted
   ca = commit -a
+  # commit all modified/deleted with message
+  cam = commit -am
 
   # Config
   #---------
@@ -85,6 +87,11 @@
   # Diffing
   #----------
   d = diff
+
+  # Fetching
+  #-----------
+  f = fetch
+  fa = fetch -a
 
   # Grepping
   #-----------

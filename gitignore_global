@@ -3,6 +3,9 @@
 .AppleDouble
 .LSOverride
 
+# Emacs
+.dir-locals.el
+
 # Vim
 *.swp
 

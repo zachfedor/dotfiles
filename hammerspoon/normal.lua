@@ -8,7 +8,7 @@ editor = "Atom"
 
 -- Welcome Messages
 hs.hotkey.bind({"cmd", "ctrl"}, "W", function()
-    hs.alert.show("hello world")
+    hs.alert.show("hello world", { textSize = 24, radius = 10, textStyle = { paragraphStyle = { alignment = "center" }}})
 end)
 
 hs.hotkey.bind({"cmd", "ctrl", "shift"}, "W", function()

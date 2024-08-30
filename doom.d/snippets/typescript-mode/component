@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: component
+# uuid: component
+# key: trigger-key
+# condition: t
+# --
+type $1Props = {
+  $2
+}
+
+function ${1:Component}({ $3 }: $1Props) {
+  return (
+    $0
+  );
+}
+
+export { $1 };

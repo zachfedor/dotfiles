@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Script for managing Bluetooth connectivity
+
+# MAC addresses of paired devices
+DEVICES=( "Office speakers:ec-81-93-e9-d5-89"
+          "Airpod pros:74-15-f5-33-95-2c"
+          "Sony WH-1000XM3 headphones:cc-98-8b-93-d2-a3"
+          "Living room speakers:5c-eb-68-97-29-d3" )
+
+CMD="/opt/homebrew/bin/blueutil"
+
+while getopts "tslc:" flag; do
+    case $flag in
+        t)
+            if [ "$($CMD -p)" -eq 0 ]; then
+                echo "Enabling Bluetooth.."
+                $CMD -p 1 >/dev/null 2>&1 &
+            else
+                echo "Disabling Bluetooth.."
+                $CMD -p 0 >/dev/null 2>&1 &
+            fi
+            ;;
+        s)
+            if [ "$($CMD -p)" -eq 0 ]; then
+                echo "Bluetooth disabled"
+            else
+                echo "Bluetooth enabled"
+            fi
+            ;;
+        l)
+            $CMD --paired
+            ;;
+        c)
+            NAME=${DEVICES[$OPTARG]%%:*}
+            ID=${DEVICES[$OPTARG]#*:}
+
+            if [ "$ID" = "" ]; then
+                echo "Unknown device. Choose number from list:"
+                for INDEX in "${!DEVICES[@]}"; do
+                    printf "\t%s %s\n" "$INDEX" "${DEVICES[$INDEX]%%:*}"
+                done
+                exit 1
+            fi
+
+            if [ "$($CMD --is-connected "$ID")" -eq 0 ]; then
+                echo "Connecting: $NAME"
+                $CMD --connect "$ID" >/dev/null 2>&1 &
+            else
+                echo "Disconnecting: $NAME"
+                $CMD --disconnect "$ID" --info "$ID" >/dev/null 2>&1 &
+            fi
+            ;;
+        \?)
+            echo "Usage: bluetooth -stl -c [id]"
+            echo -e "\t-s\tprint status"
+            echo -e "\t-t\ttoggle bluetooth"
+            echo -e "\t-l\tlist paired devices"
+            echo -e "\t-c [id]\tconnect to device"
+            exit 1
+            ;;
+    esac
+done

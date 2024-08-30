@@ -9,29 +9,27 @@
 # - sets up ssh configuration
 # --------------------
 
-
 # Global Functions and Variables
 # --------------------
-DOTFILES_DIR="$HOME"/.dotfiles      # dotfiles directory
-BACKUP_DIR="$HOME"/.dotfiles_old    # backup directory for old dotfiles
+DOTFILES_DIR="$HOME"/.dotfiles   # dotfiles directory
+BACKUP_DIR="$HOME"/.dotfiles_old # backup directory for old dotfiles
 # list of files/folders to symlink in homedir
 FILES="bash_profile bashrc dir_colors doom.d gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zprofile zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 
-
 # Setup ZSH
 # --------------------
 case "$SHELL" in
-  */zsh) : ;;
-  *)
-    fancy_echo "Changing your shell to zsh ..."
-    chsh -s "$(which zsh)"
+*/zsh) : ;;
+*)
+  fancy_echo "Changing your shell to zsh ..."
+  chsh -s "$(which zsh)"
 
-    if [ ! -f "$HOME"/.zsh.local ]; then
-      fancy_echo "TODO: Get a copy of your ~/.zsh.local for API tokens!!!"
-    fi
-    ;;
+  if [ ! -f "$HOME"/.zsh.local ]; then
+    fancy_echo "TODO: Get a copy of your ~/.zsh.local for API tokens!!!"
+  fi
+  ;;
 esac
 
 if [ ! -d "$HOME"/.oh-my-zsh ]; then
@@ -40,7 +38,6 @@ if [ ! -d "$HOME"/.oh-my-zsh ]; then
 else
   fancy_echo "Oh-my-zsh already installed. Skipping..."
 fi
-
 
 # Setup Homebrew
 # --------------
@@ -57,20 +54,17 @@ fi
 # access alternative formulas
 fancy_echo "Tapping homebrew repos..."
 TAPS=(
-  'chrokh/tap'              # for Base16 repos
-  'homebrew/cask-fonts'     # for font files!
-  'homebrew/cask-versions'  # for common alternative builds (e.g. beta, nightly)
-  'osx-cross/avr'           # for QMK build tools
-  'PX4/homebrew-px4'        # "
+  'chrokh/tap'       # for Base16 repos
+  'osx-cross/avr'    # for QMK build tools
+  'PX4/homebrew-px4' # "
   'heroku/brew'
-  'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
-  # 'd12frosted/emacs-plus'   # for Mitsuharu's emacs-mac port
-  'thoughtbot/formulae'     # for Thoughtbot formulas
-  'clojure/tools'           # for regular clojure releases
+  # 'railwaycat/emacsmacport' # for Mitsuharu's emacs-mac port
+  'd12frosted/emacs-plus' # for Emacs 29 with native comp support
+  'thoughtbot/formulae'   # for Thoughtbot formulas
+  'clojure/tools'         # for regular clojure releases
   'clojure-lsp/brew'
 )
-for tap in "${TAPS[@]}"
-do
+for tap in "${TAPS[@]}"; do
   brew_tap $tap
 done
 
@@ -81,20 +75,20 @@ if ! command -v rcup >/dev/null; then
   brew_install 'rcm'
 fi
 
-
 # Install via Homebrew
 # --------------------
 FORMULAS=(
   # dependencies
   'git'
-  'coreutils' # for doom-emacs
-  'fd'        # for doom-emacs
-  'ripgrep'  # for doom-emacs
+  'coreutils'   # for doom-emacs
+  'fd'          # for doom-emacs
+  'ripgrep'     # for doom-emacs
+  'tree-sitter' # for emacs-plus@29+
 
   # tools
   'editorconfig'
-  'emacs-mac --with-starter --with-rsvg --with-imagemagick --with-emacs-big-sur-icon --with-no-title-bars --with-mac-metal'
-  # 'emacs-plus'
+  # 'emacs-mac --with-emacs-big-sur-icon --with-no-title-bars'
+  'emacs-plus@30 --with-native-comp'
   'gnu-tar'
   'heroku'
   'htop'
@@ -117,6 +111,7 @@ FORMULAS=(
   # python
   'pyenv'
   'pyenv-virtualenv'
+  'black' # code formatter
 
   # lisp
   'clojure/tools/clojure'
@@ -137,6 +132,7 @@ FORMULAS=(
   'gifsicle'
   'lua'
   'nethack'
+  'shfmt'
   'zork'
 
   # QMK build tools
@@ -146,17 +142,14 @@ FORMULAS=(
   # 'avrdude'
   # 'teensy_loader_cli'
 )
-for formula in "${FORMULAS[@]}"
-do
+for formula in "${FORMULAS[@]}"; do
   brew_install $formula
 done
-
 
 # Install via Homebrew Cask
 # --------------------
 CASKS=(
   # Applications
-  'atom'
   'calibre'
   'discord'
   'dropbox'
@@ -165,7 +158,6 @@ CASKS=(
   'hammerspoon'
   'iterm2'
   'jdiskreport'
-  'kindle'
   'kobo'
   # 'notion'
   'obs'
@@ -199,11 +191,9 @@ CASKS=(
   'font-source-serif-pro'
   'font-vt323'
 )
-for cask in "${CASKS[@]}"
-do
+for cask in "${CASKS[@]}"; do
   cask_install $cask
 done
-
 
 # Install via NPM
 # --------------------
@@ -254,6 +244,10 @@ else
   npm_install 'typescript-language-server'
 fi
 
+# Install Lisp tools
+# --------------------
+# Install or update cljfmt, a formatter for Clojure used by tree-sitter in Emacs and Leiningen projects
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/weavejester/cljfmt/HEAD/install.sh)"
 
 # Install via Gem
 # --------------------
@@ -263,7 +257,6 @@ else
   gem_install 'bundler'
   gem_install 'jekyll'
 fi
-
 
 # Clone Git Repositories
 # --------------------
@@ -278,7 +271,6 @@ else
   git_clone "$HOME/code" 'git@github.com:zachfedor/zachfedor.github.io.git'
 fi
 
-
 # Symlink Dotfiles
 # --------------------
 for FILE in $FILES; do
@@ -287,7 +279,6 @@ for FILE in $FILES; do
   # then create symlinks in homedir to my dotfiles
   symlink_dotfile $FILE
 done
-
 
 # Setup Vim
 # --------------------
@@ -301,7 +292,6 @@ fi
 if [ ! -d ~/.vim/tmp ]; then
   mkdir -p ~/.vim/tmp
 fi
-
 
 # Setup SSH
 # --------------------
@@ -335,14 +325,13 @@ if [[ ! $(compgen -G "${SSH_DIR}/id_*") ]]; then
   fancy_echo "NOTE: Now add new key to GitHub etc."
 fi
 
-
 # Setup Applications
 # --------------------
 
 # Emacs
 # Symlink brew installed emacs package to apps folder, if it isn't already
-if [ ! -L /Applications/Emacs.app ]; then
-  ln -s /opt/homebrew/opt/emacs-mac/Emacs.app /Applications
+if [ ! -f /Applications/Emacs.app ]; then
+  osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-mac/Emacs.app" at POSIX file "/Applications"'
 fi
 
 # Emacs - Doom
@@ -360,7 +349,7 @@ if [ ! -d "$HOME"/.emacs.d ]; then
   # lastly, install necessary icon fonts
   emacs --batch -f all-the-icons-install-fonts
 
-  fancy_echo "Doom Emacs Installed. You might want to run `doom doctor` to check the installation."
+  fancy_echo "Doom Emacs Installed. You might want to run $(doom doctor) to check the installation."
 fi
 
 # Übersicht

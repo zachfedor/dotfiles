@@ -1,34 +1,43 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;;
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
+;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Zach Fedor"
       user-mail-address "zachfedor@gmail.com")
 
-;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
-;; are the three important ones:
+;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
-;; + `doom-font'
-;; + `doom-variable-pitch-font'
-;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;; - `doom-font' -- the primary font to use
+;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
+;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
 ;;   presentations or streaming.
+;; - `doom-unicode-font' -- for unicode glyphs
+;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
 ;;
-;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
-;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-(setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 14 :weight 'semi-light)
-      ;; doom-variable-pitch-font (font-spec :family "Cormorant Garamond" :style "Regular" :size 14 :weight 'medium)
-      doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 24 :weight 'semi-light))
-
+;; See 'C-h v doom-font' for documentation and more examples of what they
+;; accept. For example:
+;;
+;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
+;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
+;;
+;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
+;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
+;; refresh your font settings. If Emacs still can't find your font, it likely
+;; wasn't installed correctly. Font issues are rarely Doom issues!
+(setq doom-font (font-spec :family "Hack" :size 15.0))
+;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 14 :weight 'semi-light)
+;;       ;; doom-variable-pitch-font (font-spec :family "ETBembo" :size 24)
+;;       doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 24 :weight 'semi-light))
 
 (setq
  ;; No worries with auto-saved buffers
  auto-save-default t
+ make-backup-files t
  ;; Enable granular insert-mode history for undoing
  evil-want-fine-undo t
  ;; Set initial size on start
@@ -40,7 +49,11 @@
  ;; Enable visual line-based editing
  visual-line-mode 1
  ;; Stretch cursor to contain entire glyph
- x-stretch-cursor t)
+ x-stretch-cursor t
+ ;; standardize indent and tab widths
+ standard-indent 2
+ evil-shift-width 2
+ tab-width 2)
 
 (setq-default
  history-length 1000)
@@ -48,19 +61,37 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-solarized-light
-      doom-font-increment 1
-      line-spacing 0.3)
+(setq doom-theme 'doom-nord
+      doom-font-increment 1)
+(setq line-spacing 0.3)
+(setq-default line-spacing line-spacing)
+(setq-default header-line-format " ")
+
 (after! doom-theme
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
 (after! doom-modeline
-  (setq display-time-format "⏱ %H:%M"
+  (setq display-time-day-and-date t
+        display-time-24hr-format t
+        display-time-load-average nil
         display-time-default-load-average nil)
   (display-time-mode))
 
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type 'relative)
+
 ;; Theme specific customizations
-(setq default-text-properties '(line-spacing 0.25 line-height 1.25))
+(custom-set-faces!
+  `(outline-1 :foreground ,(doom-color 'blue))
+  `(outline-2 :foreground ,(doom-color 'default))
+  `(outline-3 :foreground ,(doom-color 'default))
+  `(outline-4 :foreground ,(doom-color 'default))
+  `(outline-5 :foreground ,(doom-color 'default))
+  `(outline-6 :foreground ,(doom-color 'default))
+  `(outline-7 :foreground ,(doom-color 'default))
+  `(outline-8 :foreground ,(doom-color 'default))
+  `(header-line :background ,(doom-color 'bg)))
 (cond ((equal doom-theme 'doom-gruvbox)
        (custom-set-faces!
          `(font-lock-keyword-face :slant italic :foreground ,(doom-color 'default))
@@ -78,7 +109,7 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/Dropbox/notes")
+(setq org-directory (expand-file-name "~/Documents/notes"))
 ;; (defun zf/org-mode-setup ()
 ;;   (setq display-line-numbers nil)
 ;;   ;; (org-indent-mode)
@@ -86,15 +117,93 @@
 (use-package! org
   ;; :hook (org-mode . zf/org-mode-setup)
   :config
+  ;; Use Org-Mode as the default major mode for any new buffer
   (setq-default major-mode 'org-mode)
-  (setq org-deadline-warning-days 7
+  (setq org-archive-location "::datetree/"
+        org-deadline-warning-days 7
+        org-default-notes-file (concat org-directory "/inbox.org")
         org-ellipsis " ▾ "
         org-hide-emphasis-markers t
         org-list-demote-modify-bullet '(("1" . "a") ("a" . "1"))
         org-log-done 'time
         org-log-into-drawer t
-        org-roam-directory "~/Dropbox/notes/roam"
-        org-tags-column -80))
+        org-startup-folded t
+        ;; This doom function prevents final state in =org-cycle=, limiting you to seeing heading or just children
+        ;; Removing it from their tab hook allows 3rd state of seeing entire subtree under a headine
+        org-tab-first-hook (delete '+org-cycle-only-current-subtree-h org-tab-first-hook)
+        org-tags-column -80
+        org-todo-keywords '((sequence "TODO(t)" "NEXT(n!)" "|" "DONE(d)")
+                            (sequence "WAIT(w@/!)" "|" "CLOSED(D!)" "MEETING")
+                            (sequence "[ ](c)" "[-](C)" "|" "[X](x)"))
+        org-todo-keyword-faces `(("NEXT" . +org-todo-active) ("WAIT" . +org-todo-onhold) ("MEETING" . +org-todo-project) ("[-]" . +org-todo-active))
+        org-treat-S-cursor-todo-selection-as-state-change nil)
+  (setq org-capture-templates '(("t" "todo" entry (file org-default-notes-file)
+                                 ;; task headline, inactive timestamp, annotation link
+                                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                                ("n" "note" entry (file org-default-notes-file)
+                                 ;; simple headline, annotation link
+                                 "* %?\n%a\n")
+                                ("m" "meeting" entry (file org-default-notes-file)
+                                 ;; meeting headline and tag
+                                 "* MEETING with %? :meeting:\n%U\n" :clock-in t :clock-resume t)
+                                ("j" "journal" entry (file+datetree +org-capture-journal-file)
+                                 ;; simple headline, inactive timestamp
+                                 "* %?\n%U\n" :clock-in t :clock-resume t)
+                                ("f" "food log" entry (file+datetree (concat org-directory "/food.org"))
+                                 ;; simple headline, inactive timestamp, with properties
+                                 "* %?\n%U\n"))))
+
+(use-package! denote
+  :config
+  (setq denote-directory org-directory)
+  ;; TODO finish configuring denote
+  (setq denote-known-keywords '("fun" "home" "work" "ref"))
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
+  (denote-rename-buffer-mode 1))
+(map! :after denote :leader :prefix "n" :desc "Open denote" "d" #'denote)
+
+(use-package! corfu
+  :config
+  (setq corfu-count 10)
+  (setq corfu-max-width 40)
+  (setq corfu-min-width corfu-max-width)
+  (setq corfu-popupinfo-min-height 5)
+  (setq corfu-popupinfo-max-width 80)
+  (setq corfu-popupinfo-min-width corfu-popupinfo-max-width)
+  (setq corfu-preselect 'valid)
+  (setq corfu-scroll-margin 4))
+
+(defun zf/open-inbox ()
+  "Open org-mode inbox file"
+  (interactive)
+  (find-file org-default-notes-file))
+
+;; (map! :after evil :leader :prefix "n" :desc "Open inbox" "n" #'zf/open-inbox)
+;; (which-key-add-key-based-replacements "SPC n n" "Open inbox")
+
+;; Save all org buffers 1 minute before the hour, every hour
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
+
+(defun zf/remove-empty-drawer-on-clock-out ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line 0)
+    (org-remove-empty-drawer-at (point))))
+
+(add-hook 'org-clock-out-hook 'zf/remove-empty-drawer-on-clock-out 'append)
+
+;; (map! :desc "Complete Word" :map help-map "c" #'+company/complete)
+
+;; (defun zf/toggle-auto-completion ()
+;;   "Set `company-idle-delay' to nil for certain modes, preventing auto-complete
+;; popup. You can still manually request completion with `C-hc' in insert mode."
+;;   (setq-local company-idle-delay nil))
+
+;; (add-hook 'org-mode-hook 'zf/toggle-auto-completion)
+
+;; (use-package! company
+;;   :config
+;;   (setq company-idle-delay 0.2))
 
 ;; (setq-hook! org-mode
 ;;   org-fontify-done-headline t
@@ -116,37 +225,84 @@
 (map! :map org-mode-map
       :nie "M-SPC M-SPC" (cmd! (insert "\u200B")))
 
+;; Use org-mode's open at point function everywhere
+(map! :desc "Open At Point" :nie "s-<return>" #'org-open-at-point-global)
+
 ;;; Org-Superstar
 (use-package! org-superstar
-  :config (setq org-superstar-cycle-headline-bullets nil  ;; don't cycle, just repeat the last bullet in list
+  :config (setq org-superstar-cycle-headline-bullets t  ;; don't cycle, just repeat the last bullet in list
                 org-superstar-headline-bullets-list '(?◉ ?○ ?▷)))
 
-(use-package! org-appear
-  :hook (org-mode . org-appear-mode)
-  :config
-  (setq org-appear-autoemphasis t
-        org-appear-autosubmarkers t
-        org-appear-autolinks nil)
-  (run-at-time nil nil #'org-appear--set-elements))
+;; (use-package! org-appear
+;;   :hook (org-mode . org-appear-mode)
+;;   :config
+;;   (setq org-appear-autoemphasis t
+;;         org-appear-autosubmarkers t
+;;         org-appear-autolinks nil)
+;;   (run-at-time nil nil #'org-appear--set-elements))
 
-(use-package! deft
-  :config
-  (setq deft-directory org-directory  ;; deft should use same notes directory as org-mode
-        deft-default-extension "org"  ;; create new files with this filetype
-        deft-extensions '("org" "md") ;; include these filetype in searches
-        deft-org-mode-title-prefix t  ;; generated titles in new files are prefixed with `#+title'
-        deft-recursive t  ;; search sub-directories too
-        deft-use-filename-as-title nil
-        deft-use-filter-string-for-filename t  ;; use the search string text to create new files using `deft-file-naming-rules'
-        deft-file-naming-rules '((nospace . "-") (case-fn . downcase))))  ;; convert spaces to hyphens and downcase all text
-(map!
- :leader
- :desc "Open deft" "DEL" #'deft
- :prefix "f"
- :desc "Deft find file" "n" #'deft-find-file)
+;; (use-package! deft
+;;   :config
+;;   (setq
+;;    ;; deft should use same notes directory as org-mode
+;;    deft-directory org-directory
+;;    ;; create new files with this filetype
+;;    deft-default-extension "org"
+;;    ;; include these filetype in searches
+;;    deft-extensions '("org" "md")
+;;    ;; generated titles in new files are prefixed with `#+title'
+;;    deft-org-mode-title-prefix t
+;;    ;; search sub-directories too
+;;    deft-recursive t
+;;    deft-use-filename-as-title nil
+;;    ;; use the search string text to create new files using `deft-file-naming-rules'
+;;    deft-use-filter-string-for-filename t
+;;    ;; convert spaces to hyphens and downcase all text
+;;    deft-file-naming-rules '((nospace . "-") (case-fn . downcase))
+;;    ;; prevent properties or logbook entries from showing in the summary
+;;    deft-strip-summary-regexp "\\`\\(.+\n\\)+\n"))
+
+;; (map!
+;;  :leader
+;;  :desc "Open deft" "DEL" #'deft
+;;  :prefix "f"
+;;  :desc "Deft find file" "n" #'deft-find-file)
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
-                        (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+(use-package! projectile
+  :config
+  ;; Set directories to search within for projects, looking one directory deep
+  (setq projectile-project-search-path '(("~/code" . 1) ("~/git" . 1))
+        ;; Open magit status buffer after switching to a new project
+        ;; TODO: doom uses some other hack which includes opening/switching to workspace, then doom-project-find-file
+        ;; projectile-switch-project-action #'magit-status
+        +workspaces-switch-project-function #'magit-status
+        ;; Use a separate uniquely named buffer for each project, rather than *compilation*
+        projectile-per-project-compilation-buffer t
+        ;; Use interactive buffers for projectile commands
+        projectile-run-use-comint-mode t
+        projectile-test-use-comint-mode t
+        projectile-compile-use-comint-mode t)
+  ;; Add dotfiles as the first project if it isn't already known, which also triggers a scan of new
+  ;; projects in search path defined above
+  (unless (member "~/.dotfiles" projectile-known-projects)
+    (projectile-add-known-project "~/.dotfiles")
+    (projectile-discover-projects-in-search-path)))
+
+(map!
+ :leader
+ :prefix "c"
+ :desc "Explain error" "x" #'flycheck-explain-error-at-point)
+(map!
+ :leader
+ :prefix "c"
+ :desc "List all errors" "X" #'+default/diagnostics)
+(map!
+ :leader
+ :desc "Sort lines" ">" #'sort-lines
+ :desc "Sort fields" "<" #'sort-fields)
 
 ;; (defun zf/org-mode-visual-fill ()
 ;;   (setq visual-fill-column-width 100
@@ -156,11 +312,20 @@
 ;; (use-package! visual-fill-column
 ;;   :hook (org-mode . zf/org-mode-visual-fill))
 
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
-
-;; Here are some additional functions/macros that could help you configure Doom:
+;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
+;;
+;;   (after! PACKAGE
+;;     (setq x y))
+;;
+;; The exceptions to this rule:
+;;
+;;   - Setting file/directory variables (like `org-directory')
+;;   - Setting variables which explicitly tell you to set them before their
+;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;;   - Setting doom variables (which start with 'doom-' or '+').
+;;
+;; Here are some additional functions/macros that will help you configure Doom.
 ;;
 ;; - `load!' for loading external *.el files relative to this one
 ;; - `use-package!' for configuring packages
@@ -173,6 +338,8 @@
 ;; To get information about any of these functions/macros, move the cursor over
 ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
 ;; This will open documentation for it, including demos of how they are used.
+;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
+;; etc).
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
@@ -221,12 +388,6 @@
  :prefix "t"
  :desc "Transparency" "t" #'zf/toggle-transparency
  :desc "Zone out" "o" #'zone)
-
-(map!
- :leader
- :prefix "s"
- :desc "Hide highlights" "h" #'evil-ex-nohighlight)
-
 
 ;; Force new windows to open to the right and below the current window
 (setq evil-vsplit-window-right t
