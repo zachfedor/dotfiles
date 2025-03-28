@@ -59,9 +59,11 @@
 
 (package! denote)
 (package! lorem-ipsum)
+(package! mini-frame)
 (package! mixed-pitch)
 (package! nano-theme)
 ;; (package! org-appear)
+(package! org-present)
 (package! visual-fill-column)
 (package! writegood-mode)
 
@@ -72,3 +74,5 @@
 ;; (package! theme-magic)                  ; update terminal with emacs theme, NB: needs py-wal
 ;; (package! wttrin)                       ; weather data
 
+;; Syntax highlighting and LSP integration for Prisma ORM files
+(package! prisma-mode :recipe (:host github :repo "pimeys/emacs-prisma-mode") :pin "f7744a995e84b8cf51265930ce18f6a6b26dade7")

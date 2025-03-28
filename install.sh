@@ -221,8 +221,8 @@ else
     sudo mkdir -p /usr/local/n
     sudo chown -R $(whoami) /usr/local/n
     # Make sure Node.js install destination folders exist and take ownership
-    sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
     sudo mkdir -p /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+    sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
 
     # Using n, install latest version of node
     n latest
@@ -329,10 +329,11 @@ fi
 # --------------------
 
 # Emacs
-# Symlink brew installed emacs package to apps folder, if it isn't already
-if [ ! -f /Applications/Emacs.app ]; then
-  osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-mac/Emacs.app" at POSIX file "/Applications"'
-fi
+# Symlink brew installed emacs package to apps folder, removing prior version if one exists
+# if [ -f /Applications/Emacs.app ]; then
+#   rm -rf /Applications/Emacs.app
+# fi
+# osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-mac/Emacs.app" at POSIX file "/Applications"'
 
 # Emacs - Doom
 if [ ! -d "$HOME"/.emacs.d ]; then

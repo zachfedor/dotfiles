@@ -24,7 +24,7 @@ end)
 --  Window Sizing  --
 ---------------------
 
--- Maximized
+-- Maximize
 hs.hotkey.bind({"cmd", "ctrl"}, "M", function()
     local win = hs.window.focusedWindow()
     local f = win:frame()
@@ -36,6 +36,23 @@ hs.hotkey.bind({"cmd", "ctrl"}, "M", function()
     f.w = max.w - (gutter * 2)
     f.h = max.h - (gutter * 2)
     win:setFrame(f)
+end)
+
+-- Maximize All
+hs.hotkey.bind({"cmd", "ctrl", "alt"}, "M", function()
+    local wins = hs.window.visibleWindows()
+
+    for key,win in pairs(wins) do
+        local f = win:frame()
+        local screen = win:screen()
+        local max = screen:frame()
+
+        f.x = max.x + gutter
+        f.y = max.y + gutter
+        f.w = max.w - (gutter * 2)
+        f.h = max.h - (gutter * 2)
+        win:setFrame(f)
+    end
 end)
 
 -- Left Half

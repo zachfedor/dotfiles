@@ -133,3 +133,5 @@
   # update submodules
   subup = submodule update --init --recursive
 
+[merge]
+	conflictStyle = diff3
