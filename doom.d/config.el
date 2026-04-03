@@ -66,6 +66,10 @@
  evil-shift-width 2
  tab-width 2)
 
+;; Settings for native-comp
+(setq find-function-C-source-directory
+      "/opt/homebrew/Cellar/emacs-plus@30/30.1/share/emacs/30.1/etc/src/")
+
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
@@ -130,6 +134,8 @@
   :config
   ;; Use Org-Mode as the default major mode for any new buffer
   (setq-default major-mode 'org-mode)
+  ;; Use Conf-Mode instead of ^ org-mode for dotfiles
+  (add-to-list 'auto-mode-alist '("/\\(?:\\.env\\.[^./]*\\|\\.[^./]*\\|[^./]+\\)\\'" . conf-mode))
   ;; including the *scratch* buffer
   (setq initial-major-mode 'org-mode)
   (setq org-archive-location "::datetree/")
@@ -296,6 +302,67 @@
   (unless (member "~/.dotfiles" projectile-known-projects)
     (projectile-add-known-project "~/.dotfiles")
     (projectile-discover-projects-in-search-path)))
+
+(defun zf/new-project (input &optional dir-name)
+  "Create a new project from INPUT.
+If INPUT looks like a git repository URL, clone it. Optionally
+provide DIR-NAME to override the default clone directory name.
+Otherwise, create a new directory named INPUT and initialize a
+git repo in it."
+  (interactive
+   (let* ((input (read-string "Project name or git URL: "))
+          (dir-name (when (zf/project--git-url-p input)
+                      (let ((name (read-string
+                                   (format "Directory name (default: %s): "
+                                           (zf/project--default-dir-name input)))))
+                        (when (not (string-empty-p name)) name)))))
+     (list input dir-name)))
+  (let* ((is-git-url (zf/project--git-url-p input))
+         (project-name (or dir-name
+                           (if is-git-url
+                               (zf/project--default-dir-name input)
+                             input)))
+         (project-path (expand-file-name project-name (caar projectile-project-search-path))))
+    (when (file-exists-p project-path)
+      (user-error "Project directory already exists: %s" project-path))
+    (if is-git-url
+        (progn
+          (message "Cloning %s into %s..." input project-path)
+          (unless (zerop (call-process "git" nil nil nil
+                                       "clone" input project-path))
+            (user-error "Failed to clone repository: %s" input)))
+      (make-directory project-path t)
+      (message "Initializing git repo in %s..." project-path)
+      (unless (zerop (call-process "git" nil nil nil
+                                   "-C" project-path "init"))
+        (user-error "Failed to initialize git repo in %s" project-path)))
+    (projectile-add-known-project project-path)
+    (projectile-switch-project-by-name project-path)
+    (message "Project created: %s" project-path)))
+
+(defun zf/project--git-url-p (str)
+  "Return non-nil if STR looks like a git repository URL."
+  (string-match-p (rx (or (seq bos "git@")
+                          (seq bos "git://")
+                          (seq bos "ssh://")
+                          (seq bos (or "http://" "https://")
+                               (* nonl) ".git" eos)
+                          (seq bos (or "http://" "https://")
+                               (* nonl) "github.com" (* nonl))
+                          (seq bos (or "http://" "https://")
+                               (* nonl) "gitlab.com" (* nonl))))
+                  str))
+
+(defun zf/project--default-dir-name (url)
+  "Extract a default directory name from a git URL."
+  (let ((name (file-name-nondirectory
+               (directory-file-name
+                (replace-regexp-in-string "\\.git\\'" "" url)))))
+    (if (string-empty-p name) "project" name)))
+
+(map! :leader
+      :desc "New project"
+      "p n" #'zf/new-project)
 
 (map!
  :leader
@@ -503,7 +570,7 @@ Inspired by above z/downcase-org-keywords function"
 (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
 (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
 (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+;; (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
 (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
 
 
@@ -525,8 +592,9 @@ Inspired by above z/downcase-org-keywords function"
   (visual-fill-column-mode 1)
   (visual-line-mode 1)
 
-  ;; Hide line numbers
+  ;; Hide line numbers and modeline
   (display-line-numbers-mode 0)
+  (hide-mode-line-mode 1)
 
   ;; Turn off grammar and spell checking
   (spell-fu-mode 0)
@@ -544,8 +612,9 @@ Inspired by above z/downcase-org-keywords function"
   (visual-fill-column-mode 0)
   (visual-line-mode 0)
 
-  ;; Display line numbers
+  ;; Display line numbers and modeline
   (display-line-numbers-mode 1)
+  (hide-mode-line-mode 0)
 
   ;; Turn on grammar and spell checking
   (spell-fu-mode 1)
