@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Aliases, sourced by zshrc
+
+alias wget="wget2"

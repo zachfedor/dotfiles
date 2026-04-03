@@ -73,12 +73,51 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Customize PATH, note that this happens after language version managers prepend their locations
-# so these custom directories should feature _before_ the version manager scripts
-export PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin:$HOME/.doom.d:$HOME/.emacs.d/bin:$HOME/.yarn/bin:$HOME/.rvm/bin:$HOME/.rbenv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-# export GIT_SSH=$HOME/.bin/ssh-git.sh
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/zach/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/zach/google-cloud-sdk/path.zsh.inc'; fi
 
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/zach/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/zach/google-cloud-sdk/completion.zsh.inc'; fi
+
+# Shopify Hydrogen alias to local projects
+alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
+
+# =====================================
+# CUSTOMIZE PATH
+# only exported if needed by relevant program
+# =====================================
+# homebrew
+BREW_PATH="/opt/homebrew/bin:/opt/homebrew/sbin"
+# windsurf
+WINDSURF_PATH="/Users/zach/.codeium/windsurf/bin"
+# ruby
+RBENV_PATH="$HOME/.rbenv/bin"
+RVM_PATH="$HOME/.rvm/bin"
+# golang
+export GOPATH=$HOME/code/go
+GO_BIN_PATH="$GOPATH/bin"
+# pnpm
+export PNPM_HOME="/Users/zach/Library/pnpm"
+# yarn
+YARN_PATH="$HOME/.yarn/bin"
+# emacs
+EMACS_PATH="$HOME/.doom.d:$HOME/.emacs.d/bin"
+# custom scripts
+SCRIPTS_PATH="$HOME/scripts:$HOME/.dotfiles/scripts:$HOME/.bin"
+
+# from low priority to high priority
+PIECES=("$BREW_PATH" "$WINDSURF_PATH" "$RBENV_PATH" "$RVM_PATH" "$GO_BIN_PATH" "$PNPM_HOME" "$YARN_PATH" "$EMACS_PATH" "$SCRIPTS_PATH")
+for PIECE in "${PIECES[@]}"; do
+  # echo "adding piece to path: $PIECE"
+  case ":$PATH:" in
+    *":$PIECE:"*) ;;
+    *) export PATH="$PIECE:$PATH" ;;
+  esac
+done
 
 # base16-shell
 BASE16_SHELL=$HOME/.config/base16-shell/
@@ -90,6 +129,10 @@ BASE16_SHELL=$HOME/.config/base16-shell/
 # aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local
+
+
+# Enable Stellar CLI completions
+source <(stellar completion --shell zsh)
 
 
 # Functions
@@ -119,26 +162,3 @@ countdown() {
   done
   echo
 }
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/zach/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/zach/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/zach/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/zach/google-cloud-sdk/completion.zsh.inc'; fi
-
-# pnpm
-export PNPM_HOME="/Users/zach/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
-# Shopify Hydrogen alias to local projects
-alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
-
-# golang
-export GOPATH=$HOME/code/go

@@ -14,7 +14,7 @@
 DOTFILES_DIR="$HOME"/.dotfiles   # dotfiles directory
 BACKUP_DIR="$HOME"/.dotfiles_old # backup directory for old dotfiles
 # list of files/folders to symlink in homedir
-FILES="bash_profile bashrc dir_colors doom.d gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zprofile zshrc"
+FILES="aliases bash_profile bashrc dir_colors doom.d gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zprofile zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 

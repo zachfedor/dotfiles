@@ -1,16 +1,21 @@
-# General
-.DS_Store
-.AppleDouble
-.LSOverride
+# Easy way to create temp files/folders that won't be
+# accidentally added to git
+*.local.*
 
 # Emacs
 .dir-locals.el
 
+# LSP logs
+.log
+
 # Vim
 *.swp
 
-# Icon must end with two \r
-Icon
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
 
 # Thumbnails
 ._*

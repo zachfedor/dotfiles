@@ -632,6 +632,7 @@ set background=dark
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
+  hi Normal guibg=NONE ctermbg=NONE
 endif
 
 " set colors of line number column
@@ -649,15 +650,15 @@ endif
 
 function!ResetBGColors()
   " set colors of line number column
-  highlight LineNr ctermbg=00
+  highlight LineNr ctermbg=NONE
   " highlight LineNr ctermfg=18
 
   " set colors of gitgutter column
-  highlight SignColumn ctermbg=00
-  highlight GitGutterAdd ctermbg=00
-  highlight GitGutterChange ctermbg=00
-  highlight GitGutterDelete ctermbg=00
-  highlight GitGutterChangeDelete ctermbg=00
+  highlight SignColumn ctermbg=NONE
+  highlight GitGutterAdd ctermbg=NONE
+  highlight GitGutterChange ctermbg=NONE
+  highlight GitGutterDelete ctermbg=NONE
+  highlight GitGutterChangeDelete ctermbg=NONE
 endfunction
 call ResetBGColors()
 

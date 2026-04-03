@@ -70,10 +70,8 @@
   c = commit
   # commit with message
   cm = commit -m
-  # commit all modified/deleted
-  ca = commit -a
-  # commit all modified/deleted with message
-  cam = commit -am
+  # amend previous commit
+  ca = commit --amend
 
   # Config
   #---------
