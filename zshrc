@@ -65,6 +65,10 @@ bashcompinit
 bindkey -v
 export KEYTIMEOUT=1
 
+# keep history search commands available while in vim mode
+bindkey ^R history-incremental-search-backward
+bindkey ^S history-incremental-search-forward
+
 # Language version managers
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
