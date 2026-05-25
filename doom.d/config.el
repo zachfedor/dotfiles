@@ -239,9 +239,9 @@
 (map! :desc "Open At Point" :nie "s-<return>" #'org-open-at-point-global)
 
 ;;; Org-Superstar
-(use-package! org-superstar
-  :config (setq org-superstar-cycle-headline-bullets t  ;; don't cycle, just repeat the last bullet in list
-                org-superstar-headline-bullets-list '(?◉ ?○ ?▷)))
+;; (use-package! org-superstar
+;;   :config (setq org-superstar-cycle-headline-bullets t  ;; don't cycle, just repeat the last bullet in list
+;;                 org-superstar-headline-bullets-list '(?◉ ?○ ?▷)))
 
 ;; (use-package! org-appear
 ;;   :hook (org-mode . org-appear-mode)
