@@ -20,3 +20,11 @@ widening. `install.sh` is retired only for that one path.
 ## Blocked by
 
 None - can start immediately
+
+## Notes
+
+- **direnv**: consider adding `direnv` + nix-direnv during the Nix work so a
+  `.envrc` with `use flake` auto-loads a project's toolchain on `cd`. Strong
+  synergy with the flake; hook into zsh (`eval "$(direnv hook zsh)"`) and place
+  both via home-manager (carry into #04). Deferred from the issue-02 zsh pass —
+  not wanted as a standalone shell addition, only alongside Nix.

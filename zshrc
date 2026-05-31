@@ -38,6 +38,17 @@ fi
 source ${ZIM_HOME}/init.zsh
 
 #
+# PROMPT TWEAKS
+# ------------
+# The `minimal` theme puts the working directory in the RIGHT prompt, which is
+# easy to lose on wide screens. Move it to the left, ordered status > dir >
+# vi-mode for consistency. Spliced before the keymap token (kept dim grey 244,
+# trimmed to the last 2 dirs by prompt-pwd) so theme glyph changes survive. Git
+# status stays on the right.
+PS1=${PS1/'$(_prompt_mnml_keymap)'/'%F{244}$(prompt-pwd)%f $(_prompt_mnml_keymap)'}
+RPS1='${(e)git_info[rprompt]}%f'
+
+#
 # ALIASES
 # -------
 [[ -f ~/.aliases ]] && source ~/.aliases
@@ -46,7 +57,7 @@ source ${ZIM_HOME}/init.zsh
 # AUTOCOMPLETION
 # --------------------
 # Stellar CLI
-source <(stellar completion --shell zsh)
+command -v stellar >/dev/null && source <(stellar completion --shell zsh)
 
 #
 # ZSH SETTINGS
@@ -59,14 +70,15 @@ export KEYTIMEOUT=1
 HISTSIZE=1000000
 SAVEHIST=1000000
 
-# Keep history search commands available while in vim mode
-# bindkey -M vicmd "?" history-incremental-pattern-search-backward
-# bindkey -M vicmd "/" history-incremental-pattern-search-forward
-# bindkey -M viins '\C-R' history-incremental-pattern-search-backward
-# bindkey -M viins '\C-S' history-incremental-pattern-search-forward
-# unsetopt FLOW_CONTROL # disable C-s/C-q in the editor
-bindkey '\C-R' history-incremental-search-backward
-bindkey '\C-S' history-incremental-search-forward
+# History search in vi insert mode (vi keymaps drop zsh's default Ctrl-R, so
+# rebind it here). Pattern variants treat input as a glob (e.g. git*push).
+bindkey '^R' history-incremental-pattern-search-backward
+bindkey '^S' history-incremental-pattern-search-forward
+# Free Ctrl-S from terminal flow control (XOFF) so the forward bind works
+unsetopt FLOW_CONTROL
+# Vim-idiomatic history search from normal mode (/ forward, ? backward)
+bindkey -M vicmd '?' history-incremental-pattern-search-backward
+bindkey -M vicmd '/' history-incremental-pattern-search-forward
 
 # Share same history across instances
 setopt SHARE_HISTORY

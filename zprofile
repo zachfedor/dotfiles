@@ -15,6 +15,6 @@
 # Path
 DOTFILES_BIN="$DOTFILES/scripts"
 LOCAL_BIN="$HOME/.local/bin"
-DOOM_BIN="$HOME/code/doomemacs/bin"
+DOOM_BIN="$HOME/.emacs.d/bin"
 
 export PATH="$DOTFILES_BIN:$LOCAL_BIN:$DOOM_BIN:$CARGO_HOME/bin:$GOPATH/bin:$PATH"
