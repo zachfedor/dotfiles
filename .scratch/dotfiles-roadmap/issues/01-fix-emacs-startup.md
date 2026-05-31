@@ -1,6 +1,6 @@
 # Diagnose & fix Emacs startup (Chemacs2 + Doom)
 
-Status: resolved
+Status: done
 
 ## What to build
 
@@ -49,3 +49,34 @@ config is `DOOMDIR=~/.dotfiles/doom`; the old symlink was ambiguous and ignored)
 
 **Non-blocking follow-ups noted:** `setq!` obsolete-alias warning in Doom's clojure
 module (upstream, cosmetic); projectile config points at non-existent `~/git`.
+
+---
+
+**Second fault (GUI only): private config not loading in `/Applications/Emacs.app`.**
+Symptoms: switching to a project ran the default file prompt instead of the custom
+`magit-status` action (`config.el:293`), and `config.el:1` showed a "Doom hasn't
+been initialized; run `doom sync`" lint.
+
+Root cause: macOS GUI apps launched from the Dock get launchd's environment, not the
+shell's, so `DOOMDIR` (exported only in the shell) is invisible to Emacs.app. Doom's
+`doom-user-dir` resolution (`lisp/doom.el:254`) is `DOOMDIR → ~/.config/doom →
+~/.doom.d`. With no `DOOMDIR` and neither default dir present, it resolved to the
+non-existent `~/.doom.d`, so the real config at `~/.dotfiles/doom` never loaded and
+`+workspaces-switch-project-function` stayed at its default. The CLI `emacs` worked
+the whole time because the shell exports `DOOMDIR`. (The deleted `~/.doom.d` symlink
+was already dangling — its target `~/.dotfiles/doom.d` doesn't exist — so it was
+irrelevant.) Both binaries are the same `emacs-plus@30` 30.2; no version mismatch.
+
+Fix applied (env-independent): symlink Doom's default location to the real config:
+
+```sh
+ln -s ~/.dotfiles/doom ~/.config/doom
+```
+
+Verified: a daemon launched with `env -u DOOMDIR` (mimicking the Dock app) now
+resolves `doom-user-dir=~/.config/doom`, `switch-fn=magit-status`, magit loaded.
+
+**Reproducibility (for #04, home-manager):**
+- Place `~/.config/doom → ~/.dotfiles/doom` via home-manager (the dead, Chemacs-era
+  Doom block in `install.sh:326-341` should not be revived).
+- Run `doom env` so GUI launches inherit shell `PATH` (git/fd/rg) for magit/LSP.

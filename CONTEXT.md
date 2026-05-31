@@ -66,6 +66,13 @@ become Native modules one at a time, on demand — never as a big-bang rewrite.
 > We only promote it to a **Native module** if we need it to differ between macOS
 > and NixOS, or to bundle plugin installs with it."
 
+**Doom profile**:
+An Emacs config selectable at launch via Doom's native profile system
+(`doom/profiles.el`, `emacs --profile NAME`). The default "global" profile is the
+plain Doom install at the standard `~/.emacs.d`; extra profiles are opt-in and
+sandbox their packages. Replaces Chemacs2 (see ADR-0002).
+_Avoid_: "Chemacs profile" (Chemacs is removed).
+
 ## Flagged ambiguities
 
 - "declarative" was used to mean both *rewrite every config in Nix* and *manage

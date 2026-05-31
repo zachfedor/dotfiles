@@ -283,8 +283,8 @@
 
 (use-package! projectile
   :config
-  ;; Set directories to search within for projects, looking one directory deep
-  (setq projectile-project-search-path '(("~/code" . 1) ("~/git" . 1)))
+  ;; Set directories to search within for projects, looking two directories deep in case of mono-repos
+  (setq projectile-project-search-path '(("~/code" . 2)))
   ;; Prompt to add a new project when opening files in unknown directories
   (setq projectile-auto-discover t)
   ;; Open magit status buffer after switching to a new project
@@ -380,7 +380,7 @@ git repo in it."
 (map!
  :leader
  :prefix "g"
- (:prefix ("m" . "merge")
+ (:prefix '("m" . "merge")
   :desc "Next diff" "j" #'smerge-next
   :desc "Prev diff" "k" #'smerge-prev
   :desc "Keep upper" "u" #'smerge-keep-upper

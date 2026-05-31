@@ -1,5 +1,0 @@
-(("default"   . ((user-emacs-directory . "~/code/doomemacs")))
- ("scratch"   . ((user-emacs-directory . "~/.dotfiles/emacs-from-scratch")))
- ("kickstart" . ((user-emacs-directory . "~/code/kickstart.emacs")))
- ("nano"      . ((user-emacs-directory . "~/code/nano-emacs")))
- ("prelude"   . ((user-emacs-directory . "~/code/prelude"))))
