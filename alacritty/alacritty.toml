@@ -1,0 +1,19 @@
+# Alacritty - TOML configuration file format.
+
+[general]
+import = []
+live_config_reload = true
+
+[window]
+padding = { x = 20, y = 20 }
+dynamic_padding = true
+decorations = "Buttonless"
+opacity = 1
+
+[font]
+normal= { family = "Hack Nerd Font Mono", style = "Regular" }
+offset= { x = 1, y = 3 }
+size=16
+
+[selection]
+save_to_clipboard = true
