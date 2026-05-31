@@ -14,7 +14,7 @@
 DOTFILES_DIR="$HOME"/.dotfiles   # dotfiles directory
 BACKUP_DIR="$HOME"/.dotfiles_old # backup directory for old dotfiles
 # list of files/folders to symlink in homedir
-FILES="aliases bash_profile bashrc dir_colors doom.d gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zprofile zshrc"
+FILES="aliases emacs-profiles.el gitconfig gitignore_global hammerspoon tmux.conf vimrc vimrc_background zimrc zprofile zshenv zshrc"
 
 source "$DOTFILES_DIR"/install-utils.sh
 
@@ -31,13 +31,6 @@ case "$SHELL" in
     fi
     ;;
 esac
-
-if [ ! -d "$HOME"/.oh-my-zsh ]; then
-    fancy_echo "Installing Oh-My-Zsh ..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-else
-    fancy_echo "Oh-my-zsh already installed. Skipping..."
-fi
 
 # Setup Homebrew
 # --------------
@@ -87,12 +80,12 @@ FORMULAS=(
 
     # tools
     'editorconfig'
-    # 'emacs-mac --with-emacs-big-sur-icon --with-no-title-bars'
     'emacs-plus@30'
     'gnu-tar'
     'heroku'
     'htop'
     'neovim'
+    'mise'
     'openssl'
     'pandoc'
     'p7zip'
@@ -104,21 +97,12 @@ FORMULAS=(
     # html/css/javascript
     'tidy-html5'
 
-    # ruby
-    'rbenv'
-    'ruby-build'
-
-    # python
-    'pyenv'
-    'pyenv-virtualenv'
-    'black' # code formatter
-
     # lisp
     'clojure/tools/clojure'
     'clojure-lsp/brew/clojure-lsp-native'
     'leiningen'
     'guile'
-    'mit-scheme'
+    # 'mit-scheme'
 
     # shell
     'shellcheck'
@@ -339,22 +323,23 @@ fi
 # osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-mac/Emacs.app" at POSIX file "/Applications"'
 
 # Emacs - Doom
-if [ ! -d "$HOME"/.emacs.d ]; then
-    # Clone doom repo into emacs directory
-    git clone https://github.com/hlissner/doom-emacs "$HOME"/.emacs.d
+# TODO: update now that I've added Chemacs2 and multiple profiles
+# if [ ! -d "$HOME"/.emacs.d ]; then
+#     # Clone doom repo into emacs directory
+#     git clone https://github.com/hlissner/doom-emacs "$HOME"/.emacs.d
 
-    # The following commands are the equivalent of running `doom install`, with the exception of
-    # creating a ~/.doom.d directory and copying the example config files because I should have
-    # already symlinked my custom config files to ~/.doom.d/ by this point
-    # first, sync doom with those custom configs, e.g. install packages defined in init.el
-    "$HOME"/.emacs.d/bin/doom sync
-    # then, ensure envvars are inherited by emacs regardless of where it gets launched
-    "$HOME"/.emacs.d/bin/doom env
-    # lastly, install necessary icon fonts
-    emacs --batch -f all-the-icons-install-fonts
+#     # The following commands are the equivalent of running `doom install`, with the exception of
+#     # creating a ~/.doom.d directory and copying the example config files because I should have
+#     # already symlinked my custom config files to ~/.doom.d/ by this point
+#     # first, sync doom with those custom configs, e.g. install packages defined in init.el
+#     "$HOME"/.emacs.d/bin/doom sync
+#     # then, ensure envvars are inherited by emacs regardless of where it gets launched
+#     "$HOME"/.emacs.d/bin/doom env
+#     # lastly, install necessary icon fonts
+#     emacs --batch -f all-the-icons-install-fonts
 
-    fancy_echo "Doom Emacs Installed. You might want to run $(doom doctor) to check the installation."
-fi
+#     fancy_echo "Doom Emacs Installed. You might want to run $(doom doctor) to check the installation."
+# fi
 
 # Übersicht
 UBERSICHT_DIR="$HOME"/Library/Application\ Support/Übersicht/widgets
