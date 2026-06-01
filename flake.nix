@@ -49,15 +49,7 @@
           # Back up any pre-existing dotfile HM wants to own (e.g. the old
           # install.sh ~/.gitconfig symlink) instead of erroring on collision.
           home-manager.backupFileExtension = "hm-bak";
-          home-manager.users.${user} = { ... }: {
-            home.stateVersion = "25.05";
-
-            # TRACER (ADR-0001 passthrough): place the existing gitconfig
-            # verbatim. Content stays plain text, edited in-repo as before;
-            # home-manager only owns placement. Promote to programs.git
-            # (native module) later only if cross-OS branching is needed.
-            home.file.".gitconfig".source = ./gitconfig;
-          };
+          home-manager.users.${user} = import ./home.nix;
         }
       ];
     };

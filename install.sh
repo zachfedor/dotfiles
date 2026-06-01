@@ -260,25 +260,11 @@ fi
 
 # Symlink Dotfiles
 # --------------------
-for FILE in $FILES; do
-    # move any existing dotfiles in homedir to dotfiles_old directory
-    backup_dotfile $FILE
-    # then create symlinks in homedir to my dotfiles
-    symlink_dotfile $FILE
-done
-
-# Setup Vim
-# --------------------
-if [ ! -f "$HOME"/.vim/autoload/plug.vim ]; then
-    # install vim-plug
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-fi
-
-# create vim backup and swap directory
-if [ ! -d ~/.vim/tmp ]; then
-    mkdir -p ~/.vim/tmp
-fi
+# RETIRED (issue 04a): dotfile placement is now declarative via Home Manager
+# (see home.nix). Do NOT recreate symlinks here — it would collide with the
+# HM-managed ones. The FILES loop, vim-plug bootstrap, and ~/.vim/tmp creation
+# are gone; vim-plug and the swap/backup dirs are handled by the vim/neovim
+# config work in issue 04b.
 
 # Setup SSH
 # --------------------
