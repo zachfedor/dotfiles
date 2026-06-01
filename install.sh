@@ -268,35 +268,12 @@ fi
 
 # Setup SSH
 # --------------------
-SSH_DIR="$HOME"/.ssh
-SSH_CONFIG="$SSH_DIR"/config
-if [ ! -d "$SSH_DIR" ]; then
-    fancy_echo "Creating the .ssh directory..."
-    mkdir "$SSH_DIR"
-fi
-# backup ssh config if it exists and isn't already a symlink
-if [ -f "$SSH_CONFIG" ] && [ ! -L "$SSH_CONFIG" ]; then
-    fancy_echo "Backing up the old .ssh config..."
-    mkdir "$BACKUP_DIR"/ssh
-    mv "$SSH_CONFIG" "$BACKUP_DIR"/ssh/config
-fi
-if [ ! -e "$SSH_CONFIG" ]; then
-    fancy_echo "Creating symlink for new .ssh config"
-    ln -s "$DOTFILES_DIR"/ssh/config "$SSH_CONFIG"
-fi
-# generate ssh keys if they don't exist
-# see: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
-if [[ ! $(compgen -G "${SSH_DIR}/id_*") ]]; then
-    # generate keys
-    ssh-keygen -t ed25519 -C "zachfedor@gmail.com"
-    # start background ssh agent
-    eval "$(ssh-agent -s)"
-    fancy_echo "NOTE: Add new key to .ssh/config to allow keychain storage!"
-    # add passphrase to keychain
-    ssh-add -K ~/.ssh/id_ed25519
-    # see: https://docs.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account
-    fancy_echo "NOTE: Now add new key to GitHub etc."
-fi
+# RETIRED (issue 04c): ~/.ssh/config is now declarative via Home Manager
+# (programs.ssh in home.nix). Key generation stays MANUAL — secrets don't belong
+# in the flake. On a fresh machine, generate a key once:
+#   ssh-keygen -t ed25519 -C "zachfedor@gmail.com"
+#   ssh-add --apple-use-keychain ~/.ssh/id_ed25519   # macOS keychain
+# then add the public key to GitHub etc.
 
 # Setup Applications
 # --------------------

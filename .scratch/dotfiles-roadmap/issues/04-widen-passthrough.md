@@ -46,8 +46,14 @@ rebuilds (issue 01 guarantee).
       `brew uninstall neovim` — see [[brew-to-nix-migration-rule]]. Activated, tests
       pass. **Deferred to 4e:** a Nerd Font (nvim-tree/lualine glyphs render broken
       without one).
-- [ ] **4c — ssh via `programs.ssh`** (config declarative; key generation stays
-      manual — secrets out of the flake).
+- [x] **4c — ssh via `programs.ssh`.** Config declarative in home.nix; keys stay
+      manual (out of flake). Verified `ssh -T git@github.com` authenticates. Removed
+      repo `ssh/` dir + the install.sh ssh block (keygen kept as a manual comment).
+      Gotcha: HM 25.05 has no `enableDefaultConfig`/`matchBlocks` collision toggle —
+      a `matchBlocks."*"` emits a *second* `Host *` stanza that conflicts with HM's
+      built-in defaults. Fix: set the **top-level** `programs.ssh` options (they ARE
+      the default `Host *` block) + `extraConfig` for IdentityFile/UseKeychain.
+      `UseKeychain` is macOS-only — guard for NixOS in #05.
 - [ ] **4d — CLI tools → `home.packages`** (curated; I propose groups, you cut).
 - [ ] **4e — GUI casks + fonts → nix-darwin `homebrew` module** (curated). Drop
       ubersicht. Delete install.sh at the end. **Must include a Nerd Font** (e.g.

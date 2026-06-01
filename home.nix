@@ -118,6 +118,24 @@ in {
   home.file.".gitconfig".source = ./gitconfig;
   home.file.".gitignore_global".source = ./gitignore_global;
 
+  # --- ssh (native module; config declarative, keys stay manual/out-of-flake) ---
+  # Generates ~/.ssh/config. Key generation + the keys themselves are NOT managed
+  # here (secrets don't belong in the flake). UseKeychain is macOS-only — guard it
+  # when the NixOS host is added (issue 05).
+  programs.ssh = {
+    enable = true;
+    # These top-level options ARE the default `Host *` block in this HM version.
+    # Setting them here (rather than a separate matchBlocks."*") avoids emitting
+    # two conflicting `Host *` stanzas.
+    addKeysToAgent = "yes";
+    # UseKeychain (macOS-only) + the identity key have no dedicated options, so
+    # go through extraConfig. Guard UseKeychain when the NixOS host lands (#05).
+    extraConfig = ''
+      IdentityFile ~/.ssh/id_ed25519
+      UseKeychain yes
+    '';
+  };
+
   # --- terminal multiplexer ---
   home.file.".tmux.conf".source = ./tmux.conf;
 
