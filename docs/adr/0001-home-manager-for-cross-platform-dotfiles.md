@@ -31,6 +31,18 @@ nix-darwin (declarative macOS *system* settings) is deferred, not rejected.
   gradually.
 - Declarative is treated as a means to the project's values, not an end — so we
   buy only as much of it as pays off, when it pays off.
+- **Passthrough is a low-coupling hedge against two independent uncertainties:**
+  the owner is still evaluating *both* Nix and individual tools (e.g. the zsh
+  framework, currently zim). Passthrough configs are plain files in the repo, so:
+  (a) **leaving Nix** is cheap — symlink them back as before, nothing to rewrite;
+  whereas native `programs.*` configs are Nix DSL that would have to be translated
+  back. (b) **swapping a tool** (zim → something else) doesn't touch the flake.
+  Native modules entangle the config with both Nix and the tool's HM integration.
+- Corollary refining "translate when it pays off": **coupling rarely pays off
+  until the thing being coupled to is settled.** Promote a config to a native
+  module only when sure about Nix *and* sure about that specific tool — not while
+  either is still under evaluation. Passthrough is the default precisely because
+  decisions are still open.
 
 ## Considered and rejected
 

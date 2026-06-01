@@ -21,6 +21,34 @@ let
 in {
   home.stateVersion = "25.05";
 
+  # --- CLI packages (issue 04d; migrated from install.sh FORMULAS, curated) ---
+  # As each tool lands here it is removed from install.sh AND `brew uninstall`'d,
+  # so the nix copy isn't shadowed on PATH (see brew-to-nix migration rule).
+  home.packages = with pkgs; [
+    # dev core
+    git coreutils gnutar fd ripgrep silver-searcher tree tree-sitter
+    editorconfig-core-c htop openssl pandoc p7zip
+    # shell tooling
+    shellcheck shfmt
+    # clojure (Doom clojure module); guile dropped
+    clojure clojure-lsp leiningen
+    # misc
+    lua ffmpeg gifsicle html-tidy
+    # for fun
+    nethack
+    # NOTE: zork has no nixpkgs package — staying on brew for now (revisit in 4e).
+  ];
+
+  # --- per-project dev environments (issue 04d; replaces mise) ---
+  # nix-direnv + a project `.envrc` containing `use flake` build a pinned,
+  # reproducible toolchain from that project's flake devShell and load it on cd.
+  # This supersedes mise (runtime version manager) — chosen for reproducibility
+  # and cross-machine parity over mise's looser version strings. See ADR (04d).
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   # --- neovim (backup editor; Emacs/Doom is primary, see issue 04b) ---
   # Native module (config-as-nix) by choice. Mirrors the Doom workflow's TOOLS
   # rather than its config: evil is native to (neo)vim, SPC leader, nord theme,

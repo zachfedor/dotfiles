@@ -37,6 +37,15 @@
           system.primaryUser = user;
           users.users.${user}.home = "/Users/${user}";
 
+          # nix-darwin's /etc/zshrc runs `compinit` by default, which fires
+          # BEFORE ~/.zshrc → before zim's `completion` module, triggering zim's
+          # "completion was already initialized" warning. Zim owns completion (it
+          # must run compinit after its modules register definitions), so turn
+          # off nix-darwin's copy. We still enable zsh at the system level for
+          # the rest of /etc/zshrc (PATH, etc.).
+          programs.zsh.enable = true;
+          programs.zsh.enableCompletion = false;
+
           # Baseline; do not bump casually (see nix-darwin docs).
           system.stateVersion = 5;
         })

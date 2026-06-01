@@ -380,7 +380,7 @@ git repo in it."
 (map!
  :leader
  :prefix "g"
- (:prefix '("m" . "merge")
+ (:prefix ("m" . "merge")
   :desc "Next diff" "j" #'smerge-next
   :desc "Prev diff" "k" #'smerge-prev
   :desc "Keep upper" "u" #'smerge-keep-upper

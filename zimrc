@@ -22,8 +22,6 @@ zmodule environment
 zmodule homebrew
 # Provides handy git aliases and functions
 zmodule git
-# Setup mise
-zmodule joke/zim-mise
 # Applies correct bindkeys for input events
 zmodule input
 # Sets a custom terminal title

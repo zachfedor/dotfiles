@@ -60,6 +60,13 @@ RPS1='${(e)git_info[rprompt]}%f'
 command -v stellar >/dev/null && source <(stellar completion --shell zsh)
 
 #
+# DIRENV
+# ------
+# Per-project envs via nix-direnv (`use flake`). HM's programs.direnv only hooks
+# HM-managed shells; our zsh is passthrough, so hook it manually here.
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+
+#
 # ZSH SETTINGS
 # ----------
 # Vim mode
