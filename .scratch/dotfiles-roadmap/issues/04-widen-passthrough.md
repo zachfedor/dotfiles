@@ -1,6 +1,6 @@
 # Widen home-manager passthrough to all macOS configs
 
-Status: in-progress
+Status: done (pending final 4e activation)
 
 ## What to build
 
@@ -11,10 +11,10 @@ native-module translation here (per ADR-0001, that is opt-in later).
 
 ## Acceptance criteria
 
-- [ ] All currently symlinked configs are placed by home-manager
-- [ ] `install.sh` is removed (or reduced to a one-line bootstrap that installs Nix)
-- [ ] A fresh `home-manager switch` reproduces the full macOS user config
-- [ ] No config content changed in the move (passthrough verified)
+- [x] All currently symlinked configs are placed by home-manager (4a)
+- [x] `install.sh` removed — deleted entirely; bootstrap documented in README (4e)
+- [x] A fresh rebuild reproduces the full macOS user config (verified each slice)
+- [x] No config content changed in the passthrough move (4a)
 
 ## Blocked by
 
@@ -54,10 +54,38 @@ rebuilds (issue 01 guarantee).
       built-in defaults. Fix: set the **top-level** `programs.ssh` options (they ARE
       the default `Host *` block) + `extraConfig` for IdentityFile/UseKeychain.
       `UseKeychain` is macOS-only — guard for NixOS in #05.
-- [ ] **4d — CLI tools → `home.packages`** (curated; I propose groups, you cut).
-- [ ] **4e — GUI casks + fonts → nix-darwin `homebrew` module** (curated). Drop
-      ubersicht. Delete install.sh at the end. **Must include a Nerd Font** (e.g.
-      fira-code or hack nerd font) — nvim glyphs depend on it (deferred from 4b).
+- [x] **4d — CLI tools → `home.packages`** (curated). Kept: dev core (git,
+      coreutils, gnutar, fd, ripgrep, silver-searcher, tree, tree-sitter,
+      editorconfig, htop, openssl, pandoc, p7zip), shellcheck, shfmt, clojure +
+      clojure-lsp + leiningen (guile dropped), lua, ffmpeg, gifsicle, html-tidy,
+      nethack. Dropped: JS globals (node→nix-direnv per-project), n/avn, astrum,
+      heroku, sqlite/postgres/redis. **mise dropped** → `programs.direnv` +
+      nix-direnv (per-project `use flake`; chosen over mise for pinned/reproducible
+      cross-machine envs). Removed mise from zimrc + brew. brew-uninstalled all
+      migrated tools incl. git/clojure-lsp-native (see migration rule). Ran
+      `doom env` (refresh PATH snapshot). direnv hook added manually to zshrc
+      (passthrough zsh ≠ HM-managed, so no auto-hook — see ADR-0001 coupling note).
+      Also fixed nix-darwin `/etc/zshrc` double-`compinit` (zim warning) via
+      `programs.zsh.enableCompletion = false`. zork has no nixpkgs pkg → stays brew
+      (fold into 4e homebrew module).
+- [x] **4e — GUI casks + fonts + install.sh retired.** Split by the right axis:
+      - **Fonts + alacritty binary → `home.packages`** (nix, cross-platform): Nerd
+        Fonts (fira-code, hack) for editor/terminal glyphs + web-dev typefaces
+        (fira-*, source-*, inconsolata, roboto, lato, lora, merriweather, vt323).
+        `et-book` dropped (not in nixpkgs 25.05).
+      - **GUI casks → nix-darwin `homebrew` module** (macOS-only by nature; NixOS
+        gets these from nixpkgs in #05): firefox, slack, discord, vlc, calibre,
+        steam, openemu, hammerspoon. Brews: emacs-plus@30 (tap d12frosted/emacs-plus,
+        from-source — Doom), zork (no nixpkgs pkg). One-tool-per-job; dropped
+        chrome/iterm2/obs/dropbox/transmission/kobo/jdiskreport/virtualbox.
+      - **`cleanup = "none"`** (KEY decision): rebuilds never auto-uninstall brew,
+        so manual `brew install --cask` tests survive — preserving a nix-like
+        declared=permanent / ad-hoc=ephemeral split for GUI apps. CLI testing uses
+        `nix shell`/`nix run` instead. Manual `brew bundle cleanup` (dry-run) to
+        prune drift on demand. Documented in README.
+      - **install.sh retired**: deleted install.sh + install-utils.sh +
+        install.sh.backup. ubersicht/ kept for historical reference (config only).
+      - README rewritten for the nix-darwin/home-manager reality + habits.
 
 ## Notes (carry-ins)
 

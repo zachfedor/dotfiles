@@ -48,6 +48,40 @@
 
           # Baseline; do not bump casually (see nix-darwin docs).
           system.stateVersion = 5;
+
+          # --- GUI apps via Homebrew (issue 04e) ---
+          # GUI casks are the one area that's legitimately macOS-only; the NixOS
+          # host gets these from nixpkgs separately (#05). nix-darwin drives brew
+          # declaratively — it does NOT install brew itself (Determinate/brew did).
+          # CLI tools + fonts live in nix, not here. `cleanup = "none"` preserves
+          # the nix-like split: casks LISTED here are declaratively managed
+          # ("permanent"); anything `brew install`'d manually is an ephemeral test
+          # that SURVIVES rebuilds (brew is not auto-pruned). Removing a cask from
+          # this list does NOT uninstall it — do that by hand (same as the
+          # brew→nix migration rule for CLI tools).
+          homebrew = {
+            enable = true;
+            onActivation = {
+              autoUpdate = true;
+              cleanup = "none";
+              upgrade = true;
+            };
+            taps = [ "d12frosted/emacs-plus" ];
+            brews = [
+              "emacs-plus@30"   # from-source Emacs w/ native-comp (Doom); see issue 01
+              "zork"            # no nixpkgs package
+            ];
+            casks = [
+              "firefox"
+              "slack"
+              "discord"
+              "vlc"
+              "calibre"
+              "steam"
+              "openemu"
+              "hammerspoon"
+            ];
+          };
         })
 
         # --- user (home-manager as a darwin module) ---

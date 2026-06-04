@@ -36,7 +36,18 @@ in {
     lua ffmpeg gifsicle html-tidy
     # for fun
     nethack
-    # NOTE: zork has no nixpkgs package — staying on brew for now (revisit in 4e).
+    # NOTE: zork has no nixpkgs package — stays a brew formula (4e homebrew module).
+
+    # terminal (binary; config is passthrough alacritty/). Cross-platform via nix.
+    alacritty
+
+    # fonts (issue 04e) — cross-platform via nix (macOS ~/Library/Fonts, NixOS
+    # fontconfig). Nerd Fonts for editor/terminal glyphs + web-dev typefaces.
+    nerd-fonts.fira-code
+    nerd-fonts.hack
+    fira-code fira-sans fira-mono
+    source-code-pro source-sans-pro source-serif-pro
+    inconsolata roboto lato lora merriweather vt323
   ];
 
   # --- per-project dev environments (issue 04d; replaces mise) ---

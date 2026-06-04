@@ -1,32 +1,77 @@
 # .dotfiles
 
-*Features:*
+Personal, declarative, cross-platform configuration built on **Nix** —
+[home-manager](https://github.com/nix-community/home-manager) for user config and
+[nix-darwin](https://github.com/nix-darwin/nix-darwin) for macOS system settings.
 
-- `zsh`
-- `vim`
-- `tmux`
-- `spacemacs`
-- `hammerspoon`
-- and some custom scripts...
+See `CONTEXT.md` for goals/vocabulary and `docs/adr/` for the decisions behind
+this setup (most importantly ADR-0001: passthrough-first migration).
 
-For now, these are my MacOS specific dotfiles. More OSs may come in the future. Feel free to use 'em!
+## Layout
 
+- `flake.nix` — entry point; defines `darwinConfigurations.<host>` (currently
+  `hestia`). Pins nixpkgs / nix-darwin / home-manager.
+- `home.nix` — user config: dotfile placement, `home.packages` (CLI tools +
+  fonts), `programs.*` (neovim, ssh, direnv).
+- Plain config files (`zshrc`, `tmux.conf`, `alacritty/`, `doom/`, …) are placed
+  **as-is** by home-manager (passthrough). Edit them directly as normal.
+- `install.sh` — legacy bootstrap, being retired. Not used for config anymore.
 
-## Installation
+## New machine (macOS)
 
-These steps assume you're setting up a new machine. However, the install script is non-destructive and can be run multiple times for updates or tweaks.
+1. Install Nix (Determinate): `curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install`
+2. Clone this repo to `~/.dotfiles`.
+3. Bootstrap nix-darwin (needs a real terminal for the sudo prompt):
+   ```
+   sudo nix run nix-darwin -- switch --flake ~/.dotfiles#hestia
+   ```
+4. Generate an SSH key (not managed by Nix — secrets stay out of the flake):
+   ```
+   ssh-keygen -t ed25519 -C "zachfedor@gmail.com"
+   ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+   ```
 
-1. Download this repo with: `curl -L https://github.com/zachfedor/dotfiles/archive/master.zip -o ~/dotfiles.zip`
-2. Unzip it: `unzip ~/dotfiles.zip`
-3. Clean up: `mv ~/dotfiles-master ~/.dotfiles && rm ~/dotfiles.zip`
-4. Run the installer: `.dotfiles/install.sh`
+## Daily use
 
-_Note: If the installer doesn't run, make sure the file's permissions allow it to be executed._
+**Apply config changes** (after editing `home.nix`, `flake.nix`, or a
+store-passthrough config like `tmux.conf`):
+```
+sudo darwin-rebuild switch --flake ~/.dotfiles#hestia
+```
+Quote the flake ref if your shell globs `#`: `"$HOME/.dotfiles#hestia"`.
 
-The installer will:
+Exceptions that apply **without** a rebuild (out-of-store symlinks): `~/.config/doom`.
 
-1. backup any existing dotfiles
-2. create symlinks to new dotfiles
-3. switch to `zsh` and install `oh-my-zsh`
-4. install package managers: `homebrew`, `npm`, and `gem`
-5. 
+## Habits (how this stays clean)
+
+**Testing a CLI tool — use Nix, not a permanent install:**
+```
+nix shell nixpkgs#ripgrep      # rg available in a subshell; exit = gone
+nix run   nixpkgs#cowsay -- hi  # run once, nothing persists
+```
+To keep a CLI tool, add it to `home.packages` in `home.nix` and rebuild.
+
+**Testing a GUI app** — Nix can't run `.app`s well on macOS, so use Homebrew
+ad-hoc: `brew install --cask <app>`. With `cleanup = "none"` (see `flake.nix`),
+manual installs **survive rebuilds** and are yours to remove. To make an app
+permanent, add it to `homebrew.casks` in `flake.nix`.
+
+**Brew reconciliation is manual on purpose.** Rebuilds never auto-uninstall brew
+packages. To see/prune drift between the declared casks and what's installed, feed
+the flake's generated Brewfile to `brew bundle cleanup` (dry-run by default):
+```
+# preview what isn't declared (safe — lists only):
+nix eval --raw ~/.dotfiles#darwinConfigurations.hestia.config.homebrew.brewfile \
+  | brew bundle cleanup --file=/dev/stdin
+# actually prune: append --force
+```
+
+**Migrating a tool from brew → nix:** add it to nix → rebuild → verify the nix
+copy wins on `PATH` → `brew uninstall <tool>` (else the brew binary shadows the
+nix one). See ADR-0001.
+
+## Platforms
+
+- **macOS** (`hestia`) — primary. home-manager + nix-darwin.
+- **NixOS** — planned second host; GUI apps come from nixpkgs there, defined
+  separately (the macOS `homebrew` casks don't carry over).
