@@ -113,8 +113,12 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
 
-  # zsh as a system-registered login shell (config via home-manager). (issue 05c)
+  # zsh as a system-registered login shell (config via home-manager). zim owns
+  # completion (it runs compinit after its modules load), so disable NixOS's
+  # /etc/zshrc compinit to avoid the "completion was already initialized"
+  # double-init warning — same fix as hestia's nix-darwin config (4d). (issue 05c)
   programs.zsh.enable = true;
+  programs.zsh.enableCompletion = false;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
