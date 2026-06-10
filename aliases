@@ -3,3 +3,16 @@
 # Aliases, sourced by zshrc
 
 alias wget="wget2"
+
+# Rebuild the current host's flake config. Derives the flake attr from the short
+# hostname (hostname -s → "hestia"/"athena"), so it scales to new hosts as long
+# as each machine's hostname matches its flake key. The flake ref is quoted: the
+# `#` is a glob operator under zim's EXTENDED_GLOB and must not be left bare.
+rebuild() {
+  local host; host="$(hostname -s)"
+  case "$(uname)" in
+    Darwin) sudo darwin-rebuild switch --flake "$HOME/.dotfiles#${host}" ;;
+    Linux)  sudo nixos-rebuild  switch --flake "$HOME/.dotfiles#${host}" ;;
+    *) echo "rebuild: unsupported OS $(uname)" >&2; return 1 ;;
+  esac
+}
