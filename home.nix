@@ -54,6 +54,14 @@ in {
     fira-code fira-sans fira-mono
     source-code-pro source-sans-pro source-serif-pro
     inconsolata roboto lato lora merriweather vt323
+    # Exact families the Doom config selects (doom/config.el): zf/fixed-font
+    # "Hack" and zf/variable-font "Merriweather Sans". These differ from the
+    # nerd-fonts.hack family ("Hack Nerd Font") and merriweather ("Merriweather"),
+    # so they need their own packages. Missing on a clean box → GUI Emacs aborts
+    # font setup mid-init (white theme, dead leader); hestia only worked via stray
+    # macOS fonts. (issue 05d)
+    hack-font
+    merriweather-sans
   ]
   # Linux-only Doom/Emacs deps (issue 05d). macOS satisfies these natively
   # (system python; no X11 tools checked), so they're scoped to NixOS to keep
