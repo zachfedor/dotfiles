@@ -2,15 +2,15 @@
   description = "zachfedor's dotfiles for nixos and macos (via nix-darwin) with home-manager";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -42,7 +42,14 @@
       ];
     };
 
-    # --- NixOS desktop (athena) is added in issue 05b ---
-    # nixosConfigurations.athena = nixpkgs.lib.nixosSystem { ... };
+    # --- NixOS desktop (athena) ---
+    nixosConfigurations.athena = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit user; system = "x86_64-linux"; };
+      modules = [
+        ./hosts/athena/default.nix
+        # home-manager wiring added in 05c
+      ];
+    };
   };
 }
