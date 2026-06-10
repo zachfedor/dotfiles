@@ -55,10 +55,21 @@ in {
     source-code-pro source-sans-pro source-serif-pro
     inconsolata roboto lato lora merriweather vt323
   ]
-  # Emacs: macOS uses the from-source emacs-plus@30 brew (issue 01); on NixOS the
-  # pure-GTK build from nixpkgs is the right choice under Wayland/GNOME. Doom
-  # itself stays hand-managed on both (clone + doom sync, not nix). (issue 05d)
-  ++ lib.optionals pkgs.stdenv.isLinux [ emacs30-pgtk ];
+  # Linux-only Doom/Emacs deps (issue 05d). macOS satisfies these natively
+  # (system python; no X11 tools checked), so they're scoped to NixOS to keep
+  # hestia untouched.
+  #   - emacs30-pgtk: pure-GTK Emacs, right under Wayland/GNOME (mac keeps the
+  #     emacs-plus@30 brew, issue 01). Doom itself stays hand-managed on both.
+  #   - python3: `:lang python` module hard dep (doom doctor error).
+  #   - xclip/xdotool/xwininfo: X11 clipboard/window tools a Doom module needs
+  #     (doom doctor error). NOTE: these are X11; under Wayland they work only
+  #     for XWayland. True Wayland clipboard would also want wl-clipboard —
+  #     deferred (revisit with the Wayland/ricing work, #08).
+  ++ lib.optionals pkgs.stdenv.isLinux [
+    emacs30-pgtk
+    python3
+    xclip xdotool xorg.xwininfo
+  ];
 
   # Make HM-installed fonts (nerd-fonts + typefaces above) discoverable by apps.
   # Required on NixOS; macOS font handling is native, so scope to Linux. (05c)
