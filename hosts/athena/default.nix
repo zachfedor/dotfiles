@@ -113,9 +113,11 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
 
-  # AMD GPU graphics stack (issue 05e). 32-bit support is required for Steam's
-  # game runtimes. (hardware.graphics is the 25.11 name for the old
-  # hardware.opengl.)
+  # GPU graphics stack, explicit (issue 05e). NOTE: redundant while Steam is on —
+  # programs.steam already enables hardware.graphics + enable32Bit. Kept explicit
+  # so GPU accel (Emacs-pgtk, video decode, future hyprland) survives if Steam is
+  # ever disabled. Remove if you'd rather not duplicate. (hardware.graphics is the
+  # 25.11 rename of hardware.opengl.)
   hardware.graphics = {
     enable = true;
     enable32Bit = true;

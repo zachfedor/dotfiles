@@ -1,6 +1,6 @@
 # Basic NixOS config sharing the flake
 
-Status: triaged (grilled — ready to build)
+Status: done (2026-06-10 — athena live on the shared flake)
 
 ## What to build
 
@@ -97,14 +97,41 @@ Future rebuilds: `sudo nixos-rebuild switch --flake ~/.dotfiles#athena`
 
 ## Acceptance criteria
 
-- [ ] `flake.nix` exposes `nixosConfigurations.athena`; `nix flake check` passes
-- [ ] System rebuilds with `nixos-rebuild switch --flake ~/.dotfiles#athena`
-- [ ] home-manager user config applies on NixOS (as a NixOS module), reusing the
+- [x] `flake.nix` exposes `nixosConfigurations.athena`; `nix flake check` passes
+- [x] System rebuilds with `nixos-rebuild switch --flake ~/.dotfiles#athena`
+- [x] home-manager user config applies on NixOS (as a NixOS module), reusing the
       shared passthrough `home.nix`
-- [ ] Shared config verified identical mac↔athena — **zshrc + zimfw prompt**
-      (exercises passthrough + new zimfw env-var path) + a store-passthrough
-      spot-check (e.g. `~/.gitconfig`)
-- [ ] hestia mac rebuild stays clean after the refactor (5a regression gate)
+- [x] Shared config verified identical mac↔athena — zshrc + zimfw prompt + a
+      store-passthrough spot-check (`~/.gitconfig`), both byte-identical
+- [x] hestia mac rebuild stays clean after the refactor (5a regression gate;
+      builds on 25.11)
+
+## Outcome (built — deviations from plan)
+
+- **Whole flake bumped 25.05 → 25.11.** athena was installed on NixOS 25.11
+  (GNOME/display-mgr options moved out of `services.xserver`); aligning the flake
+  to 25.11 kept both hosts on one release instead of downgrading the fresh install.
+- **5b also baked in sshd + Mac key + firewall** so 5c–5e were driven remotely from
+  hestia over ssh. athena on DHCP 192.168.1.3 (static reservation still TODO).
+- **Git:** athena can't push (GitHub dropped HTTPS password auth); repo is public so
+  athena pulls read-only, and its commits reach GitHub by fetching over the LAN ssh
+  link into hestia, which pushes. Loop: edit on hestia → push → athena pull + rebuild.
+- **HM 25.11 ssh migration:** top-level `programs.ssh` defaults deprecated → moved to
+  `enableDefaultConfig = false` + `matchBlocks."*"`.
+- **5d font gap:** doom/config.el names families "Hack" + "Merriweather Sans" that
+  weren't in the nix font set (we had "Hack Nerd Font"/"Merriweather"); GUI Emacs
+  aborted font init (white theme, dead leader) while TTY was fine. Added `hack-font`
+  + `merriweather-sans` — also fixed a silent hestia reproducibility gap.
+- **5e mostly pre-done** by the adopted installer config (firefox/steam/allowUnfree);
+  added vlc/calibre/slack/discord + AMD `hardware.graphics` (32-bit for Steam).
+- Added shared `rebuild()` helper to `aliases` (derives flake attr from `hostname -s`).
+
+## Carry-outs (deferred)
+
+- hestia not yet switched to 25.11 (flake is, build verified; run `rebuild` on mac).
+- athena static IP reservation → then `Host athena` ssh block.
+- base16-shell colors + Wayland clipboard (xclip/xdotool are X11) → #08.
+- hyprland WM + hammerspoon-parity keybinds → NEW issue (distinct from #08).
 
 ## Blocked by
 

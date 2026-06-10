@@ -236,7 +236,17 @@ in {
   home.file.".hammerspoon" =
     lib.mkIf pkgs.stdenv.isDarwin { source = ./hammerspoon; };
 
-  # --- doom private config (out-of-store; see header note) ---
+  # --- doom: emacs install symlink + private config (both out-of-store) ---
+  # ~/.emacs.d → the hand-cloned doomemacs install. Doom itself stays imperative
+  # (NOT nix-managed; ADR-0002): you `git clone` doomemacs into ~/code and run
+  # `doom install`/`doom sync`/`doom env` yourself (see docs/new-host.md). This is
+  # only the declarative symlink — it dangles until the clone exists, which is
+  # fine since cloning is a bootstrap step.
+  home.file.".emacs.d".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/code/doomemacs";
+
+  # ~/.config/doom → private config in this repo, out-of-store so the Emacs GUI
+  # (no DOOMDIR) and CLI (DOOMDIR) never diverge between rebuilds (issue 01).
   xdg.configFile."doom".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/doom";
 }
