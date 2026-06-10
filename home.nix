@@ -14,10 +14,12 @@
 #     so the Emacs GUI (no DOOMDIR) and CLI (DOOMDIR) never diverge between
 #     rebuilds (see ADR-0002 / issue 01).
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  dotfiles = "/Users/zach/.dotfiles";
+  # Derive from the HM-managed home dir so this is correct on both macOS
+  # (/Users/zach) and NixOS (/home/zach).
+  dotfiles = "${config.home.homeDirectory}/.dotfiles";
 in {
   home.stateVersion = "25.05";
 
@@ -30,6 +32,10 @@ in {
     editorconfig-core-c htop openssl pandoc p7zip
     # shell tooling
     shellcheck shfmt
+    # NOTE: zimfw (zsh framework) is NOT listed here — it ships only zimfw.zsh
+    # (no binary), pulled into the closure by the ZIM_FW_INIT fragment below.
+    # Migrated off brew → nixpkgs on both OSes (issue 05a); the passthrough zshrc
+    # no longer sources it from /opt/homebrew (mac) or linuxbrew (NixOS, absent).
     # clojure (Doom clojure module); guile dropped
     clojure clojure-lsp leiningen
     # misc
@@ -147,6 +153,19 @@ in {
   };
 
   # --- shell (zsh + zim) ---
+  # zshrc is passthrough (verbatim), so it can't interpolate a nix store path.
+  # HM writes the zimfw framework path into this fragment; zshrc sources it and
+  # then `source "$ZIM_FW_INIT" init`. One path-free line, identical on both OSes
+  # (replaces the old uname Darwin/Linux brew/linuxbrew case). See issue 05a.
+  # zimfw is used by sourcing zimfw.zsh with an action ("init", "upgrade", …);
+  # there is no `zimfw` binary. Export the path and define the CLI as a function
+  # so `zimfw upgrade` etc. work off the nix store path (brew provided this
+  # function before; nixpkgs does not).
+  xdg.configFile."zsh/zim-fw-init.zsh".text = ''
+    export ZIM_FW_INIT="${pkgs.zimfw}/zimfw.zsh"
+    zimfw() { source "$ZIM_FW_INIT" "$@"; }
+  '';
+
   home.file.".zshenv".source = ./zshenv;
   home.file.".zprofile".source = ./zprofile;
   home.file.".zshrc".source = ./zshrc;
@@ -167,10 +186,12 @@ in {
     # Setting them here (rather than a separate matchBlocks."*") avoids emitting
     # two conflicting `Host *` stanzas.
     addKeysToAgent = "yes";
-    # UseKeychain (macOS-only) + the identity key have no dedicated options, so
-    # go through extraConfig. Guard UseKeychain when the NixOS host lands (#05).
+    # The identity key has no dedicated option, so go through extraConfig.
+    # UseKeychain is macOS-only (Apple keychain) — guard it so the NixOS host
+    # (athena, #05) doesn't get an invalid ssh option.
     extraConfig = ''
       IdentityFile ~/.ssh/id_ed25519
+    '' + lib.optionalString pkgs.stdenv.isDarwin ''
       UseKeychain yes
     '';
   };
@@ -184,8 +205,9 @@ in {
   # --- alacritty (XDG) ---
   xdg.configFile."alacritty".source = ./alacritty;
 
-  # --- hammerspoon ---
-  home.file.".hammerspoon".source = ./hammerspoon;
+  # --- hammerspoon (macOS-only app; NixOS window mgmt → future hyprland issue) ---
+  home.file.".hammerspoon" =
+    lib.mkIf pkgs.stdenv.isDarwin { source = ./hammerspoon; };
 
   # --- doom private config (out-of-store; see header note) ---
   xdg.configFile."doom".source =

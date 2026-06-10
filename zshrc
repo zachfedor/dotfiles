@@ -16,22 +16,24 @@
 # -----------------
 ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
 
+# zimfw framework path, provided by home-manager (nixpkgs zimfw on both macOS and
+# NixOS — see home.nix). Sets ZIM_FW_INIT to the nix store path so this file
+# stays path-free and OS-agnostic (replaced a uname brew/linuxbrew case).
+ZIM_FW_INIT_FRAGMENT=${XDG_CONFIG_HOME:-${HOME}/.config}/zsh/zim-fw-init.zsh
+[[ -f ${ZIM_FW_INIT_FRAGMENT} ]] && source ${ZIM_FW_INIT_FRAGMENT}
+
 # Avoid nested git repos in `modules/`
 zstyle ':zim:zmodule' use 'degit'
 
-# Pin zim:fw version, upgrade manually with `zimfw upgrade`
+# Framework version is pinned by nixpkgs (issue 05a), so disable zim's self-update
+# version check. Do NOT run `zimfw upgrade` (the framework is read-only in the nix
+# store) — bump it with `nix flake update nixpkgs` instead. Modules still update
+# with `zimfw update`.
 zstyle ':zim' 'disable-version-check' 'true'
 
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
 if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
-  case `uname` in
-    Darwin)
-      source /opt/homebrew/opt/zimfw/share/zimfw.zsh init
-    ;;
-    Linux)
-      source /home/linuxbrew/.linuxbrew/opt/zimfw/share/zimfw.zsh init
-    ;;
-  esac
+  source "${ZIM_FW_INIT}" init
 fi
 
 # Initialize modules.

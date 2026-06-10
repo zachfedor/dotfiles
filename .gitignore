@@ -7,6 +7,11 @@ emacs.d/ido.last
 emacs.d/test/
 emacs.d/test.sh
 
+# Nix build output symlinks #
+##############################
+result
+result-*
+
 # OSx Junk #
 ############
 .DS_Store
