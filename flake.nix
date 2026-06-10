@@ -1,5 +1,5 @@
 {
-  description = "zachfedor's dotfiles for nixos and macos (via nix-darwin) with home-manager";
+  description = "zachfedor's dotfiles using home-manager on nixos and macos/nix-darwin";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -31,7 +31,7 @@
       home-manager.users.${user} = import ./home.nix;
     };
   in {
-    # --- macOS desktop (nix-darwin) ---
+    # --- HESTIA (macOS/nix-darwin laptop) ---
     darwinConfigurations.hestia = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
       specialArgs = { inherit user; system = "aarch64-darwin"; };
@@ -42,7 +42,7 @@
       ];
     };
 
-    # --- NixOS desktop (athena) ---
+    # --- ATHENA (nixOS desktop) ---
     nixosConfigurations.athena = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit user; system = "x86_64-linux"; };
