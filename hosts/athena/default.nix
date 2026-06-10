@@ -113,6 +113,14 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
 
+  # AMD GPU graphics stack (issue 05e). 32-bit support is required for Steam's
+  # game runtimes. (hardware.graphics is the 25.11 name for the old
+  # hardware.opengl.)
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
   # zsh as a system-registered login shell (config via home-manager). zim owns
   # completion (it runs compinit after its modules load), so disable NixOS's
   # /etc/zshrc compinit to avoid the "completion was already initialized"
@@ -134,6 +142,13 @@
     git
     neovim
     wget
+    # GUI apps (issue 05e): the NixOS equivalents of hestia's mac casks
+    # (firefox + steam are enabled via programs.* above; openemu/hammerspoon are
+    # macOS-only and dropped). slack/discord are unfree (allowUnfree set below).
+    vlc
+    calibre
+    slack
+    discord
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
