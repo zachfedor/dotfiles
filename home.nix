@@ -54,7 +54,11 @@ in {
     fira-code fira-sans fira-mono
     source-code-pro source-sans-pro source-serif-pro
     inconsolata roboto lato lora merriweather vt323
-  ];
+  ]
+  # Emacs: macOS uses the from-source emacs-plus@30 brew (issue 01); on NixOS the
+  # pure-GTK build from nixpkgs is the right choice under Wayland/GNOME. Doom
+  # itself stays hand-managed on both (clone + doom sync, not nix). (issue 05d)
+  ++ lib.optionals pkgs.stdenv.isLinux [ emacs30-pgtk ];
 
   # Make HM-installed fonts (nerd-fonts + typefaces above) discoverable by apps.
   # Required on NixOS; macOS font handling is native, so scope to Linux. (05c)
