@@ -48,7 +48,8 @@
       specialArgs = { inherit user; system = "x86_64-linux"; };
       modules = [
         ./hosts/athena/default.nix
-        # home-manager wiring added in 05c
+        home-manager.nixosModules.home-manager
+        hmModule
       ];
     };
   };

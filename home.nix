@@ -56,6 +56,10 @@ in {
     inconsolata roboto lato lora merriweather vt323
   ];
 
+  # Make HM-installed fonts (nerd-fonts + typefaces above) discoverable by apps.
+  # Required on NixOS; macOS font handling is native, so scope to Linux. (05c)
+  fonts.fontconfig.enable = pkgs.stdenv.isLinux;
+
   # --- per-project dev environments (issue 04d; replaces mise) ---
   # nix-direnv + a project `.envrc` containing `use flake` build a pinned,
   # reproducible toolchain from that project's flake devShell and load it on cd.
@@ -182,18 +186,18 @@ in {
   # when the NixOS host is added (issue 05).
   programs.ssh = {
     enable = true;
-    # These top-level options ARE the default `Host *` block in this HM version.
-    # Setting them here (rather than a separate matchBlocks."*") avoids emitting
-    # two conflicting `Host *` stanzas.
-    addKeysToAgent = "yes";
-    # The identity key has no dedicated option, so go through extraConfig.
-    # UseKeychain is macOS-only (Apple keychain) — guard it so the NixOS host
-    # (athena, #05) doesn't get an invalid ssh option.
-    extraConfig = ''
-      IdentityFile ~/.ssh/id_ed25519
-    '' + lib.optionalString pkgs.stdenv.isDarwin ''
-      UseKeychain yes
-    '';
+    # HM 25.11 deprecated the top-level `Host *` options (addKeysToAgent etc) in
+    # favour of an explicit matchBlocks."*"; opt out of the built-in defaults and
+    # define our own so nothing is silently dropped when they're removed. (05c;
+    # supersedes the 25.05 workaround from 4c.)
+    enableDefaultConfig = false;
+    matchBlocks."*" = {
+      addKeysToAgent = "yes";
+      identityFile = "~/.ssh/id_ed25519";
+      # UseKeychain is macOS-only (Apple keychain) — guard so athena (NixOS)
+      # doesn't get an invalid option.
+      extraOptions = lib.optionalAttrs pkgs.stdenv.isDarwin { UseKeychain = "yes"; };
+    };
   };
 
   # --- terminal multiplexer ---

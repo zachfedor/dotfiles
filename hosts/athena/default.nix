@@ -94,7 +94,11 @@
   users.users.zach = {
     isNormalUser = true;
     description = "Zach Fedor";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+    # zsh is the login shell; the zsh/zim *config* comes from home-manager
+    # (shared home.nix passthrough). programs.zsh.enable below registers it in
+    # /etc/shells so it's a valid login shell. (issue 05c)
+    shell = pkgs.zsh;
     openssh = {
       authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGgHR3HB18TLl6f8kszcUriyRAZxbPmXIJxVXpr+hyWo zachfedor@gmail.com"
@@ -109,11 +113,19 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
 
+  # zsh as a system-registered login shell (config via home-manager). (issue 05c)
+  programs.zsh.enable = true;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+  # System-level CLI: available to root/boot/rescue and before the HM user
+  # profile loads. neovim stays here as the editor for those contexts — for user
+  # zach, home-manager's *configured* nvim (issue 04b) still wins because
+  # useUserPackages puts /etc/profiles/per-user/zach/bin ahead of
+  # /run/current-system/sw/bin in PATH. (issue 05c)
   environment.systemPackages = with pkgs; [
     git
     neovim
