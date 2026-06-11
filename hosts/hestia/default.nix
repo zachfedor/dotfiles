@@ -4,10 +4,11 @@
 # from the flake's specialArgs so host identity is defined once in flake.nix.
 # This file holds everything macOS/nix-darwin-specific; the cross-platform user
 # config lives in ../../home.nix.
-{ pkgs, user, system, ... }:
+{ pkgs, user, ... }:
 
 {
-  nixpkgs.hostPlatform = system;
+  # nixpkgs.hostPlatform comes from the `system` arg passed to darwinSystem in
+  # flake.nix (athena relies on the same for nixosSystem).
 
   # Determinate Nix manages the daemon and nix itself; let it.
   # nix-darwin must NOT also manage nix or the two fight.

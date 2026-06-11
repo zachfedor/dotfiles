@@ -34,7 +34,7 @@
     # --- HESTIA (macOS/nix-darwin laptop) ---
     darwinConfigurations.hestia = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
-      specialArgs = { inherit user; system = "aarch64-darwin"; };
+      specialArgs = { inherit user; };
       modules = [
         ./hosts/hestia/default.nix
         home-manager.darwinModules.home-manager
@@ -45,7 +45,6 @@
     # --- ATHENA (nixOS desktop) ---
     nixosConfigurations.athena = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = { inherit user; system = "x86_64-linux"; };
       modules = [
         ./hosts/athena/default.nix
         home-manager.nixosModules.home-manager

@@ -185,12 +185,10 @@ in {
   # then `source "$ZIM_FW_INIT" init`. One path-free line, identical on both OSes
   # (replaces the old uname Darwin/Linux brew/linuxbrew case). See issue 05a.
   # zimfw is used by sourcing zimfw.zsh with an action ("init", "upgrade", …);
-  # there is no `zimfw` binary. Export the path and define the CLI as a function
-  # so `zimfw upgrade` etc. work off the nix store path (brew provided this
-  # function before; nixpkgs does not).
+  # there is no `zimfw` binary. Export the path; zim's generated init.zsh defines
+  # the `zimfw()` CLI function (baked with this store path) when zshrc sources it.
   xdg.configFile."zsh/zim-fw-init.zsh".text = ''
     export ZIM_FW_INIT="${pkgs.zimfw}/zimfw.zsh"
-    zimfw() { source "$ZIM_FW_INIT" "$@"; }
   '';
 
   home.file.".zshenv".source = ./zshenv;
