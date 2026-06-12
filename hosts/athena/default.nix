@@ -58,6 +58,11 @@
     variant = "";
   };
 
+  # Tailscale (issue 06) — joins the tailnet so off-LAN Syncthing can reach the
+  # always-on mnemosyne node (and later the iphone's WebDAV access). Authenticate
+  # once after switching: `sudo tailscale up`.
+  services.tailscale.enable = true;
+
   # Enable OpenSSH
   services.openssh = {
     enable = true;

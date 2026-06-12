@@ -93,6 +93,21 @@ in {
     nix-direnv.enable = true;
   };
 
+  # --- Syncthing: sync ~/notes across hestia + athena + mnemosyne (issue 06) ---
+  # Cross-platform HM service (launchd on macOS, systemd on NixOS). Declarative —
+  # nix is the source of truth (override* resets GUI drift on rebuild). Device IDs
+  # are generated on first run; fill `settings.devices` + the ~/notes folder once
+  # each node's ID is known (incl. mnemosyne, set up on the Synology). See 6c/6d.
+  services.syncthing = {
+    enable = true;
+    overrideDevices = true;
+    overrideFolders = true;
+    settings = {
+      devices = { };
+      folders = { };
+    };
+  };
+
   # --- neovim (backup editor; Emacs/Doom is primary, see issue 04b) ---
   # Native module (config-as-nix) by choice. Mirrors the Doom workflow's TOOLS
   # rather than its config: evil is native to (neo)vim, SPC leader, nord theme,

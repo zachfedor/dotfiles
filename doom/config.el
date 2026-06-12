@@ -124,7 +124,7 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory (expand-file-name "~/Documents/notes"))
+(setq org-directory (expand-file-name "~/notes"))
 ;; (defun zf/org-mode-setup ()
 ;;   (setq display-line-numbers nil)
 ;;   ;; (org-indent-mode)
