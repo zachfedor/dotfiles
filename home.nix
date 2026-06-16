@@ -107,8 +107,27 @@ in {
     overrideDevices = true;
     overrideFolders = true;
     settings = {
-      devices = { };
-      folders = { };
+      devices = {
+        hestia.id    = "4KBA7WY-JFGPY2O-ELGHP34-W5C7QCA-YZ2VAHH-N6NNTAV-7ZFSMF2-ITGFSA3";
+        athena.id    = "AHKWQII-DUBS7FB-OZ5W6H6-IFUZEMA-QBLES57-UVSMK7N-HRUHPQO-2B544AQ";
+        mnemosyne.id = "ZHAZDXG-6Z6MUBF-VN2LX76-ETQS56G-VYGKZMJ-ULIDTLN-3LYXUQH-5KFWUQO";
+      };
+      # All five folders share among the three Syncthing peers (the local device
+      # is implicitly one of them — matches Syncthing's native config shape, so
+      # this same block is correct on both hestia and athena). The phone is NOT a
+      # Syncthing peer; it reaches gtd/projects/areas/resources via mnemosyne's
+      # WebDAV (6f) — archive is simply not exposed there.
+      folders =
+        let
+          peers = [ "hestia" "athena" "mnemosyne" ];
+          home = config.home.homeDirectory;
+        in {
+          gtd       = { id = "gtd";       path = "${home}/gtd";       devices = peers; };
+          projects  = { id = "projects";  path = "${home}/projects";  devices = peers; };
+          areas     = { id = "areas";     path = "${home}/areas";     devices = peers; };
+          resources = { id = "resources"; path = "${home}/resources"; devices = peers; };
+          archive   = { id = "archive";   path = "${home}/archive";   devices = peers; };
+        };
     };
   };
 
