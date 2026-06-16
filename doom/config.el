@@ -124,7 +124,11 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory (expand-file-name "~/notes"))
+;; PARA tree (roadmap #06): GTD control files live in ~/gtd (its own Syncthing
+;; folder); notes co-located across the sibling buckets ~/projects ~/areas
+;; ~/resources. org-directory = ~/gtd only sets capture/journal/default-notes
+;; defaults — it does NOT scope agenda/links; those use org-agenda-files below.
+(setq org-directory (expand-file-name "~/gtd"))
 ;; (defun zf/org-mode-setup ()
 ;;   (setq display-line-numbers nil)
 ;;   ;; (org-indent-mode)
@@ -141,7 +145,17 @@
   (setq org-archive-location "::datetree/")
   (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM %TAGS")
   (setq org-deadline-warning-days 7)
-  (setq org-default-notes-file (concat org-directory "/inbox.org"))
+  (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+  ;; Agenda scans the GTD control files + actionable buckets (projects/areas).
+  ;; resources/ is reference, kept out to reduce scan noise. Static at load —
+  ;; restart Emacs to pick up newly-created files (revisit dynamic glob in #12).
+  (setq org-agenda-files
+        (append (list org-default-notes-file
+                      (expand-file-name "todo.org" org-directory)
+                      (expand-file-name "someday.org" org-directory)
+                      (expand-file-name "journal.org" org-directory))
+                (directory-files-recursively (expand-file-name "~/projects") "\\.org$")
+                (directory-files-recursively (expand-file-name "~/areas") "\\.org$")))
   (setq org-ellipsis " ▾ ")
   (setq org-global-properties '(("EFFORT_ALL" . "0:15 0:30 1:00 2:00 4:00 6:00 0:00")))
   (setq org-hide-emphasis-markers t)
@@ -174,14 +188,17 @@
                                  ;; simple headline, inactive timestamp, with properties
                                  "* %?\n%U\n"))))
 
-(use-package! denote
-  :config
-  (setq denote-directory org-directory)
-  ;; TODO finish configuring denote
-  (setq denote-known-keywords '("fun" "home" "work" "ref"))
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
-  (denote-rename-buffer-mode 1))
-(map! :after denote :leader :prefix "n" :desc "Open denote" "d" #'denote)
+;; Denote retired (#06/#12): PARA folders + readable filenames organize notes now,
+;; not denote's flat timestamp+keyword model (which was unreadable on the phone).
+;; Cross-cutting concerns become inline org tags. Full removal (packages.el +
+;; `doom sync`) tracked in #12.
+;; (use-package! denote
+;;   :config
+;;   (setq denote-directory org-directory)
+;;   (setq denote-known-keywords '("fun" "home" "work" "ref"))
+;;   (add-hook 'dired-mode-hook #'denote-dired-mode)
+;;   (denote-rename-buffer-mode 1))
+;; (map! :after denote :leader :prefix "n" :desc "Open denote" "d" #'denote)
 
 (use-package! corfu
   :config

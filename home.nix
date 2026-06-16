@@ -93,11 +93,15 @@ in {
     nix-direnv.enable = true;
   };
 
-  # --- Syncthing: sync ~/notes across hestia + athena + mnemosyne (issue 06) ---
+  # --- Syncthing: sync the PARA tree across hestia + athena + mnemosyne (issue 06) ---
   # Cross-platform HM service (launchd on macOS, systemd on NixOS). Declarative —
   # nix is the source of truth (override* resets GUI drift on rebuild). Device IDs
-  # are generated on first run; fill `settings.devices` + the ~/notes folder once
-  # each node's ID is known (incl. mnemosyne, set up on the Synology). See 6c/6d.
+  # are generated on first run; fill `settings.devices` + the folders once each
+  # node's ID is known (incl. mnemosyne on the Synology). See 6c/6d.
+  # Folders (option A): ~/gtd (control files), ~/projects, ~/areas, ~/resources —
+  # all shared hestia+athena+mnemosyne (+ phone via mnemosyne WebDAV). ~/archive is
+  # shared to the desktops + NAS too (need it locally to archive active work) but
+  # NOT the phone — keep cold bulk off mobile.
   services.syncthing = {
     enable = true;
     overrideDevices = true;
