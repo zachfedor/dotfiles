@@ -57,7 +57,6 @@
   :recipe (:host github :repo "magit/git-modes"
            :files ("gitignore-mode.el")))
 
-(package! denote)
 (package! lorem-ipsum)
 (package! mini-frame)
 (package! mixed-pitch)

@@ -1,6 +1,6 @@
 # Org notes: a cohesive PARA storage + sync system across all devices
 
-Status: triaged (re-designed greenfield 2026-06-16 — ready to build)
+Status: DONE 2026-06-16 (desktop mesh + phone syncing; cleanup follow-ons noted)
 
 ## What to build
 
@@ -169,22 +169,46 @@ in any browser incl. NixOS, talks WebDAV); Plain Org is the nicer native option.
   `doom sync` removal tracked in #12). Out-of-store config → restart Emacs, no
   rebuild. Stale iCloud symlinks `~/notes` + `~/Documents/notes` removed (Beorg
   container backup intact: 30 .org).
-- **Remaining (need home/LAN + rebuilds):** 6c tailscale (athena+mnemosyne),
-  6d syncthing declarative in home.nix (collect device IDs, fill placeholders),
-  6e mnemosyne syncthing + WebDAV, 6f phone (Plain Org via WebDAV/Tailscale —
-  verify WebDAV support else organice), 6g verify end-to-end. Then athena needs
-  the same `~/` PARA seed via first Syncthing sync. Only after 6g verified:
-  delete Beorg originals + retire Beorg/iCloud.
+- **6c DONE 2026-06-16.** Tailscale up on all four nodes (hestia, athena via nix
+  `services.tailscale`, mnemosyne via Synology pkg, theseus). athena rebuilt via
+  `rebuild`. Gotcha: hestia rebuild aborted on `brew bundle` — Homebrew now
+  refuses untrusted taps and the bundle runs under sudo (root env) so user-level
+  `brew trust d12frosted/emacs-plus` didn't apply. TEMP-disabled emacs-plus@30 +
+  its tap in hosts/hestia/default.nix (already installed, cleanup="none" → not
+  removed); proper fix (Emacs → nixpkgs) tracked in #10.
+- **6d DONE 2026-06-16.** Device IDs collected (Syncthing v2.0.10; `--device-id`
+  flag gone in v2 → read from config.xml `<device id>`): hestia 4KBA7WY…,
+  athena AHKWQII…, mnemosyne ZHAZDXG…. Filled `home.nix services.syncthing.settings`
+  — 3 devices + 5 folders (gtd/projects/areas/resources/archive), all shared to
+  the 3 peers, paths via `${config.home.homeDirectory}`. `darwin-rebuild build`
+  validated; committed+pushed; rebuilt hestia + athena.
+- **6e DONE 2026-06-16.** mnemosyne Syncthing via Container Manager (official
+  `syncthing/syncthing` image, `network_mode: host`, `user: "1026:100"` — the
+  `nas` uid; PUID/PGID env wasn't honored → used `user:`. config vol
+  /volume1/docker/syncthing, data /volume1/para→/data, STGUIADDRESS 0.0.0.0:8384).
+  Accepted hestia/athena devices + the 5 folder shares in its GUI, paths /data/<name>.
+- **6g (desktop side) DONE 2026-06-16.** Sync verified across hestia/athena/mnemosyne.
+- **6f + 6g DONE 2026-06-16.** Plain Org does NOT support WebDAV (nor do Beorg/
+  organice end up needed). Solution: DSM **WebDAV Server** (HTTPS :5006) exposes
+  the `para` share; iPhone uses **iOS Files' native "Connect to Server"** WebDAV
+  to `https://100.105.93.7:5006` (mnemosyne's stable Tailscale IP), and **Plain
+  Org reads/writes org files through the Files picker**. Phone↔desktop sync
+  verified (WebDAV writes to /volume1/para → Syncthing fans out). No CORS/PWA
+  rabbit hole, no iCloud. archive simply not added on the phone.
+- **#06 COMPLETE.** Follow-on cleanups (separate): delete Beorg iCloud originals
+  + retire Beorg/iCloud once happy with the new flow; ref/backup-codes → 1Password
+  (security); media library (ref/{books,dnd,gaming}+calibre+Max9); emacs-plus →
+  nixpkgs to drop the brew tap (#10).
 
 ## Acceptance criteria
 
-- [ ] Notes + their active reference docs live co-located in one syncable PARA tree
-- [ ] Editing/capturing on one device appears on the others after sync
-- [ ] Linked docs open intact on every device, including the phone
-- [ ] `~/archive` syncs to the desktops + NAS, but not the phone
-- [ ] Org config (org-directory, agenda files, capture/refile) placed by
+- [x] Notes + their active reference docs live co-located in one syncable PARA tree
+- [x] Editing/capturing on one device appears on the others after sync
+- [x] Linked docs open intact on every device, including the phone
+- [x] `~/archive` syncs to the desktops + NAS, but not the phone
+- [x] Org config (org-directory, agenda files, capture/refile) placed by
       home-manager, cross-platform, no hardcoded machine-specific paths
-- [ ] Phone (Plain Org via WebDAV/Tailscale) does capture + read + TODO toggle
+- [x] Phone (Plain Org via Files WebDAV/Tailscale) does capture + read + TODO toggle
 
 ## Follow-on (out of scope here)
 
