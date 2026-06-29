@@ -66,6 +66,25 @@ become Native modules one at a time, on demand — never as a big-bang rewrite.
 > We only promote it to a **Native module** if we need it to differ between macOS
 > and NixOS, or to bundle plugin installs with it."
 
+**Per-project devShell**:
+A pinned toolchain (language runtime, LSP, linters, DB) declared in a project's
+own `flake.nix` and loaded on `cd` via `.envrc` (`use flake`) + nix-direnv. The
+home for language-specific and version-specific tooling — the opposite of a
+global install. Global packages are reserved for a thin cross-project fallback
+(python3, nodejs) + ad-hoc CLIs (gh, jq).
+_Avoid_: "version manager" (pyenv/rbenv/n — retired in favour of devShells).
+
+**Vendored app**:
+A GUI app installed by its own vendor installer (not Homebrew or Nix) — e.g.
+Ableton, Logitech drivers. Out of Nix scope; reinstalled manually and listed in
+`docs/new-host.md`, the same boundary as app-internal state (logins, extensions).
+
+**Audit verdict**:
+The disposition assigned to each installed tool during the #10 audit, exactly
+one of: **declare** (bring under Nix in the right layer), **ephemeral** (leave
+the Homebrew install — survives rebuilds per ADR-0003 — but don't reproduce it on
+a fresh box), or **cut** (uninstall). Simplify-biased: cut is the default.
+
 **Doom profile**:
 An Emacs config selectable at launch via Doom's native profile system
 (`doom/profiles.el`, `emacs --profile NAME`). The default "global" profile is the

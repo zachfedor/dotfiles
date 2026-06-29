@@ -38,10 +38,15 @@
 ;;       ;; doom-variable-pitch-font (font-spec :family "ETBembo" :size 24)
 ;;       doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 24 :weight 'semi-light))
 
+;; Load envvars from shell
+(setq doom-env-file (expand-file-name "~/code/doomemacs/.local/env"))
+
 (setq
  ;; No worries with auto-saved buffers
  auto-save-default t
  make-backup-files t
+ ;; Better evil escape
+ evil-escape-key-sequence "jk"
  ;; Enable granular insert-mode history for undoing
  evil-want-fine-undo t
  ;; Set initial size on start
@@ -176,7 +181,7 @@
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n!)" "WAIT(w@/!)" "|" "DONE(d!)" "CLOSED(c@)")))
   ;; Bypass above logging rules by using `S-left' and `S-right' to toggle state
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-  (setq org-todo-keyword-faces `(("NEXT" . +org-todo-active) ("WAIT" . +org-todo-onhold) ("CLOSED" . +org-todo-cancel)))
+  (setq org-todo-keyword-faces `(("NEXT" . +org-todo-active) ("WAIT" . +org-todo-onhold)))
   ;; Three simple templates that actually get used (#07/#12 trim). Everything
   ;; lands in ~/gtd/inbox.org (except journal) → process later by refiling into
   ;; a PARA bucket.

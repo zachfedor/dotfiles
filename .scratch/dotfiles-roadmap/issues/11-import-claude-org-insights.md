@@ -1,6 +1,6 @@
 # Import claude.ai org-mode project insights into the repo
 
-Status: in-progress (summary imported + distilled 2026-06-16)
+Status: DONE 2026-06-16 (summary imported + distilled into #06/#12; all criteria met)
 
 ## What to build
 

@@ -75,7 +75,31 @@ rebuild                 # HM creates ~/.emacs.d → ~/code/doomemacs + ~/.config
 Doctor warnings about language tools are optional. Linux hard deps (python, X11
 clipboard) already in `home.nix`. After config changes later: `doom sync`.
 
-## 6. Deferred
+## 6. Manual apps & sign-ins (out of nix scope)
+
+Nix declares installs; **app-internal state stays each app's own cloud sync** (no
+profiles/extensions/bookmarks in the flake — issue 10 / ADR-0004 boundary). After
+a rebuild, sign in once per app:
+
+- **Firefox** → Firefox Sync (bookmarks, extensions, prefs)
+- **Brave** → Brave Sync (optional)
+- **1Password** → account sign-in; enable browser unlock + `op` CLI integration
+- **Slack / Discord / Telegram** → workspace/account login
+- **Syncthing** → already declarative; just approve the new device on peers (#06)
+- **Tailscale** → `sudo tailscale up` (CLI-only on hestia, no menubar)
+- **Anki** → AnkiWeb sync
+
+**Vendored apps** (vendor installers, *not* brew/nix — reinstall by hand; macOS-only):
+
+- Music: Ableton Live, GarageBand (MAS), Melodics, Akai/inMusic Software Center,
+  Studio Instrument Collection
+- Hardware: Logi Options / LogiTune (Logitech)
+- Printing: PaperCut Hive
+
+**Containers (macOS):** `colima start` once after first rebuild — colima provides
+the Linux VM the `docker` CLI talks to (ADR-0006). athena uses the native daemon.
+
+## 7. Deferred
 
 - `base16-shell` terminal colors: manual clone to `~/.config/base16-shell` until
   nix-managed (#08).

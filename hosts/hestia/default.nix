@@ -29,6 +29,16 @@
   # Baseline; do not bump casually (see nix-darwin docs).
   system.stateVersion = 5;
 
+  # Unfree user packages (issue 10): ngrok, _1password-cli. useGlobalPkgs=true
+  # means home.nix uses this host's pkgs, so allowUnfree must be set here (athena
+  # sets its own). Matches athena's nixpkgs.config.allowUnfree.
+  nixpkgs.config.allowUnfree = true;
+
+  # Tailscale (issue 10): brought under nix-darwin (was an undeclared brew install).
+  # Daemon + CLI from nixpkgs, mirrors athena's services.tailscale. CLI-only (no
+  # menubar GUI); authenticate once with `sudo tailscale up`.
+  services.tailscale.enable = true;
+
   # --- GUI apps via Homebrew (issue 04e) ---
   # GUI casks are the one area that's legitimately macOS-only; the NixOS host
   # (athena, #05) gets these from nixpkgs separately. nix-darwin drives brew
@@ -42,23 +52,44 @@
   homebrew = {
     enable = true;
     onActivation = {
-      autoUpdate = true;
+      # issue 10: don't auto-update/upgrade every rebuild (slow, noisy,
+      # non-reproducible). Run `brew update && brew upgrade` by hand when wanted.
+      autoUpdate = false;
       cleanup = "none";
-      upgrade = true;
+      upgrade = false;
     };
-    taps = [ "d12frosted/emacs-plus" ];
+    # Emacs moved to nixpkgs `emacs30` in home.nix (ADR-0005) — the d12frosted
+    # tap is gone for good (its untrusted-tap + sudo conflict broke rebuilds).
+    # Do NOT reintroduce it. Uninstall the old brew by hand: `brew uninstall
+    # emacs-plus@30`.
+    taps = [ ];
     brews = [
-      "emacs-plus@30"   # from-source Emacs w/ native-comp (Doom); see issue 01
       "zork"            # no nixpkgs package
     ];
     casks = [
+      # essentials
       "firefox"
+      "brave-browser"   # OSS chromium for testing (cut chrome/edge/opera/opera-gx)
+      "1password"
       "slack"
       "discord"
+      "telegram"
+      # creative
+      "gimp"
+      "inkscape"
+      "vcv-rack"
+      # media / learning
       "vlc"
       "calibre"
+      "anki"            # nixpkgs anki drags in qtwebengine (no darwin cache) — cask instead
+      "obs"
+      "transmission"
+      "sabnzbd"
+      # games / emulation
       "steam"
       "openemu"
+      "openmw"
+      # macOS utility
       "hammerspoon"
     ];
   };

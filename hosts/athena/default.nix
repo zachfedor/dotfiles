@@ -99,7 +99,7 @@
   users.users.zach = {
     isNormalUser = true;
     description = "Zach Fedor";
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "docker" ];
     # zsh is the login shell; the zsh/zim *config* comes from home-manager
     # (shared home.nix passthrough). programs.zsh.enable below registers it in
     # /etc/shells so it's a valid login shell. (issue 05c)
@@ -134,6 +134,11 @@
   # double-init warning — same fix as hestia's nix-darwin config (4d). (issue 05c)
   programs.zsh.enable = true;
   programs.zsh.enableCompletion = false;
+
+  # Containers (issue 10 / ADR-0006): native Docker daemon. The `docker` +
+  # `docker-compose` CLIs come from the shared home.nix; on macOS colima backs
+  # them with a VM, here the daemon is native (no VM). User is in the docker group.
+  virtualisation.docker.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

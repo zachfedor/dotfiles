@@ -32,12 +32,28 @@ in {
     editorconfig-core-c htop openssl pandoc p7zip
     # shell tooling
     shellcheck shfmt
+    # global dev CLIs (issue 10 audit). Per-project toolchains live in devShells
+    # (ADR-0004), NOT here — this is only the cross-project, invoke-anywhere set.
+    gh jq flyctl wget ngrok
+    # thin global runtime fallback for scratch use; real projects pin versions in
+    # their own devShell (ADR-0004), so no pyenv/rbenv/n and no language pile here.
+    python3 nodejs
+    # Emacs vterm build infra (issue 10): Doom compiles vterm-module.so on first
+    # use via cmake + libtool + a C compiler. This is global Emacs infra (the
+    # in-editor terminal), NOT project tooling, so it's the one cmake exception to
+    # the devShell rule (ADR-0004). Cross-platform: vterm builds on both OSes.
+    cmake libtool
+    # secrets / containers / misc utilities (issue 10). docker-compose is a pure
+    # client; the docker CLI client is added per-OS below (mac via colima, athena
+    # via virtualisation.docker — neither wants the full insecure `docker` engine
+    # package here).
+    _1password-cli docker-compose ncdu aspell tmux
     # NOTE: zimfw (zsh framework) is NOT listed here — it ships only zimfw.zsh
     # (no binary), pulled into the closure by the ZIM_FW_INIT fragment below.
     # Migrated off brew → nixpkgs on both OSes (issue 05a); the passthrough zshrc
     # no longer sources it from /opt/homebrew (mac) or linuxbrew (NixOS, absent).
-    # clojure (Doom clojure module); guile dropped
-    clojure clojure-lsp leiningen
+    # NOTE: clojure/clojure-lsp/leiningen removed (issue 10) — Clojure is now a
+    # per-project devShell toolchain (ADR-0004), not a global install.
     # misc
     lua ffmpeg gifsicle html-tidy
     # for fun
@@ -75,8 +91,25 @@ in {
   #     deferred (revisit with the Wayland/ricing work, #08).
   ++ lib.optionals pkgs.stdenv.isLinux [
     emacs30-pgtk
-    python3
-    xclip xdotool xorg.xwininfo
+    # python3/nodejs are shared above now (issue 10 global fallback).
+    xclip xdotool xwininfo
+    # anki: nixpkgs only on Linux (qtwebengine is cached for x86_64-linux). On
+    # macOS it has no aarch64-darwin cache and tries to build qtwebengine from
+    # source, which fails — so hestia keeps the Homebrew cask instead.
+    anki
+  ]
+  # macOS-only (issue 10): NS Emacs replaces the emacs-plus brew + d12frosted tap
+  # (ADR-0005); blueutil is the bluetooth CLI driven by Hammerspoon scripts.
+  ++ lib.optionals pkgs.stdenv.isDarwin [
+    emacs30
+    blueutil
+    # pngpaste: clipboard→PNG for Doom org-download-clipboard (org image paste).
+    pngpaste
+    # colima: headless Linux VM backing the `docker` CLI on macOS (ADR-0006).
+    # `colima start` once; athena uses native virtualisation.docker instead.
+    # docker-client = the CLI only (no engine); colima provides the engine.
+    colima
+    docker-client
   ];
 
   # Make HM-installed fonts (nerd-fonts + typefaces above) discoverable by apps.
@@ -141,13 +174,23 @@ in {
     viAlias = true;
     vimAlias = true;
     defaultEditor = false; # EDITOR stays vim per zshenv; this is a backup
+    # 26.05 flipped these defaults to false; adopt the lean default explicitly
+    # (a backup editor doesn't need ruby/python remote-plugin providers).
+    withRuby = false;
+    withPython3 = false;
 
     plugins = with pkgs.vimPlugins; [
       # NOTE: proper theme (nord, matching Doom) deferred to issue 08 (Flavours).
       # Using a built-in colorscheme for now so a theme-load failure can't abort
       # the rest of the config (which is what broke leader maps the first time).
       {
-        plugin = nvim-treesitter.withAllGrammars;
+        # Curated grammar set (issue 10) instead of withAllGrammars (~100+ grammars,
+        # needless build/closure for a backup editor). Tracks the langs Doom enables
+        # + config formats. Add one here if a new language comes up.
+        plugin = nvim-treesitter.withPlugins (p: with p; [
+          bash c clojure go gomod javascript typescript tsx json lua
+          markdown markdown-inline nix python rust toml yaml vim vimdoc
+        ]);
         type = "lua";
         config = "require('nvim-treesitter.configs').setup({ highlight = { enable = true }, indent = { enable = true } })";
       }
@@ -187,7 +230,7 @@ in {
       }
     ];
 
-    extraLuaConfig = ''
+    initLua = ''
       -- leader = SPC, matching Doom
       vim.g.mapleader = ' '
       vim.g.maplocalleader = ' '
@@ -245,18 +288,18 @@ in {
   # when the NixOS host is added (issue 05).
   programs.ssh = {
     enable = true;
-    # HM 25.11 deprecated the top-level `Host *` options (addKeysToAgent etc) in
-    # favour of an explicit matchBlocks."*"; opt out of the built-in defaults and
-    # define our own so nothing is silently dropped when they're removed. (05c;
-    # supersedes the 25.05 workaround from 4c.)
+    # 26.05 renamed `matchBlocks` → `settings` and dropped `extraOptions` (raw
+    # OpenSSH directives now go inline under settings using their upstream names).
+    # Opt out of the built-in defaults and define our own `settings."*"` so
+    # nothing is silently dropped. (issue 10 channel bump; was 05c's matchBlocks.)
     enableDefaultConfig = false;
-    matchBlocks."*" = {
+    settings."*" = {
       addKeysToAgent = "yes";
       identityFile = "~/.ssh/id_ed25519";
-      # UseKeychain is macOS-only (Apple keychain) — guard so athena (NixOS)
-      # doesn't get an invalid option.
-      extraOptions = lib.optionalAttrs pkgs.stdenv.isDarwin { UseKeychain = "yes"; };
-    };
+    }
+    # UseKeychain is macOS-only (Apple keychain) — inline upstream directive,
+    # guarded so athena (NixOS) doesn't get an invalid option.
+    // lib.optionalAttrs pkgs.stdenv.isDarwin { UseKeychain = "yes"; };
   };
 
   # --- terminal multiplexer ---

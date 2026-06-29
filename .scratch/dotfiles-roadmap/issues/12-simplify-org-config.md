@@ -1,6 +1,18 @@
 # Simplify org-mode config to reduce friction and encourage use
 
-Status: needs-triage
+Status: mostly-absorbed-by-#07 (2026-06-16) — pending only daily-use confirmation
+
+## Absorbed into #07 (2026-06-16)
+
+The decided simplifications were implemented while building #07 (user chose "build
+#07 lean, fold #12 in"): denote retired (config.el block + packages.el +
+`doom sync`); lean keyword set `TODO NEXT WAIT | DONE CLOSED` (dropped MEETING
+keyword + `[ ]/[-]/[X]` checkbox seq → native list checkboxes); capture trimmed to
+todo/note/journal (dropped meeting/food); `org-refile-targets` → PARA buckets;
+archive split (task datetree → `~/archive/gtd-archive.org`, project = fs-move via
+`zf/archive-project`); prepend on capture+refile; which-key labels fixed. See #07
+build progress. **Only remaining criterion: user confirms the daily flow feels
+lower-friction after living with it.**
 
 ## What to build
 
