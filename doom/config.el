@@ -38,10 +38,15 @@
 ;;       ;; doom-variable-pitch-font (font-spec :family "ETBembo" :size 24)
 ;;       doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :style "Retina" :size 24 :weight 'semi-light))
 
+;; Load envvars from shell
+(setq doom-env-file (expand-file-name "~/code/doomemacs/.local/env"))
+
 (setq
  ;; No worries with auto-saved buffers
  auto-save-default t
  make-backup-files t
+ ;; Better evil escape
+ evil-escape-key-sequence "jk"
  ;; Enable granular insert-mode history for undoing
  evil-want-fine-undo t
  ;; Set initial size on start
@@ -58,6 +63,10 @@
  standard-indent 2
  evil-shift-width 2
  tab-width 2)
+
+;; Remove the GUI titlebar entirely (macOS NS build). Drops the title bar plus
+;; traffic-light buttons; resize via window edges.
+(add-to-list 'default-frame-alist '(undecorated . t))
 
 (setq-default
  history-length 1000
@@ -103,8 +112,16 @@
   `(outline-6 :foreground ,(doom-color 'default))
   `(outline-7 :foreground ,(doom-color 'default))
   `(outline-8 :foreground ,(doom-color 'default))
-  `(header-line :background ,(doom-color 'bg))
-  `(magit-header-line :box nil))
+  ;; header-line is used as a blank top-padding spacer (header-line-format " ").
+  ;; Don't pin its background to a single color: solaire-mode paints buffers with
+  ;; two shades (real buffers vs dimmed dashboard/magit/dired), so a fixed color
+  ;; matches one and stands out as a strip in the other. Inherit `default` (which
+  ;; solaire remaps per-buffer) so the spacer blends into whatever buffer it's in.
+  '(header-line :inherit default :background unspecified :box unspecified)
+  '(solaire-header-line-face :inherit default :background unspecified :box unspecified)
+  ;; magit paints its header line with magit-header-line (blue bg) — neutralize it
+  ;; so the spacer blends like every other buffer.
+  '(magit-header-line :inherit default :background unspecified :box nil))
 (cond ((equal doom-theme 'doom-gruvbox)
        (custom-set-faces!
          `(font-lock-keyword-face :slant italic :foreground ,(doom-color 'default))
@@ -124,7 +141,11 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory (expand-file-name "~/Documents/notes"))
+;; PARA tree (roadmap #06): GTD control files live in ~/gtd (its own Syncthing
+;; folder); notes co-located across the sibling buckets ~/projects ~/areas
+;; ~/resources. org-directory = ~/gtd only sets capture/journal/default-notes
+;; defaults — it does NOT scope agenda/links; those use org-agenda-files below.
+(setq org-directory (expand-file-name "~/gtd"))
 ;; (defun zf/org-mode-setup ()
 ;;   (setq display-line-numbers nil)
 ;;   ;; (org-indent-mode)
@@ -138,10 +159,23 @@
   (add-to-list 'auto-mode-alist '("/\\(?:\\.env\\.[^./]*\\|\\.[^./]*\\|[^./]+\\)\\'" . conf-mode))
   ;; including the *scratch* buffer
   (setq initial-major-mode 'org-mode)
-  (setq org-archive-location "::datetree/")
+  ;; Task-level archive (org-archive-subtree, doom `SPC m A`) → one dated done-log
+  ;; in the cold ~/archive bucket, keeping gtd files lean (#07).
+  ;; Whole-project archiving is a filesystem move — see zf/archive-project below.
+  (setq org-archive-location (concat (expand-file-name "~/archive/gtd-archive.org") "::datetree/"))
   (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM %TAGS")
   (setq org-deadline-warning-days 7)
-  (setq org-default-notes-file (concat org-directory "/inbox.org"))
+  (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+  ;; Agenda scans the GTD control files + actionable buckets (projects/areas).
+  ;; resources/ is reference, kept out to reduce scan noise. Static at load —
+  ;; restart Emacs to pick up newly-created files (revisit dynamic glob in #12).
+  (setq org-agenda-files
+        (append (list org-default-notes-file
+                      (expand-file-name "todo.org" org-directory)
+                      (expand-file-name "someday.org" org-directory)
+                      (expand-file-name "journal.org" org-directory))
+                (directory-files-recursively (expand-file-name "~/projects") "\\.org$")
+                (directory-files-recursively (expand-file-name "~/areas") "\\.org$")))
   (setq org-ellipsis " ▾ ")
   (setq org-global-properties '(("EFFORT_ALL" . "0:15 0:30 1:00 2:00 4:00 6:00 0:00")))
   (setq org-hide-emphasis-markers t)
@@ -153,35 +187,114 @@
   ;; Removing it from their tab hook allows 3rd state of seeing entire subtree under a headine
   (setq org-tab-first-hook (delete '+org-cycle-only-current-subtree-h org-tab-first-hook))
   (setq org-tags-column -80)
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n!)" "|" "DONE(d)")
-                            (sequence "WAIT(w@/!)" "|" "CLOSED(D!)" "MEETING")
-                            (sequence "[ ](c)" "[-](C)" "|" "[X](x)")))
-  (setq org-todo-keyword-faces `(("NEXT" . +org-todo-active) ("WAIT" . +org-todo-onhold) ("MEETING" . +org-todo-project) ("[-]" . +org-todo-active)))
+  ;; Lean GTD keyword set (#07/#12). NEXT = the actionable "do now" state; WAIT =
+  ;; blocked/delegated (logs a note + timestamp); CLOSED = abandoned (logs note).
+  ;; Subtask checklists use native org list checkboxes (- [ ], toggle `C-c C-c'),
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n!)" "WAIT(w@/!)" "|" "DONE(d!)" "CLOSED(c@)")))
+  ;; Bypass above logging rules by using `S-left' and `S-right' to toggle state
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+  (setq org-todo-keyword-faces `(("NEXT" . +org-todo-active) ("WAIT" . +org-todo-onhold)))
+  ;; Three simple templates that actually get used (#07/#12 trim). Everything
+  ;; lands in ~/gtd/inbox.org (except journal) → process later by refiling into
+  ;; a PARA bucket.
+  ;; :prepend t → new captures land at the TOP of inbox.org, not the bottom.
+  ;; %a = annotation link back to wherever capture was triggered (org-store-link).
   (setq org-capture-templates '(("t" "todo" entry (file org-default-notes-file)
                                  ;; task headline, inactive timestamp, annotation link
-                                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                                 "* TODO %?\n%U\n%a\n" :prepend t :clock-in t :clock-resume t)
                                 ("n" "note" entry (file org-default-notes-file)
-                                 ;; simple headline, annotation link
-                                 "* %?\n%a\n")
-                                ("m" "meeting" entry (file org-default-notes-file)
-                                 ;; meeting headline and tag
-                                 "* MEETING with %? :meeting:\n%U\n" :clock-in t :clock-resume t)
+                                 ;; simple headline, inactive timestamp, annotation link
+                                 "* %?\n%U\n%a\n" :prepend t)
                                 ("j" "journal" entry (file+datetree +org-capture-journal-file)
                                  ;; simple headline, inactive timestamp
-                                 "* %?\n%U\n" :clock-in t :clock-resume t)
-                                ("f" "food log" entry (file+datetree (concat org-directory "/food.org"))
-                                 ;; simple headline, inactive timestamp, with properties
-                                 "* %?\n%U\n"))))
+                                 "* %?\n%U\n" :clock-in t :clock-resume t)))
+  ;; --- Refile: process inbox → PARA buckets, one keystroke per item (#07/#12) ---
+  ;; Targets = gtd action files (todo/someday) + every .org in projects/ + areas/,
+  ;; headings to depth 1. A function (not a static list) so newly-created bucket
+  ;; files are picked up without restarting Emacs. resources/ excluded (reference,
+  ;; not an action destination); inbox/journal excluded (you refile OUT of them).
+  (defun zf/org-refile-targets ()
+    (append (list (expand-file-name "todo.org" org-directory)
+                  (expand-file-name "someday.org" org-directory))
+            (directory-files-recursively (expand-file-name "~/projects") "\\.org$")
+            (directory-files-recursively (expand-file-name "~/areas") "\\.org$")))
+  (setq org-refile-targets '((zf/org-refile-targets :maxlevel . 1))
+        ;; Show the target file as a top-level step, then its headings — so you
+        ;; pick the bucket file first, then where inside it.
+        org-refile-use-outline-path 'file
+        org-outline-path-complete-in-steps nil
+        ;; Offer to create a new parent heading on the fly when refiling.
+        org-refile-allow-creating-parent-nodes 'confirm
+        ;; Refiled items go to the TOP of the target (prepend), matching capture.
+        org-reverse-note-order t)
+  ;; --- Agenda: GTD review views (#07) ---
+  (setq org-agenda-custom-commands
+        '(("n" "NEXT actions" todo "NEXT")
+          ("w" "Waiting on" todo "WAIT")
+          ("r" "Review (agenda + NEXT + waiting)"
+           ((agenda "" ((org-agenda-span 'day)))
+            (todo "NEXT" ((org-agenda-overriding-header "Next actions")))
+            (todo "WAIT" ((org-agenda-overriding-header "Waiting on"))))))))
 
-(use-package! denote
-  :config
-  (setq denote-directory org-directory)
-  ;; TODO finish configuring denote
-  (setq denote-known-keywords '("fun" "home" "work" "ref"))
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
-  (denote-rename-buffer-mode 1))
-(map! :after denote :leader :prefix "n" :desc "Open denote" "d" #'denote)
+;; --- Stuck projects: a project = a file in ~/projects; stuck = no NEXT in it ---
+;; (#07) File-level (not org's heading-level org-stuck-projects), matching the
+;; PARA model where each ~/projects/<name>/ file is a project.
+(defun zf/stuck-project-files ()
+  "Return project files under ~/projects with no NEXT action."
+  (seq-remove
+   (lambda (f)
+     (with-temp-buffer
+       (insert-file-contents f)
+       (goto-char (point-min))
+       (re-search-forward "^\\*+[ \t]+NEXT[ \t]" nil t)))
+   (directory-files-recursively (expand-file-name "~/projects") "\\.org$")))
+
+(defun zf/stuck-projects ()
+  "Pop a buffer listing project files that lack a NEXT action."
+  (interactive)
+  (let ((files (zf/stuck-project-files)))
+    (with-current-buffer (get-buffer-create "*Stuck Projects*")
+      (erase-buffer)
+      (org-mode)
+      (insert "#+title: Stuck projects (no NEXT action)\n\n")
+      (if files
+          (dolist (f files)
+            (insert (format "- [[file:%s][%s]]\n" f
+                            (file-relative-name f (expand-file-name "~/projects")))))
+        (insert "Every project has a NEXT action.\n"))
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
+;; --- Archive a whole project (filesystem move, not org-archive) (#07) ---
+;; Moves the current buffer's project — its top-level dir under ~/projects — to
+;; ~/archive/<YYYY-MM>_<name>/. ~/archive syncs to desktops + NAS but NOT the
+;; phone, so archiving also drops the project off the phone. Date-prefix matches
+;; the existing ~/archive naming convention.
+(defun zf/archive-project ()
+  "Move the current buffer's project dir under ~/projects into ~/archive."
+  (interactive)
+  (let* ((projects-root (file-name-as-directory (expand-file-name "~/projects")))
+         (file (buffer-file-name)))
+    (unless (and file (string-prefix-p projects-root (expand-file-name file)))
+      (user-error "Current buffer is not a file under ~/projects"))
+    (let* ((name (car (split-string (file-relative-name (expand-file-name file)
+                                                        projects-root)
+                                    "/")))
+           (src (expand-file-name name projects-root))
+           (dest (expand-file-name (format "%s_%s" (format-time-string "%Y-%m") name)
+                                   (expand-file-name "~/archive"))))
+      (when (file-exists-p dest)
+        (user-error "Archive target already exists: %s" dest))
+      (unless (yes-or-no-p (format "Archive project %s → %s ? " name dest))
+        (user-error "Aborted"))
+      ;; Drop buffers visiting files inside the project so the move is clean.
+      (dolist (buf (buffer-list))
+        (let ((bf (buffer-file-name buf)))
+          (when (and bf (string-prefix-p (file-name-as-directory src)
+                                         (expand-file-name bf)))
+            (kill-buffer buf))))
+      (rename-file src dest)
+      (message "Archived project → %s" dest))))
 
 (use-package! corfu
   :config
@@ -203,8 +316,22 @@
   (interactive)
   (find-file org-default-notes-file))
 
-;; (map! :after evil :leader :prefix "n" :desc "Open inbox" "n" #'zf/open-inbox)
-;; (which-key-add-key-based-replacements "SPC n n" "Open inbox")
+;; GTD workflow keys under the notes prefix (#07): jump to inbox, run the review
+;; agenda. Refile itself is doom's `SPC m r r`; capture is `SPC X` / `org-capture`.
+(map! :after evil :leader :prefix "n"
+      :desc "Open inbox" "n" #'zf/open-inbox
+      :desc "Review agenda" "r" (cmd! (org-agenda nil "r"))
+      :desc "Review projects" "R" #'zf/stuck-projects
+      :desc "Archive project" "A" #'zf/archive-project)
+;; Doom registers its own key-based which-key labels for the leader (e.g. "SPC n
+;; n" → "Org capture"), which override the :desc above in the popup. Re-register
+;; ours so the labels match the rebindings.
+(after! which-key
+  (which-key-add-key-based-replacements
+    "SPC n n" "Open inbox"
+    "SPC n r" "Review agenda"
+    "SPC n R" "Review projects"
+    "SPC n A" "Archive project"))
 
 ;; Save all org buffers 1 minute before the hour, every hour
 (run-at-time "00:59" 3600 'org-save-all-org-buffers)

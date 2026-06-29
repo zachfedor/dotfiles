@@ -14,8 +14,10 @@
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; Disable title bar but use standard MacOS rounded corners
-(add-to-list 'default-frame-alist '(undecorated-round . t))
+;; Title bar removal lives in config.el ((undecorated . t)). Don't set
+;; undecorated-round here: stock nixpkgs emacs30 (NS build) lacks the emacs-plus
+;; round-undecorated-frame patch, so the param is ignored and renders a leftover
+;; titlebar strip at the top of the frame. Square-cornered undecorated is clean.
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
@@ -92,7 +94,7 @@
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;collab            ; buffers with friends
        ;;debugger          ; FIXME stepping through code, to help you add bugs
-       ;;direnv
+       direnv
        ;;docker
        editorconfig        ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
@@ -158,7 +160,7 @@
         +pretty            ; fancy bullets and priority tags
         ;; +roam2             ; zettlekasten a la mode
         +dragndrop)        ; add inline images and files to notes
-       php                 ; perl's insecure younger brother
+       ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
        (python +lsp +tree-sitter) ; beautiful is better than ugly
