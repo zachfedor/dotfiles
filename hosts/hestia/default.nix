@@ -29,6 +29,21 @@
   # Baseline; do not bump casually (see nix-darwin docs).
   system.stateVersion = 5;
 
+  # GUI apps installed via nixpkgs land in /nix/store; nix-darwin's built-in
+  # `applications` activation script rsyncs real .app bundles (not symlinks) into
+  # /Applications/Nix Apps so Spotlight + Dock can see/pin them — but ONLY for
+  # apps in environment.systemPackages (its source is `system-applications`).
+  # alacritty + emacs30 live in home.nix (per-user), so home-manager only
+  # SYMLINKS them into ~/Applications, which Spotlight/Dock ignore (issue 10
+  # regression after dropping the brew casks). Listing them here too puts their
+  # bundles in system-applications → real copies in /Applications/Nix Apps.
+  # Same store paths as home.nix, just a second profile ref (cheap, no rebuild
+  # of the pkgs). Pin to the Dock from /Applications/Nix Apps.
+  environment.systemPackages = [
+    pkgs.alacritty
+    pkgs.emacs30
+  ];
+
   # Unfree user packages (issue 10): ngrok, _1password-cli. useGlobalPkgs=true
   # means home.nix uses this host's pkgs, so allowUnfree must be set here (athena
   # sets its own). Matches athena's nixpkgs.config.allowUnfree.

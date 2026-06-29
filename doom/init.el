@@ -14,8 +14,10 @@
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; Disable title bar but use standard MacOS rounded corners
-(add-to-list 'default-frame-alist '(undecorated-round . t))
+;; Title bar removal lives in config.el ((undecorated . t)). Don't set
+;; undecorated-round here: stock nixpkgs emacs30 (NS build) lacks the emacs-plus
+;; round-undecorated-frame patch, so the param is ignored and renders a leftover
+;; titlebar strip at the top of the frame. Square-cornered undecorated is clean.
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh

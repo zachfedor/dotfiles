@@ -1,6 +1,9 @@
 # Audit hestia installed tools/programs → nix config
 
-Status: needs-triage
+Status: DONE 2026-06-28 (grill-with-docs audit session) — pending only the user's
+runtime confirmation of colima + `doom doctor`. Full verdict ledger:
+`10-audit-decisions.md`. Decisions captured in ADR-0004/0005/0006 + CONTEXT.md.
+Font-cask reconciliation split out to its own issue (#14).
 
 ## What to build
 
@@ -35,12 +38,13 @@ with nothing important left to manual install.
 
 ## Acceptance criteria
 
-- [ ] Inventory captured of actually-installed tools (brew list, /Applications, PATH binaries)
-- [ ] Diff produced: installed-but-undeclared vs declared
-- [ ] Tailscale and 1Password declared in the appropriate layer
-- [ ] emacs-plus migrated to nixpkgs `emacs` (d12frosted tap dropped); Doom re-verified
-- [ ] Other discovered gaps declared (or consciously left ephemeral, with a note)
-- [ ] `darwin-rebuild` completes clean with the additions
+- [x] Inventory captured of actually-installed tools (brew list, /Applications, PATH binaries)
+- [x] Diff produced: installed-but-undeclared vs declared (`10-audit-decisions.md`)
+- [x] Tailscale (nix-darwin service) and 1Password (cask + `_1password-cli`) declared
+- [x] emacs-plus migrated to nixpkgs `emacs30` (d12frosted tap dropped, ADR-0005); Doom re-synced
+- [x] Other discovered gaps declared / cut / left as vendored (with notes in ledger + new-host.md)
+- [x] `darwin-rebuild` completes clean with the additions (after anki→Linux-only fix)
+- [~] Containers (colima) + `doom doctor` vterm — pending user runtime confirmation
 
 ## Blocked by
 

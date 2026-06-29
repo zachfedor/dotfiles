@@ -311,6 +311,20 @@ in {
   # --- alacritty (XDG) ---
   xdg.configFile."alacritty".source = ./alacritty;
 
+  # Install the alacritty terminfo into ~/.terminfo, which ncurses searches by
+  # DEFAULT (HOME is always set, even by launchd). GUI Alacritty launched from
+  # /Applications/Nix Apps starts zsh with TERM=alacritty but a bare launchd env
+  # (no TERMINFO_DIRS yet), so zsh's startup terminal init can't find the entry
+  # in the nix profile and emits "can't find terminal definition for alacritty",
+  # leaving the shell with broken capabilities (garbled redraw / autosuggest).
+  # Compiling to ~/.terminfo removes the launch-order dependency. Vendored source
+  # in alacritty/alacritty.info so this is self-contained + reproducible.
+  home.activation.alacrittyTerminfo =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${pkgs.ncurses}/bin/tic -x -o "$HOME/.terminfo" \
+        ${./alacritty/alacritty.info}
+    '';
+
   # --- hammerspoon (macOS-only app; NixOS window mgmt → future hyprland issue) ---
   home.file.".hammerspoon" =
     lib.mkIf pkgs.stdenv.isDarwin { source = ./hammerspoon; };

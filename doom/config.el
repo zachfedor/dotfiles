@@ -64,6 +64,10 @@
  evil-shift-width 2
  tab-width 2)
 
+;; Remove the GUI titlebar entirely (macOS NS build). Drops the title bar plus
+;; traffic-light buttons; resize via window edges.
+(add-to-list 'default-frame-alist '(undecorated . t))
+
 (setq-default
  history-length 1000
  ;; standardize indent and tab widths
@@ -108,8 +112,16 @@
   `(outline-6 :foreground ,(doom-color 'default))
   `(outline-7 :foreground ,(doom-color 'default))
   `(outline-8 :foreground ,(doom-color 'default))
-  `(header-line :background ,(doom-color 'bg))
-  `(magit-header-line :box nil))
+  ;; header-line is used as a blank top-padding spacer (header-line-format " ").
+  ;; Don't pin its background to a single color: solaire-mode paints buffers with
+  ;; two shades (real buffers vs dimmed dashboard/magit/dired), so a fixed color
+  ;; matches one and stands out as a strip in the other. Inherit `default` (which
+  ;; solaire remaps per-buffer) so the spacer blends into whatever buffer it's in.
+  '(header-line :inherit default :background unspecified :box unspecified)
+  '(solaire-header-line-face :inherit default :background unspecified :box unspecified)
+  ;; magit paints its header line with magit-header-line (blue bg) — neutralize it
+  ;; so the spacer blends like every other buffer.
+  '(magit-header-line :inherit default :background unspecified :box nil))
 (cond ((equal doom-theme 'doom-gruvbox)
        (custom-set-faces!
          `(font-lock-keyword-face :slant italic :foreground ,(doom-color 'default))
