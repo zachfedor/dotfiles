@@ -3,7 +3,7 @@
   email = zachfedor@gmail.com
 [core]
   editor = vim
-  excludesfile = /Users/zach/.gitignore_global
+  excludesfile = ~/.gitignore_global
 [push]
   default = simple
 [pull]
@@ -14,8 +14,6 @@
   user = zachfedor
   password = 
   oauth-token =
-[credential]
-  helper = osxkeychain
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f

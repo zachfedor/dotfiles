@@ -73,6 +73,13 @@
     };
   };
 
+  # Run an ssh-agent for the login session. macOS (hestia) always has one via
+  # launchd + keychain, but GNOME dropped gnome-keyring's ssh-agent, so without
+  # this athena has no agent and `git push` over ssh re-prompts for the key
+  # passphrase on every use. With this + home.nix's `addKeysToAgent = "yes"`, the
+  # key auto-adds on first use and stays cached for the rest of the session.
+  programs.ssh.startAgent = true;
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
@@ -117,6 +124,26 @@
   # Install firefox.
   programs.firefox.enable = true;
   programs.steam.enable = true;
+
+  # 1Password desktop app + CLI integration (issue 10 — NixOS parity with
+  # hestia's `1password` cask + the shared `_1password-cli` in home.nix).
+  # The shared CLI binary alone can't do desktop-app/biometric unlock; these
+  # two NixOS-only modules wire it up:
+  #   programs._1password       — installs `op` as a setuid wrapper in
+  #     /run/wrappers/bin (group `onepassword-cli`) so the CLI can verify the
+  #     running desktop app. /run/wrappers/bin is ahead of the home-manager
+  #     profile on PATH, so this `op` shadows home.nix's `_1password-cli` on
+  #     athena (hestia keeps using the plain CLI — these modules are Linux-only).
+  #   programs._1password-gui   — the GUI app; polkitPolicyOwners grants `zach`
+  #     the polkit action for system-auth unlock + the app's CLI-integration toggle.
+  # Both are unfree (covered by nixpkgs.config.allowUnfree below). After
+  # switching, open the app → Settings → Developer → enable "Integrate with
+  # 1Password CLI" (and "Unlock using system authentication" for biometrics).
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "zach" ];
+  };
 
   # GPU graphics stack, explicit (issue 05e). NOTE: redundant while Steam is on —
   # programs.steam already enables hardware.graphics + enable32Bit. Kept explicit
