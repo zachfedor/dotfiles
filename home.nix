@@ -192,7 +192,19 @@ in {
           markdown markdown-inline nix python rust toml yaml vim vimdoc
         ]);
         type = "lua";
-        config = "require('nvim-treesitter.configs').setup({ highlight = { enable = true }, indent = { enable = true } })";
+        # nvim-treesitter `main` branch (nixpkgs switched to it) removed the
+        # `nvim-treesitter.configs` module and its highlight/indent options.
+        # Parsers come from nix (withPlugins) and are already on the runtimepath,
+        # so there's no :TSInstall step — just turn on Neovim's built-in
+        # treesitter highlighting + indent per buffer via a FileType autocmd.
+        config = ''
+          vim.api.nvim_create_autocmd('FileType', {
+            callback = function()
+              pcall(vim.treesitter.start)
+              vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end,
+          })
+        '';
       }
       { plugin = telescope-nvim; type = "lua";
         config = ''
@@ -231,6 +243,15 @@ in {
     ];
 
     initLua = ''
+      -- home-manager 26.05 installs plugins to ~/.local/share/nvim/site/pack/hm
+      -- (native `start` packages) instead of wrapping them onto packpath via the
+      -- nvim wrapper. Neovim sources start packages AFTER init.lua, but the
+      -- per-plugin `config` snippets above are concatenated INTO init.lua — so
+      -- their `require('plugin')` calls would run before the plugin is on the
+      -- runtimepath and fail. Force-load all start packages up front so every
+      -- plugin config below resolves. (initLua is emitted before plugin configs.)
+      vim.cmd('packloadall')
+
       -- leader = SPC, matching Doom
       vim.g.mapleader = ' '
       vim.g.maplocalleader = ' '
