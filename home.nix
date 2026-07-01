@@ -321,6 +321,39 @@ in {
     # UseKeychain is macOS-only (Apple keychain) — inline upstream directive,
     # guarded so athena (NixOS) doesn't get an invalid option.
     // lib.optionalAttrs pkgs.stdenv.isDarwin { UseKeychain = "yes"; };
+
+    # --- per-host blocks: reach the home fabric by stable name (issue 13, slice 1)
+    # Addressed by Tailscale MagicDNS short name (resolves anywhere on the tailnet,
+    # survives IP churn). REQUIRES MagicDNS enabled on the tailnet (admin console →
+    # DNS → "Enable MagicDNS"); it was off until issue 13 — with it off these short
+    # names DO NOT resolve and you'd need the 100.x IPs instead. Tailnet base domain
+    # is `taileba2b.ts.net`. Directive names are upstream OpenSSH/PascalCase (26.05
+    # `settings` API); `*` sorts last so its global IdentityFile applies and these
+    # only add User/HostName — no conflicting override.
+
+    # athena (NixOS desktop) — Tailscale name. Folds in the "reserve athena static
+    # IP + add Host block" loose end; the static-IP reservation is a router/DHCP
+    # job, not home.nix — only the ssh alias lives here.
+    settings."athena" = {
+      HostName = "athena";
+      User = "zach";
+    };
+
+    # mnemosyne (Synology NAS) — Tailscale name, NAS login user `nas`.
+    settings."mnemosyne" = {
+      HostName = "mnemosyne";
+      User = "nas";
+    };
+
+    # argus (Raspberry Pi, still `raspi` on the tailnet pre-rename). LAN IP + `pi`
+    # for now: `tailscale ssh` is broken pre-migration (host-key verification) so
+    # plain ssh to the static LAN IP is the working path. TODO post-NixOS-migration
+    # (slice 2): switch to `HostName = "argus"; User = "zach";` once rebuilt —
+    # fresh host keys + declarative tailscale resolve the verification failure.
+    settings."argus" = {
+      HostName = "192.168.1.2";
+      User = "pi";
+    };
   };
 
   # --- terminal multiplexer ---
