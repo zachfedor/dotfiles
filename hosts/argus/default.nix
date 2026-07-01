@@ -97,6 +97,13 @@
   programs.zsh.enable = true;
   programs.zsh.enableCompletion = false;
 
+  # Passwordless sudo for wheel: argus is a headless, key-only-access appliance —
+  # no interactive password is ever set (no console login), so sudo would otherwise
+  # be unusable (locked account = can't authenticate). No secret in the repo. First
+  # install missed this, requiring a one-time imperative password bootstrap; this
+  # makes it declarative going forward.
+  security.sudo.wheelNeedsPassword = false;
+
   users.users.zach = {
     isNormalUser = true;
     description = "Zach Fedor";
