@@ -51,5 +51,18 @@
         hmModule
       ];
     };
+
+    # --- ARGUS (Raspberry Pi 3B+ network node; issue 13 slice 2) ---
+    # aarch64 despite the Pi's old 32-bit Raspbian (see hosts/argus/default.nix).
+    # Build the flashable SD image with:
+    #   nix build .#nixosConfigurations.argus.config.system.build.sdImage
+    nixosConfigurations.argus = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        ./hosts/argus/default.nix
+        home-manager.nixosModules.home-manager
+        hmModule
+      ];
+    };
   };
 }
