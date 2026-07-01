@@ -27,6 +27,13 @@
   # Enable Nix Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # aarch64 emulation (issue 13 slice 2): lets athena (x86_64) build argus's
+  # aarch64-linux SD image + future nixos-rebuilds, since the 1GB Pi can't build
+  # for itself and hestia's Determinate Nix blocks nix-darwin's linux-builder.
+  # Registers a qemu binfmt handler — emulated, so aarch64 builds are slow.
+  #   nix build .#nixosConfigurations.argus.config.system.build.sdImage
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   # Set your time zone.
   time.timeZone = "America/New_York";
 
