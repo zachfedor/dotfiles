@@ -53,8 +53,19 @@
   # wizard later — left out for now so the first-run wizard isn't locked out.
   services.adguardhome = {
     enable = true;
-    openFirewall = true;
     mutableSettings = true;
+    # NOTE: openFirewall is intentionally NOT used. It derives which ports to open
+    # from the declarative `settings` (dns.port / web port); with mutableSettings
+    # and the ports set via the setup wizard instead, the module knows no ports and
+    # opens nothing — so DNS/UI were reachable on loopback but firewalled from LAN
+    # and tailnet peers. Open them explicitly below.
+  };
+
+  # Reach AdGuard from the LAN and from tailnet peers.
+  networking.firewall = {
+    allowedTCPPorts = [ 53 80 ];   # 53 = DNS, 80 = AdGuard web UI
+    allowedUDPPorts = [ 53 ];      # DNS (primary transport)
+    trustedInterfaces = [ "tailscale0" ];  # let tailnet devices use argus for DNS
   };
 
   # --- Tailscale: always-on tailnet node. `sudo tailscale up` once after install.
