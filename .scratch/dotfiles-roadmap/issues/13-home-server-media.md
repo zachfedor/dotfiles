@@ -92,7 +92,7 @@ library's home — the server needs to point at wherever the library lives.
 - [ ] pi-hole (or AdGuard Home) running declaratively; DNS ad-block intact
 - [ ] `tailscale ssh` to `argus` works post-migration (host-key verification resolved)
 - [ ] Prompt/backspace bug gone on `argus` (terminfo/TERM verified)
-- [ ] Plex replacement chosen and running; old Plex retired
+- [x] Plex replacement chosen and running; old Plex retired
 - [ ] Media library has a defined home (NAS-canonical and/or `~/media`)
 - [ ] Big binaries removed from `~/Documents`; nothing note-linked left dangling
 - [ ] Sync/backup policy set per media type; phone not bloated
@@ -131,6 +131,26 @@ server terms) + ADR-0007 (Jellyfin-on-NAS) + ADR-0008 (AdGuard-over-Pi-hole).
    Plex. Mostly Synology-UI, outside the Nix repo.
 4. **Media library migration** — `ref/books`→NAS + Syncthing folder to desktops;
    `calibre/`; `ref/gaming`→athena w/ NAS backup; empty `~/Documents` bulk.
+
+## Build progress
+
+**Slice 3 (Jellyfin on mnemosyne) = DONE 2026-07-02.** Deployed via Container
+Manager docker-compose project `jellyfin` (official `jellyfin/jellyfin` image,
+`network_mode: host` → `:8096`, `user: "1026:100"`, config/cache under
+`/volume1/docker/jellyfin`, `/volume1/Media Library` mounted `:ro`). Library
+populated, playback verified, **Plex retired**.
+
+**Synology-container ACL gotcha (reusable):** Docker `user: "1026:100"` runs the
+process as uid 1026 + gid 100 (users) ONLY — Docker does NOT load the account's
+supplementary groups, so the `group:administrators` ACE never matches even though
+`nas` is in administrators. Symptom: `UnauthorizedAccessException` on `/config/log`
+despite POSIX 777 (the `+` = Synology ACL overrides POSIX). Fix that worked: add an
+explicit `user:nas` ACE. config/cache via `synoacltool -add … user:nas:allow:rwx…
+:fd--`; **Media Library** via File Station → Properties → Permission → add `nas`
+Read → "Apply to this folder, sub-folders and files" (recursive — `fd--` inherit
+only covers NEW children, not Plex's existing per-file ACLs). Alt route (unused):
+`group_add: [<admin-gid>]` in compose. Compose NOT committed to repo (NAS-side,
+matches #06 syncthing precedent).
 
 ## Comments
 

@@ -160,6 +160,15 @@ in {
           areas     = { id = "areas";     path = "${home}/areas";     devices = peers; };
           resources = { id = "resources"; path = "${home}/resources"; devices = peers; };
           archive   = { id = "archive";   path = "${home}/archive";   devices = peers; };
+
+          # Media library (issue 13 slice 4). Large binaries, NOT phone-synced;
+          # full replica on both desktops + mnemosyne canonical. On mnemosyne these
+          # folder ids map (in its own container config) to /volume1/Media Library/
+          # {Books,Games}; Jellyfin serves Books. `books` is the Calibre library
+          # root — the ebook files and Calibre's metadata.db co-locate, so Calibre
+          # points here and Jellyfin reads the same files (ignoring the DB).
+          books = { id = "books"; path = "${home}/books"; devices = peers; };
+          games = { id = "games"; path = "${home}/games"; devices = peers; };
         };
     };
   };
