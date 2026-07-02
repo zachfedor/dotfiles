@@ -46,11 +46,12 @@
   # chicken-and-egg where AdGuard being down kills DNS for its own updates.
   networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
 
-  # --- DNS ad-block: AdGuard Home (ADR-0008). openFirewall opens 53 (tcp/udp) +
-  # the web UI. First boot: finish setup at http://argus:3000 (create admin user,
-  # bind DNS to :53, add blocklists). mutableSettings keeps web-UI edits across
-  # rebuilds. Declarative `settings` (incl. a bcrypt `users` entry) can replace the
-  # wizard later — left out for now so the first-run wizard isn't locked out.
+  # --- DNS ad-block: AdGuard Home (ADR-0008). First boot: finish setup at
+  # http://argus:3000 (create admin user, bind DNS to :53, add blocklists).
+  # mutableSettings keeps web-UI edits across rebuilds. Declarative `settings`
+  # (incl. a bcrypt `users` entry) can replace the wizard later — left out for now
+  # so the first-run wizard isn't locked out. Firewall ports are opened explicitly
+  # below (NOT via openFirewall — see the note on the service block).
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
