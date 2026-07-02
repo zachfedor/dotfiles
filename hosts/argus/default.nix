@@ -68,6 +68,23 @@
     trustedInterfaces = [ "tailscale0" ];  # let tailnet devices use argus for DNS
   };
 
+  # The Pi 3B+ onboard USB ethernet (smsc95xx) has a TX checksum-offload bug that
+  # corrupts WireGuard's UDP packets: Tailscale's small keepalives/disco survive,
+  # but bulk data frames are dropped, so the tunnel's data path wedges (ping works
+  # while TCP/DNS over Tailscale time out). Disable TX offload on the NIC. Bound to
+  # the device so it reapplies if the link reappears.
+  systemd.services.disable-eth0-offload = {
+    description = "Disable eth0 TX checksum offload (smsc95xx/WireGuard fix)";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "sys-subsystem-net-devices-eth0.device" ];
+    bindsTo = [ "sys-subsystem-net-devices-eth0.device" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.ethtool}/bin/ethtool -K eth0 tx off";
+    };
+  };
+
   # --- Tailscale: always-on tailnet node. `sudo tailscale up` once after install.
   # Fresh NixOS install issues new host keys, which clears the pre-migration
   # `tailscale ssh`/host-key-verification failure noted in issue 13.
@@ -138,6 +155,7 @@
     git
     neovim
     wget
+    ethtool  # debug the USB-NIC offload quirk above
   ];
 
   # First-install release baseline; leave pinned once installed.
