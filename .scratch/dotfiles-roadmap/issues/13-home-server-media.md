@@ -2,7 +2,9 @@
 
 # Home server & media infrastructure (NAS + Pi + streaming + sync)
 
-Status: needs-triage
+Status: done (2026-07-04 — all 4 slices shipped, argus ssh/prompt verified,
+syncthing GUI auth set. Deferred non-blocking follow-ons: ref/dnd archive +
+cherry-pick into ~/resources, ~/Documents clutter sweep — user handles later.)
 
 ## What to build
 
@@ -87,16 +89,18 @@ library's home — the server needs to point at wherever the library lives.
 
 ## Acceptance criteria
 
-- [ ] NAS + Pi reachable by stable name via ssh (Tailscale matchBlocks in home.nix)
-- [ ] Pi migrated to NixOS as `argus` (`nixosConfigurations.argus` + `hosts/argus/`)
-- [ ] pi-hole (or AdGuard Home) running declaratively; DNS ad-block intact
-- [ ] `tailscale ssh` to `argus` works post-migration (host-key verification resolved)
-- [ ] Prompt/backspace bug gone on `argus` (terminfo/TERM verified)
+- [x] NAS + Pi reachable by stable name via ssh (Tailscale matchBlocks in home.nix)
+- [x] Pi migrated to NixOS as `argus` (`nixosConfigurations.argus` + `hosts/argus/`)
+- [x] pi-hole (or AdGuard Home) running declaratively; DNS ad-block intact
+- [x] `argus` reachable by ssh post-migration (plain `ssh argus` = zach@argus over
+      tailnet + TOFU, the fabric standard — NOT Tailscale SSH; see note below)
+- [x] Prompt/backspace bug gone on `argus` (NixOS terminfo + shared home.nix zsh)
 - [x] Plex replacement chosen and running; old Plex retired
-- [ ] Media library has a defined home (NAS-canonical and/or `~/media`)
-- [ ] Big binaries removed from `~/Documents`; nothing note-linked left dangling
-- [ ] Sync/backup policy set per media type; phone not bloated
-- [ ] Small note-linked assets cherry-picked into `~/resources/*`
+- [x] Media library has a defined home (NAS-canonical and/or `~/media`)
+- [x] Big binaries removed from `~/Documents` (books/games moved to the mesh;
+      `ref/dnd` + `ref/backup-codes` intentionally remain — DEFERRED sweep, non-blocking)
+- [x] Sync/backup policy set per media type; phone not bloated
+- [ ] Small note-linked assets cherry-picked into `~/resources/*` (DEFERRED, user — non-blocking)
 
 ## Blocked by
 
@@ -151,6 +155,50 @@ Read → "Apply to this folder, sub-folders and files" (recursive — `fd--` inh
 only covers NEW children, not Plex's existing per-file ACLs). Alt route (unused):
 `group_add: [<admin-gid>]` in compose. Compose NOT committed to repo (NAS-side,
 matches #06 syncthing precedent).
+
+**Slice 4 (media library migration) = DONE 2026-07-04 (bulk).** `home.nix`
+`services.syncthing.folders` refactored to `lib.genAttrs` over a name list (killed
+the per-folder duplication); added `books` + `games` folders (home-root `~/books`,
+`~/games`), all three peers. Decisions refined from the grill during build:
+- **games on hestia too** (not athena-only as originally sliced) — all-3-peer, same
+  as books; genAttrs gives every folder the uniform peer set.
+- **calibre folded into books** — `~/books` IS the Calibre library root (ebook
+  files + `metadata.db` co-located); Calibre points there, Jellyfin reads the same
+  files (ignores the DB). No separate `calibre` folder.
+- NAS: books/games map to `/volume1/Media Library/{Books,Games}` in mnemosyne's
+  Container-Manager syncthing config; mount added `/volume1/Media Library:/media-lib`.
+  Jellyfin serves a **Books** library at `/volume1/Media Library/Books`.
+- Bookmarks for services = MagicDNS `<host>.<tailnet>.ts.net:<port>` (net-agnostic).
+
+**argus is NOT a Syncthing peer (fix during slice 4).** Shared `home.nix` enables
+`services.syncthing` → argus (imports `hmModule`) auto-enabled it and dialed the
+mesh, appearing as an unknown device requesting connection. Fixed:
+`home-manager.users.zach.services.syncthing.enable = lib.mkForce false;` in
+`hosts/argus/default.nix` (1GB Pi on SD — must not replicate GBs). Do NOT accept
+argus on other nodes.
+
+**Syncthing GUI auth = DONE (2026-07-04).** Username+Password set in each UI
+(mnemosyne/hestia/athena) — NOT declaratively (public repo). `override{Devices,
+Folders}` don't touch the GUI key, so it persists across rebuilds.
+
+**Remaining for slice 4 close-out:** `ref/dnd` (1.6G) archive-most → `~/archive` +
+cherry-pick note-linked assets → `~/resources/*`; `ref/backup-codes` → 1Password
+(never sync); sweep leftover `~/Documents` clutter (`notes/ org/ projects/ areas/`
+stubs, `setup.md`, `test.*`). `Max 9/` stays put (not media).
+
+**argus ssh + prompt-bug close-out (2026-07-04).** `tailscale ssh argus` failed
+host-key verification — root cause was NOT a stale key: argus doesn't advertise
+Tailscale SSH (`services.tailscale.enable` alone ≠ `--ssh`), so `tailscale ssh` fell
+back to OpenSSH strict checking. Resolution: DON'T use Tailscale SSH — the fabric
+standard is plain OpenSSH + TOFU (athena/mnemosyne work this way; argus already had
+the mac pubkey in `authorizedKeys`). Fixed the overdue slice-2 matchBlock flip in
+`home.nix` (`argus` → `HostName=argus; User=zach`, off the old `pi@192.168.1.2`);
+after `rebuild` on hestia, `ssh argus` works. (Tried adding `extraSetFlags=["--ssh"]`
+to argus, then reverted — it made argus asymmetric with athena; Tailscale SSH would
+be a deliberate fleet-wide choice, not argus-only.) Prompt/backspace bug also gone
+(NixOS terminfo DB + shared home.nix zsh, as predicted). Both argus acceptance
+boxes checked. Remaining #13 close-out: ref/dnd archive/cherry-pick, ~/Documents
+sweep, syncthing GUI auth.
 
 ## Comments
 

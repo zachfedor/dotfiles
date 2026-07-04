@@ -129,6 +129,13 @@
   # Shared home.nix pulls an unfree pkg (ngrok); allow it as athena/hestia do.
   nixpkgs.config.allowUnfree = true;
 
+  # argus is NOT a Syncthing peer. The shared home.nix enables services.syncthing
+  # for the desktops/NAS; force it off here — a 1GB Pi on an SD card must not
+  # replicate the PARA tree + books/games (GBs of writes = card wear + no space).
+  # Without this, argus dials the declared peers and shows up as an unknown device
+  # requesting connection (issue 13). Its ID is intentionally absent from the mesh.
+  home-manager.users.zach.services.syncthing.enable = lib.mkForce false;
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";

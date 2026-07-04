@@ -151,25 +151,13 @@ in {
       # Syncthing peer; it reaches gtd/projects/areas/resources via mnemosyne's
       # WebDAV (6f) — archive is simply not exposed there.
       folders =
-        let
-          peers = [ "hestia" "athena" "mnemosyne" ];
-          home = config.home.homeDirectory;
-        in {
-          gtd       = { id = "gtd";       path = "${home}/gtd";       devices = peers; };
-          projects  = { id = "projects";  path = "${home}/projects";  devices = peers; };
-          areas     = { id = "areas";     path = "${home}/areas";     devices = peers; };
-          resources = { id = "resources"; path = "${home}/resources"; devices = peers; };
-          archive   = { id = "archive";   path = "${home}/archive";   devices = peers; };
-
-          # Media library (issue 13 slice 4). Large binaries, NOT phone-synced;
-          # full replica on both desktops + mnemosyne canonical. On mnemosyne these
-          # folder ids map (in its own container config) to /volume1/Media Library/
-          # {Books,Games}; Jellyfin serves Books. `books` is the Calibre library
-          # root — the ebook files and Calibre's metadata.db co-locate, so Calibre
-          # points here and Jellyfin reads the same files (ignoring the DB).
-          books = { id = "books"; path = "${home}/books"; devices = peers; };
-          games = { id = "games"; path = "${home}/games"; devices = peers; };
-        };
+        lib.genAttrs
+          [ "gtd" "projects" "areas" "resources" "archive" "books" "games" ]
+          (name: {
+            id = name;
+            path = "${config.home.homeDirectory}/${name}";
+            devices = [ "hestia" "athena" "mnemosyne" ];
+          });
     };
   };
 
@@ -354,14 +342,11 @@ in {
       User = "nas";
     };
 
-    # argus (Raspberry Pi, still `raspi` on the tailnet pre-rename). LAN IP + `pi`
-    # for now: `tailscale ssh` is broken pre-migration (host-key verification) so
-    # plain ssh to the static LAN IP is the working path. TODO post-NixOS-migration
-    # (slice 2): switch to `HostName = "argus"; User = "zach";` once rebuilt —
-    # fresh host keys + declarative tailscale resolve the verification failure.
+    # argus (Raspberry Pi, NixOS post-migration) — Tailscale name, user `zach`.
+    # Flipped off the old `pi@192.168.1.2` LAN path now that it's rebuilt.
     settings."argus" = {
-      HostName = "192.168.1.2";
-      User = "pi";
+      HostName = "argus";
+      User = "zach";
     };
   };
 
