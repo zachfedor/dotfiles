@@ -27,4 +27,5 @@ export DOOMDIR="$DOTFILES/doom"
 
 # Installed binaries
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export DOCKER_HOST="unix://$HOME/.config/colima/default/docker.sock"
 export GOPATH="$XDG_DATA_HOME/go"
