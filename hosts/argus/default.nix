@@ -136,6 +136,37 @@
   # requesting connection (issue 13). Its ID is intentionally absent from the mesh.
   home-manager.users.zach.services.syncthing.enable = lib.mkForce false;
 
+  # --- UPS: CyberPower UPS plugged into argus via USB, also feeding the router/
+  # modem. NUT (Network UPS Tools) in standalone mode: driver talks to the UPS,
+  # upsd serves its status locally, upsmon watches upsd and shuts argus down
+  # cleanly on sustained low battery. usbhid-ups is the generic HID driver;
+  # CyberPower's USB UPSes implement the standard HID power-device spec so this
+  # covers them without a vendor-specific driver.
+  #
+  # One-time secret bootstrap (NOT in repo, do after first rebuild):
+  #   sudo install -d -m700 /etc/nut
+  #   echo -n 'CHANGE_ME' | sudo tee /etc/nut/upsmon-password >/dev/null
+  #   sudo chmod 600 /etc/nut/upsmon-password
+  power.ups = {
+    enable = true;
+    mode = "standalone";
+
+    ups.cyberpower = {
+      driver = "usbhid-ups";
+      port = "auto";
+      description = "CyberPower UPS (router/modem/argus)";
+    };
+
+    users.upsmon = {
+      passwordFile = "/etc/nut/upsmon-password";
+      upsmon = "primary";
+    };
+
+    upsmon.monitor.cyberpower = {
+      user = "upsmon";
+    };
+  };
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
