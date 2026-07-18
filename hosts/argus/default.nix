@@ -122,7 +122,10 @@
     extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
+      # hestia
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGgHR3HB18TLl6f8kszcUriyRAZxbPmXIJxVXpr+hyWo zachfedor@gmail.com"
+      # athena
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7WfFumj9p1ICe9EKEc50H9Z2wjR6Fz8Sec7s67eOqk zachfedor@gmail.com"
     ];
   };
 
