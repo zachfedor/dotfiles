@@ -26,7 +26,7 @@
     # the filesystem/boot setup.
     "${modulesPath}/installer/sd-card/sd-image-aarch64.nix"
   ];
-
+  
   networking.hostName = "argus";
 
   # Redistributable firmware for the Pi's onboard NIC/wifi/bt (bcm/smsc blobs).
@@ -171,6 +171,7 @@
   };
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.trusted-users = [ "root" "zach" ];
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
