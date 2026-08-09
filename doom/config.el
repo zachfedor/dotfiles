@@ -79,10 +79,19 @@
 (setq find-function-C-source-directory
       "/opt/homebrew/Cellar/emacs-plus@30/30.1/share/emacs/30.1/etc/src/")
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one
+;; Theme (issue 08 / ADR-0009): a generic base16 theme driven by
+;; scripts/theme-switch, rather than a Doom theme package.
+;; `base16-dotfiles-theme.el` lives in doom/themes/ (added to
+;; `custom-theme-load-path` below) and reads its colors from a generated
+;; adapter file next to it.
+(add-to-list 'custom-theme-load-path (expand-file-name "themes/" doom-user-dir))
+;; Doom doesn't actually call `load-theme' (which would bind
+;; `base16-dotfiles-theme-colors') until `window-setup-hook' — well after
+;; this file's `custom-set-faces!' block below evaluates its
+;; `zf/base16-color' calls. Load the palette directly here so it's already
+;; bound by then.
+(load (expand-file-name "themes/base16-dotfiles-colors.el" doom-user-dir) nil 'nomessage)
+(setq doom-theme 'base16-dotfiles
       doom-font-increment 1)
 (setq line-spacing 0.3)
 (setq-default line-spacing line-spacing)
@@ -102,16 +111,33 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type 'relative)
 
+;; base16-theme has no `doom-color'-style accessor of its own (issue 08 /
+;; ADR-0009): it just applies `base16-dotfiles-theme-colors' to faces. This is
+;; a thin replacement so the rest of config.el can keep asking for colors by
+;; name; base16's slot convention is fixed (base08=red, base0B=green, ...) so
+;; this mapping holds across every scheme, unlike the old per-Doom-theme
+;; `doom-color' (which is also why the doom-gruvbox special case below is gone
+;; — base16 schemes don't need per-theme face overrides to look right).
+(defun zf/base16-color (name)
+  "Look up semantic color NAME in the active base16 palette."
+  (plist-get base16-dotfiles-theme-colors
+             (pcase name
+               ('blue :base0D)
+               ('green :base0B)
+               ('purple :base0E)
+               ('default :base05)
+               (_ (error "zf/base16-color: unknown color %s" name)))))
+
 ;; Theme specific customizations
 (custom-set-faces!
-  `(outline-1 :foreground ,(doom-color 'blue))
-  `(outline-2 :foreground ,(doom-color 'green))
-  `(outline-3 :foreground ,(doom-color 'purple))
-  `(outline-4 :foreground ,(doom-color 'default))
-  `(outline-5 :foreground ,(doom-color 'default))
-  `(outline-6 :foreground ,(doom-color 'default))
-  `(outline-7 :foreground ,(doom-color 'default))
-  `(outline-8 :foreground ,(doom-color 'default))
+  `(outline-1 :foreground ,(zf/base16-color 'blue))
+  `(outline-2 :foreground ,(zf/base16-color 'green))
+  `(outline-3 :foreground ,(zf/base16-color 'purple))
+  `(outline-4 :foreground ,(zf/base16-color 'default))
+  `(outline-5 :foreground ,(zf/base16-color 'default))
+  `(outline-6 :foreground ,(zf/base16-color 'default))
+  `(outline-7 :foreground ,(zf/base16-color 'default))
+  `(outline-8 :foreground ,(zf/base16-color 'default))
   ;; header-line is used as a blank top-padding spacer (header-line-format " ").
   ;; Don't pin its background to a single color: solaire-mode paints buffers with
   ;; two shades (real buffers vs dimmed dashboard/magit/dired), so a fixed color
@@ -121,23 +147,18 @@
   '(solaire-header-line-face :inherit default :background unspecified :box unspecified)
   ;; magit paints its header line with magit-header-line (blue bg) — neutralize it
   ;; so the spacer blends like every other buffer.
-  '(magit-header-line :inherit default :background unspecified :box nil))
-(cond ((equal doom-theme 'doom-gruvbox)
-       (custom-set-faces!
-         `(font-lock-keyword-face :slant italic :foreground ,(doom-color 'default))
-         `(org-drawer :size 14 :foreground ,(doom-color 'grey))
-         `(outline-1 :foreground ,(doom-color 'grey) :weight extra-bold :height 1.60)
-         `(outline-2 :foreground ,(doom-color 'grey) :weight extra-bold :height 1.40)
-         `(outline-3 :foreground ,(doom-color 'default) :weight bold :height 1.00)
-         `(outline-4 :foreground ,(doom-color 'default) :weight bold :height 1.00)
-         `(outline-5 :foreground ,(doom-color 'default) :weight bold :height 1.00)
-         `(whitespace-tab :background ,(doom-color 'bg))
-         `(header-line :background ,(doom-color 'bg))))
-      ;; Global theme customizations if no themes match
-      (t
-       (custom-set-faces!
-         '(font-lock-comment-face :slant italic)
-         `(font-lock-keyword-face :slant italic))))
+  '(magit-header-line :inherit default :background unspecified :box nil)
+  '(font-lock-comment-face :slant italic)
+  `(font-lock-keyword-face :slant italic))
+
+;; Re-apply the theme on demand (issue 08 / ADR-0009): theme-switch
+;; regenerates theme-colors.el on disk but doesn't touch a running Emacs. It
+;; best-effort pokes emacsclient with this; SPC t r covers the rest.
+(defun zf/reload-base16-theme ()
+  "Reload theme-colors.el and re-apply the base16-dotfiles theme."
+  (interactive)
+  (disable-theme 'base16-dotfiles)
+  (load-theme 'base16-dotfiles t))
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -591,6 +612,7 @@ git repo in it."
  :prefix "t"
  :desc "Highlight Line" "h" #'hl-line-mode
  :desc "Transparency" "t" #'zf/toggle-transparency
+ :desc "Reload theme" "r" #'zf/reload-base16-theme
  :desc "Zone out" "o" #'zone)
 
 ;; Force new windows to open to the right and below the current window

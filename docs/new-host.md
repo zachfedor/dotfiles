@@ -101,8 +101,6 @@ the Linux VM the `docker` CLI talks to (ADR-0006). athena uses the native daemon
 
 ## 7. Deferred
 
-- `base16-shell` terminal colors: manual clone to `~/.config/base16-shell` until
-  nix-managed (#08).
 - Static IP: reserve on router, then add `Host <host>` to `programs.ssh`.
 
 ## Gotchas

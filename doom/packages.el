@@ -57,6 +57,9 @@
   :recipe (:host github :repo "magit/git-modes"
            :files ("gitignore-mode.el")))
 
+;; Generic base16 theme engine (issue 08 / ADR-0009): base16-dotfiles-theme.el
+;; (doom/themes/) applies whatever palette scripts/theme-switch last wrote.
+(package! base16-theme)
 (package! lorem-ipsum)
 (package! mini-frame)
 (package! mixed-pitch)

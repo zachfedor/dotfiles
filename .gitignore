@@ -12,6 +12,11 @@ emacs.d/test.sh
 result
 result-*
 
+# theme-switch generated adapter (issue 08 / ADR-0009) #
+##########################################################
+doom/themes/theme-colors.el
+scripts/__pycache__/
+
 # OSx Junk #
 ############
 .DS_Store

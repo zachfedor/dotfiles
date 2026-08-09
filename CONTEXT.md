@@ -92,6 +92,26 @@ plain Doom install at the standard `~/.emacs.d`; extra profiles are opt-in and
 sandbox their packages. Replaces Chemacs2 (see ADR-0002).
 _Avoid_: "Chemacs profile" (Chemacs is removed).
 
+**Base16 scheme**:
+A named palette of 16 hex colors in fixed semantic slots (`base00`-`base0F`),
+following a shared convention (e.g. `base08`=red, `base0B`=green) so any
+conformant scheme works with the same tool-specific generation logic
+unchanged. Stored as `theme/schemes/<family>.yaml` (or `<family>-<variant>.yaml`
+for a family with both looks). See ADR-0009.
+
+**Adapter file**:
+A small, generated (not hand-authored) tool-specific file that
+`scripts/theme-switch` writes in place, which the tool's real hand-authored
+config sources, imports, or loads. Keeps theme-switch from ever touching a
+Passthrough config directly. See ADR-0009.
+_Avoid_: "theme file" (ambiguous with the hand-authored config that loads it).
+
+**Family / variant**:
+A **family** is a scheme name (e.g. `nord`, `solarized`) picked with a manual
+`theme-switch <family>`. A **variant** (`dark`/`light`) is the look within a
+family, meant to be driven by OS light/dark appearance rather than picked by
+hand. See ADR-0009.
+
 ## Hosts
 
 Named machines in the personal fabric (Tailscale-connected). Greek-myth naming.
