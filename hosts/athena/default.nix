@@ -199,6 +199,19 @@
     package = pkgs.ollama-vulkan;
   };
 
+  # Ollama caches its GPU discovery once, at process start. A `nixos-rebuild
+  # switch` that swaps the package or the GPU drivers underneath a still-running
+  # daemon does NOT re-run discovery, so the old process keeps serving on CPU —
+  # silently. Hit exactly this 2026-08-16: a 3-day-old daemon held a stale "CPU
+  # only" result and ran at 5.5 tok/s instead of ~47 on Vulkan; `systemctl
+  # restart ollama` fixed it with no config change. restartTriggers makes the
+  # rebuild restart the unit whenever the ollama package or the graphics-driver
+  # package changes, so discovery always re-runs and this can't recur.
+  systemd.services.ollama.restartTriggers = [
+    pkgs.ollama-vulkan
+    config.hardware.graphics.package
+  ];
+
   # zsh as a system-registered login shell (config via home-manager). zim owns
   # completion (it runs compinit after its modules load), so disable NixOS's
   # /etc/zshrc compinit to avoid the "completion was already initialized"

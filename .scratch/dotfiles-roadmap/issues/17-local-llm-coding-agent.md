@@ -225,14 +225,56 @@ fallback that also spends 5 GB of the 16 GB RAM budget. This also settles:
 already adds `SupplementaryGroups = ["render"]` for `/dev/dri/render*` + `/dev/kfd`
 access, so no manual group wiring. No gfx override option touched.
 
+### 2026-08-16 — services.ollama live + smoke test; stale-discovery gotcha found & fixed
+
+Committed `services.ollama` (Vulkan) is live on `:11434`. Pulled `qwen2.5-coder:7b`
+(Q4_K_M, 4.74 GB, `tools`-capable) into the service store — note the model store is
+the **service user's** `/var/lib/ollama/models`, *not* the spike's `~/.ollama`, so it
+needed a re-pull. Model generates correct code first try.
+
+**Gotcha (cost ~an hour to trace): Ollama caches GPU discovery once, at process
+start.** First smoke test ran **CPU-only, 5.5 tok/s, 0 GB VRAM** despite the correct
+`ollama-vulkan` package being live and the system rebuilt that same day. Ruled out,
+in order:
+
+1. **Not a missing rebuild** — running ExecStart = the flake's `pkgs.ollama-vulkan`
+   store path exactly; `/run/current-system` rebuilt same day.
+2. **Not `VK_ICD_FILENAMES`** (my first wrong guess; user correctly pushed back — it's
+   an *override* to pick among multiple ICDs, not needed to find a single GPU). Proved
+   the NixOS-patched `vulkan-loader` has `/run/opengl-driver` **baked in as a default
+   search path**: `vulkaninfo` enumerates the RX 5700 XT even under `env -i` with no
+   `XDG_DATA_DIRS` and no VK vars. So **no env/config change is needed for discovery**.
+3. **Not the binary/env** — probing the actual `ollama-vulkan` binary's *startup*
+   discovery (no model load → zero GPU-compute risk) found the GPU cleanly in a
+   stripped env, with or without `OLLAMA_VULKAN=true`.
+4. **Root cause: a stale daemon.** The running process (PID 1301) started **Aug 13**,
+   days before the rebuild that updated the package/drivers underneath it. It kept its
+   Aug-13 "CPU only" discovery result and served from it ever since. `nixos-rebuild
+   switch` had not restarted the unit.
+
+**Fix: `systemctl restart ollama`** — no config change. After restart, discovery logs
+`library=Vulkan … AMD Radeon RX 5700 XT (RADV NAVI10) … 8.0 GiB`; smoke test →
+**100% GPU offload (4.74/4.74 GB VRAM), 46.8 tok/s decode** (warm runs higher; the
+first call includes cold weight-load + prefill).
+
+**Hardening committed:** `systemd.services.ollama.restartTriggers = [ ollama-vulkan,
+config.hardware.graphics.package ]` in `hosts/athena/default.nix`, so a future rebuild
+that bumps the package *or* the mesa/graphics driver auto-restarts the unit and
+re-runs discovery. **Operational rule:** if Ollama ever serves on CPU unexpectedly,
+`systemctl restart ollama` before debugging anything else.
+
 ## Next-actions for exploration
 
 - [x] ~~ROCm + gfx override~~ — **rejected 2026-07-30**, hangs the GPU / freezes
       the desktop (see spike log). gfx1010 can't safely run gfx1030 kernels.
 - [x] **Spike GPU inference (gates everything)** — **DONE 2026-07-31, Vulkan wins**
       (62 tok/s decode vs 6.6 CPU, full offload, stable). Resolves friction #1/#4/#5.
-- [ ] **Commit `services.ollama` (Vulkan) to `hosts/athena/default.nix`** and
-      `nixos-rebuild switch`; confirm the daemon serves on `:11434`.
+- [x] **Commit `services.ollama` (Vulkan) to `hosts/athena/default.nix`** and
+      `nixos-rebuild switch`; confirm the daemon serves on `:11434`. **DONE
+      2026-08-16** — live on `:11434`, `qwen2.5-coder:7b` Q4 in the service store,
+      100% GPU offload / 46.8 tok/s verified. Added `restartTriggers` to prevent
+      the stale-discovery CPU-fallback (see spike log). Config change still to
+      `nixos-rebuild switch` to activate the trigger.
 - [ ] **Verify the credential boundary:** run Gondolin, confirm from inside the VM
       that `~/.pi/agent/auth.json` / the API key is unreachable, and check whether
       tool-side network egress can be restricted.
