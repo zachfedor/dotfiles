@@ -24,6 +24,21 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  # Wake-on-LAN (issue 18): keep the wired NIC listening for a magic packet while
+  # athena is suspended/off, so argus (always-on, same LAN) can wake it on demand —
+  # the ADR-0007 Jellyfin transcode escape hatch, plus on-demand nix-build / LLM
+  # uses. NetworkManager owns enp4s0, so `networking.interfaces.<n>.wakeOnLan` is a
+  # NO-OP here (that route targets scripted/networkd links and generates no systemd
+  # unit under NM — confirmed 2026-08-08: rebuild left `Wake-on: d`). Worse, NM
+  # resets WoL to the driver default (disabled) on every (re)activation. So drive it
+  # through NM: set the global per-connection default to magic-packet. 64 = 0x40 =
+  # NM_SETTING_WIRED_WAKE_ON_LAN_MAGIC. Verify after switch: `sudo ethtool enp4s0`
+  # → `Wake-on: g`, and re-check after an NM connection cycle (issue 18 friction #1).
+  # Off-band prereqs remain: UEFI "Power On By PCI-E" + ErP disabled (docs/new-host.md).
+  # Tailscale can't send the packet (layer-2); argus's `wake-athena` does — Tailscale
+  # only provides reachability to argus.
+  networking.networkmanager.connectionConfig."ethernet.wake-on-lan" = 64;
+
   # Enable Nix Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 

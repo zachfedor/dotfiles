@@ -102,6 +102,13 @@ the Linux VM the `docker` CLI talks to (ADR-0006). athena uses the native daemon
 ## 7. Deferred
 
 - Static IP: reserve on router, then add `Host <host>` to `programs.ssh`.
+- Wake-on-LAN (athena, issue 18): the NixOS side is declarative
+  (`networking.interfaces.<iface>.wakeOnLan.enable = true`), but the NIC only keeps
+  standby power for the magic packet if UEFI allows it. In firmware enable **"Power
+  On By PCI-E / PCIe"** (aka "Resume By PCI-E") **and disable ErP / EuP** deep-off
+  (ErP cuts standby power to the NIC, killing WoL from S5). Verify with
+  `sudo ethtool <iface>` → `Supports Wake-on: ...g...` and `Wake-on: g`. argus emits
+  the packet via `wake-athena` (`ssh argus wake-athena`).
 
 ## Gotchas
 

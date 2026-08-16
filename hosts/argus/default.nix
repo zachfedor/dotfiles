@@ -181,6 +181,16 @@
     git
     neovim
     wget
+
+    # Wake-on-LAN relay (issue 18): argus is always-on and on athena's LAN/broadcast
+    # domain, so it's the node that emits athena's magic packet — Tailscale is L3 and
+    # can't send WoL itself, it only makes argus reachable ("Tailscale's WoL pattern"
+    # per ADR-0007). `wake-athena` is a real binary (not a shell alias) so it fires
+    # under non-interactive `ssh argus wake-athena` (LAN, tailnet, or an iOS
+    # Shortcut). MAC is athena's enp4s0, hardware-bound so hardcoding is fine.
+    wakeonlan
+    (writeShellScriptBin "wake-athena"
+      "exec ${wakeonlan}/bin/wakeonlan 24:4b:fe:00:1d:5a")
   ];
 
   # First-install release baseline; leave pinned once installed.
