@@ -168,6 +168,22 @@
     enable32Bit = true;
   };
 
+  # Local LLM inference (issue 17): Ollama on the Vulkan backend. The 2026-07-31
+  # spike settled the gating GPU question on this RX 5700 XT (gfx1010): ROCm's
+  # gfx1010→gfx1030 override (HSA_OVERRIDE_GFX_VERSION=10.3.0) ran RDNA2 kernels on
+  # RDNA1 silicon, faulted the GPU, and froze the desktop — rejected. Vulkan (RADV
+  # NAVI10) runs native gfx1010 code: stable, full 29/29-layer offload, ~62 tok/s
+  # decode on a 7B-Q4 coding model (~10× the CPU fallback). Weights live in the 8GB
+  # VRAM so the tight 16GB host RAM stays free. `pkgs.ollama-vulkan` replaces the
+  # module's removed `acceleration` enum; the systemd unit already adds the `render`
+  # group for /dev/dri + /dev/kfd access, so no manual group wiring. Serves the
+  # OpenAI-compatible API on localhost:11434 — the endpoint the Pi/Gondolin agent
+  # (this issue) points its local `models.json` entry at.
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-vulkan;
+  };
+
   # zsh as a system-registered login shell (config via home-manager). zim owns
   # completion (it runs compinit after its modules load), so disable NixOS's
   # /etc/zshrc compinit to avoid the "completion was already initialized"

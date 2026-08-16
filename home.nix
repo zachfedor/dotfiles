@@ -35,6 +35,10 @@ in {
     # global dev CLIs (issue 10 audit). Per-project toolchains live in devShells
     # (ADR-0004), NOT here — this is only the cross-project, invoke-anywhere set.
     gh jq flyctl wget ngrok
+    # AI coding agent — the roadmap tooling used across this repo. Cross-platform;
+    # unfree like ngrok above, so it rides the same allowUnfree the shared home.nix
+    # already relies on. Replaces the ad-hoc `nix-shell -p claude-code` invocation.
+    claude-code
     # thin global runtime fallback for scratch use; real projects pin versions in
     # their own devShell (ADR-0004), so no pyenv/rbenv/n and no language pile here.
     python3 nodejs
