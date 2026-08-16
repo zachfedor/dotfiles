@@ -51,7 +51,11 @@ in {
     # client; the docker CLI client is added per-OS below (mac via colima, athena
     # via virtualisation.docker — neither wants the full insecure `docker` engine
     # package here).
-    _1password-cli docker-compose ncdu aspell tmux
+    # aspell MUST ship with dictionaries: Doom's :checkers spell uses spell-fu,
+    # which builds its wordlist ONLY from aspell — bare `aspell` (no dict) flags
+    # every word as misspelled. aspellWithDicts is the single, cross-platform
+    # (darwin + nixos) source of truth for the dictionary list on all hosts.
+    _1password-cli docker-compose ncdu (aspellWithDicts (dicts: with dicts; [ en en-computers ])) tmux
     # NOTE: zimfw (zsh framework) is NOT listed here — it ships only zimfw.zsh
     # (no binary), pulled into the closure by the ZIM_FW_INIT fragment below.
     # Migrated off brew → nixpkgs on both OSes (issue 05a); the passthrough zshrc

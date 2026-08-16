@@ -633,12 +633,14 @@ git repo in it."
         "g" #'writegood-grade-level
         "r" #'writegood-reading-ease))
 
-(after! spell-fu
-  ;; TODO workround for https://github.com/doomemacs/doomemacs/issues/6246
-  (unless (file-exists-p ispell-personal-dictionary)
-    (make-directory (file-name-directory ispell-personal-dictionary) t)
-    (with-temp-file ispell-personal-dictionary
-      (insert (format "personal_ws-1.1 %s 0\n" ispell-dictionary)))))
+;; Keep the personal spelling dictionary in the dotfiles repo so custom words
+;; sync across devices. doom-user-dir (~/.config/doom) is an out-of-store
+;; symlink to ~/.dotfiles/doom, so interactive "add word" writes into the repo,
+;; where it's committed like any other dotfile. Doom's :checkers spell module
+;; only sets `ispell-personal-dictionary' `unless' it's already set, so this
+;; top-level setq wins. The seed file (doom/aspell/en.pws, with its
+;; personal_ws-1.1 header) replaces the old runtime file-creation workaround.
+(setq ispell-personal-dictionary (expand-file-name "aspell/en.pws" doom-user-dir))
 
 (defun z/downcase-org-keywords ()
   "Convert Org mode keywords and block identifiers to lower case in current buffer.
