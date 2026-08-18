@@ -75,7 +75,22 @@ rebuild                 # HM creates ~/.emacs.d → ~/code/doomemacs + ~/.config
 Doctor warnings about language tools are optional. Linux hard deps (python, X11
 clipboard) already in `home.nix`. After config changes later: `doom sync`.
 
-## 6. Manual apps & sign-ins (out of nix scope)
+## 6. Gondolin agent sandbox (athena only — imperative, issue 17)
+
+Pi (`pi-coding-agent`, from the `nixpkgs-unstable` overlay), `qemu_kvm`, the
+`kvm-amd` module and `kvm` group are all declarative. The one imperative step is
+the Gondolin extension's writable npm install — nix can't own `~/.pi` state:
+
+```sh
+scripts/install-gondolin   # copies ext from the store + npm-installs its runtime dep
+```
+
+Re-run after any `pi-coding-agent` version bump (store path + extension move).
+Needs `/dev/kvm` at *run* time: enable **SVM Mode** in UEFI first (otherwise
+`kvm_amd` fails "Operation not supported" and QEMU falls back to slow TCG). Run
+the sandbox from a project: `cd <project> && pi -e ~/.pi/agent/extensions/gondolin`.
+
+## 7. Manual apps & sign-ins (out of nix scope)
 
 Nix declares installs; **app-internal state stays each app's own cloud sync** (no
 profiles/extensions/bookmarks in the flake — issue 10 / ADR-0004 boundary). After
@@ -99,7 +114,7 @@ a rebuild, sign in once per app:
 **Containers (macOS):** `colima start` once after first rebuild — colima provides
 the Linux VM the `docker` CLI talks to (ADR-0006). athena uses the native daemon.
 
-## 7. Deferred
+## 8. Deferred
 
 - Static IP: reserve on router, then add `Host <host>` to `programs.ssh`.
 - Wake-on-LAN (athena, issue 18): the NixOS side is declarative
@@ -121,6 +136,8 @@ the Linux VM the `docker` CLI talks to (ADR-0006). athena uses the native daemon
 | terminal still bash after shell change | log out/in |
 | GUI Emacs white theme + dead leader | missing font family (`hack-font`/`merriweather-sans`); check `fc-scan` |
 | zim "completion already initialized" | `programs.zsh.enableCompletion = false` |
+| `kvm_amd`/`kvm_intel` "Operation not supported" | enable **SVM Mode** (AMD) / VT-x in UEFI — `svm` cpuinfo flag ≠ BIOS-enabled |
+| Gondolin/Pi tools slow, VM sluggish | no `/dev/kvm` → TCG emulation; enable SVM in UEFI (see #6) |
 | `zimfw upgrade` stale path post-migration | one-time `rm ~/.zim/init.zsh` |
 
 **Git flow:** only hosts with SSH-remote push can push; others pull read-only. Move

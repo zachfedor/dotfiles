@@ -134,7 +134,9 @@
   users.users.zach = {
     isNormalUser = true;
     description = "Zach Fedor";
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "docker" ];
+    # "kvm": /dev/kvm access for Gondolin's QEMU micro-VM (issue 17). NixOS
+    # predefines the group + udev rule; membership is what grants the device.
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "docker" "kvm" ];
     # zsh is the login shell; the zsh/zim *config* comes from home-manager
     # (shared home.nix passthrough). programs.zsh.enable below registers it in
     # /etc/shells so it's a valid login shell. (issue 05c)
@@ -212,6 +214,17 @@
     config.hardware.graphics.package
   ];
 
+  # Gondolin agent sandbox (issue 17): Pi routes every tool call / `!` command
+  # into a QEMU micro-VM so an incoherent tool call can't touch the host, while
+  # auth stays host-side (credential axis). kvm-amd gives hardware virt on this
+  # Ryzen — without it QEMU falls back to slow TCG emulation. NOTE: this module
+  # load fails with "Operation not supported" unless "SVM Mode" is enabled in the
+  # UEFI (the `svm` cpuinfo flag only means the CPU is capable, not BIOS-enabled).
+  # The hardware scan left boot.kernelModules empty; NixOS merges this list in.
+  # `pi-coding-agent` comes from the unstable overlay (0.84.x ships Gondolin);
+  # qemu_kvm gives qemu-system-x86_64 without full multi-target qemu's bulk.
+  boot.kernelModules = [ "kvm-amd" ];
+
   # zsh as a system-registered login shell (config via home-manager). zim owns
   # completion (it runs compinit after its modules load), so disable NixOS's
   # /etc/zshrc compinit to avoid the "completion was already initialized"
@@ -245,6 +258,10 @@
     calibre
     slack
     discord
+    # Local LLM coding agent (issue 17). pi-coding-agent is overlaid from
+    # nixpkgs-unstable (see flake.nix); qemu_kvm backs Gondolin's micro-VM.
+    pi-coding-agent
+    qemu_kvm
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

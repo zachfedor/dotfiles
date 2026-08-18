@@ -263,6 +263,126 @@ that bumps the package *or* the mesa/graphics driver auto-restarts the unit and
 re-runs discovery. **Operational rule:** if Ollama ever serves on CPU unexpectedly,
 `systemctl restart ollama` before debugging anything else.
 
+### 2026-08-16 — Pi packaging investigated; Gondolin via unstable overlay; KVM/qemu added
+
+**Pi is in nixpkgs** as `pi-coding-agent` (maintainers Munksgaard, bryanhonof; built
+with `buildNpmPackage` from the `earendil-works/pi` monorepo via `fetchFromGitHub`,
++ a `fetchurl` of the `@earendil-works/pi-ai` npm tarball only for the generated model
+catalog). The earlier `nix shell` test that created `~/.pi` used this. `auth.json`
+already holds an `anthropic` credential (so `/login` succeeded) — that's the exact file
+the boundary spike must prove unreachable from inside the VM.
+
+**Why the version looked "behind": stable-channel freeze, not neglect.** The repo tracks
+`nixos-26.05` (stable), which froze `pi-coding-agent` at **0.75.4** at release. nixpkgs
+master is at **0.84.1** and bumped ~weekly (r-ryantm + the package's `nix-update`
+updateScript). 0.75.4 predates Gondolin — it ships a different `sandbox` extension
+instead.
+
+**Two isolation options compared** (both are Pi *extensions*, both are thin shims with a
+runtime npm dep needing a writable copy + `npm install` — so imperative install / friction
+#3 applies to *either*, it is not a discriminator):
+- `sandbox` (in 0.75.4): OS-level via `@anthropic-ai/sandbox-runtime` (bubblewrap on
+  Linux). Config has `network.allowedDomains` (egress) + `filesystem.denyRead` (defaults
+  deny `~/.ssh`/`~/.aws`). Overrides **`bash` only** by default → softer credential axis.
+  Shared kernel. No KVM/qemu.
+- `gondolin` (0.84.x): QEMU micro-VM, all tools routed in, `@earendil-works/gondolin@0.12.0`
+  runtime dep. Separate kernel. Needs KVM + qemu.
+
+**Verified Gondolin ships in the nixpkgs master build**: built
+`github:NixOS/nixpkgs/master#pi-coding-agent` (0.84.1) → `$out/lib/node_modules/
+pi-monorepo/examples/extensions/gondolin/` present. (Note: the *slim* `@earendil-works/
+pi-ai` npm tarball has no `examples/` — that misled an intermediate check; nixpkgs builds
+from the full GitHub monorepo, which does include them.)
+
+**DECISION (user, 2026-08-16): Gondolin, with `pi-coding-agent` from nixpkgs-unstable.**
+Rationale: stay on the current Pi, and Gondolin is upstream's own actively-developed
+sandbox (their preferred direction). The `sandbox`-only credential softness also argued
+against it. → pending **ADR-0010** (ADR-0009 is taken by base16 theme-switching).
+
+**Config committed (builds clean; switch pending):**
+- `flake.nix`: added `nixpkgs-unstable` input + `piUnstableOverlay` cherry-picking *only*
+  `pi-coding-agent` (0.84.1), scoped to athena via `nixpkgs.overlays`. Rest stays on stable.
+- `hosts/athena/default.nix`: `boot.kernelModules = ["kvm-amd"]` (Ryzen SVM confirmed;
+  avoids TCG fallback), `zach` added to `kvm` group (/dev/kvm access), `pi-coding-agent`
+  + `qemu_kvm` (provides `qemu-system-x86_64` without full multi-target qemu) in
+  systemPackages.
+- Eval-checked: athena resolves `pi-coding-agent` 0.84.1, `kvm-amd` in kernelModules,
+  `zach` in kvm group; full system toplevel builds.
+
+**Still imperative (unavoidable — extension has a runtime dep):** copy the nix-provided
+gondolin extension to a *writable* `~/.pi/agent/extensions/gondolin` and `npm install`
+to pull `@earendil-works/gondolin@0.12.0`. Watch for a postinstall that fetches a VM
+image (`--ignore-scripts` would skip it). Wrap in `scripts/` + `docs/new-host.md`.
+
+### 2026-08-17 — SVM enabled; Gondolin boots on x86_64; credential boundary CONFIRMED; tool-calling blocker found
+
+BIOS SVM Mode enabled + reboot + `nixos-rebuild switch`. All prereqs now live:
+`kvm_amd` loaded, `/dev/kvm` `0666`, `zach` in `kvm` group, `pi` 0.84.1,
+`qemu-system-x86_64` 10.2.2, node 24.16 (≥23.6), gondolin ext installed
+(`@earendil-works/gondolin@0.12.0`; ships **libkrun** krun-runner + `libkrun.so`
+alongside the QEMU backend). Guest image already cached in
+`~/.cache/gondolin/images/` (324 MB: `rootfs.ext4` 300 MB + `vmlinuz-virt` +
+`krun-kernel` + initramfs) — first boot pulls nothing.
+
+**Local model wired.** The real config file is **`~/.pi/agent/models.json`** (a
+`providers` merge layer), *not* `models-store.json` (that's the generated catalog;
+the setup-sketch guessed the filename). Added an `ollama` provider
+(`baseUrl: http://localhost:11434/v1`, `api: openai-completions`, dummy
+`apiKey: "ollama"`, `compat.supportsDeveloperRole/ReasoningEffort: false` per Pi's
+`docs/models.md` guidance for OpenAI-compatible local servers), model
+`qwen2.5-coder:7b`. `pi --list-models` shows it; host-side text gen works
+(`pi --provider ollama --model qwen2.5-coder:7b -nt -p …` → correct `s[::-1]`).
+
+**Gondolin boundary probe (deterministic).** Wrote a node script replicating the
+extension's exact `VM.create` (`vfs.mounts: {"/workspace": RealFSProvider(cwd)}`,
+no `httpHooks`/`secrets`/`env`) and ran probe commands *inside* the guest — avoids
+depending on a 7B model to faithfully self-report.
+- **Boots on x86_64** — Alpine, kernel `6.18.22-0-virt x86_64`, sub-second via KVM.
+  Resolves the "Linux x86_64 only smoke-tested" worry; the box runs it fine.
+- `/workspace` = host cwd via `fuse.sandboxfs`; guest writes write through to host. ✔
+- **CREDENTIAL AXIS — CONFIRMED ISOLATED (friction #2's hard guarantee).**
+  `/proc/mounts`: the *only* host-derived mount is cwd→`/workspace`; root is the
+  guest's own `ext4`, `/root` + `/tmp` are tmpfs. `HOME=/root`, `/root/.pi` absent,
+  `~/.pi/agent/auth.json` unreachable, `find / -name auth.json` empty, and no
+  `ANTHROPIC*`/`*_API_KEY*`/`*TOKEN*` in guest env. Inference runs in the host `pi`
+  process, so the paid credential is *structurally* outside the sandbox. ✔
+- **EGRESS AXIS — open by default, but host-mediated.** The stock extension passes
+  no `httpHooks`, so default egress is **open** (`https://example.com` succeeded).
+  DNS is synthetic (`example.com`→`192.0.2.1` RFC-5737 via gateway
+  `192.168.127.1`): gondolin's TS netstack transparently **MITM-proxies** all TLS
+  host-side (injects a CA at `/etc/gondolin/mitm/ca.crt`). So egress is
+  open-but-fully-observable/controllable from the host. Locking it to an allowlist
+  is *possible* (`createHttpHooks({ allowedHosts, secrets })`, per the dep README)
+  but requires **patching the extension's `index.ts`** — it is not the default.
+  (The `10.0.2.2:11434` ollama probe timing out is a non-finding: gondolin doesn't
+  use QEMU slirp's host alias, and the guest never needs ollama — inference is
+  host-side.)
+
+**BLOCKER — `qwen2.5-coder:7b` tool-calling is unreliable through ollama 0.30.6.**
+Its ollama template mandates wrapping tool calls in `<tool_call>…</tool_call>`, but
+the model emits **bare** `{"name":…, "arguments":…}` with no tags (deterministic at
+`temperature:0`), so ollama's parser returns it as `content` with `tool_calls:null`.
+Reproduced on **both** `/v1/chat/completions` and native `/api/chat`, and
+end-to-end through Pi (which shows the fenced JSON as plain text and executes no
+tool). **Not a Pi or Gondolin bug — a model-side format failure.** The model
+generates good *code*, but can't drive an agentic tool loop here. An agentic
+sandbox needs a local model with reliable native tool-calling → this reopens the
+model choice (friction #5), now on a **tool-calling-reliability** axis, not just
+code quality. Candidates within 8 GB VRAM: `llama3.1:8b` (canonical, battle-tested
+tool calling, ~4.9 GB Q4) or `qwen3:8b` (strong tools+coding but a reasoning model
+→ needs `compat.thinkingFormat`).
+
+**RESOLVED same day — `llama3.1:8b` (user decision).** Pulled into the service store
+(~4.9 GB Q4). Decisive check: `/v1/chat/completions` returns a proper native
+`tool_calls` array with empty `content` (exactly where qwen returned text). Added to
+`models.json` as the default local entry (qwen2.5-coder kept for plain code-gen).
+**End-to-end loop closed:** `pi --provider ollama --model llama3.1:8b -e …/gondolin
+-p "run uname -a via the bash tool"` → model issued a native `bash` call → Gondolin
+executed it → returned **`6.18.22-0-virt`**, the *guest* kernel, vs host `6.18.36`.
+So: local model drives Pi's agentic loop **and** every tool call is sandboxed. The
+full picture — local inference on host GPU, agentic tool-calling, VM-sandboxed
+execution, host-isolated credential — now works on one 7B/8B-class local model.
+
 ## Next-actions for exploration
 
 - [x] ~~ROCm + gfx override~~ — **rejected 2026-07-30**, hangs the GPU / freezes
@@ -275,21 +395,30 @@ re-runs discovery. **Operational rule:** if Ollama ever serves on CPU unexpected
       100% GPU offload / 46.8 tok/s verified. Added `restartTriggers` to prevent
       the stale-discovery CPU-fallback (see spike log). Config change still to
       `nixos-rebuild switch` to activate the trigger.
-- [ ] **Verify the credential boundary:** run Gondolin, confirm from inside the VM
-      that `~/.pi/agent/auth.json` / the API key is unreachable, and check whether
-      tool-side network egress can be restricted.
-- [ ] Stand up the two-entry `models.json`; confirm `/model` switching works with
-      tools sandboxed in both modes.
-- [ ] Decide + implement the reproducibility mechanism for the extension install.
+- [x] **Verify the credential boundary** — **DONE 2026-08-17.** Deterministic probe
+      inside the guest: `auth.json` unreachable (only cwd mounted at `/workspace`;
+      root is guest ext4; no secrets in env) → credential axis holds. Egress is
+      **open by default** but host-MITM-mediated; restricting it to an allowlist
+      needs a patch to the extension's `index.ts` (`createHttpHooks`) — not default.
+- [x] Stand up the `models.json` local entry + validate agentic tool use —
+      **DONE 2026-08-17.** `llama3.1:8b` drives Pi's tool loop end-to-end with tool
+      calls sandboxed in Gondolin (guest kernel `6.18.22-virt` proves it). Residual:
+      confirm interactive `/model` switching local↔hosted (mechanically the same
+      provider merge; low risk).
+- [x] Decide + implement the reproducibility mechanism for the extension install.
+      **DONE 2026-08-17** — `scripts/install-gondolin` (copies the ext from the nix
+      store, resolves path via `which pi` so it tracks version bumps, `npm install
+      --ignore-scripts`) + documented as new-host.md §6. Matches the Doom imperative
+      pattern (§5). Verified: shellcheck-clean, idempotent, gondolin@0.12.0 installed.
 - [ ] Establish a lightweight **output-verification** habit (the axis the sandbox
       can't cover) — this is the user's stated non-negotiable.
-- [ ] If validated, record the decision as **ADR-0009 (Gondolin over Plain Docker
-      for agent sandboxing)**, mirroring ADR-0006's shape.
+- [ ] If validated, record the decision as **ADR-0010 (Gondolin over Plain Docker
+      for agent sandboxing)**, mirroring ADR-0006's shape. (0009 = theme-switching.)
 
 ## Related
 
 - ADR-0006 (colima over Docker Desktop) — the container posture this extends; the
-  eventual ADR-0009 mirrors its form.
+  eventual ADR-0010 mirrors its form.
 - ADR-0004 (per-project devShells over global toolchains) — informs where Node
   lives (global thin fallback here, per CONTEXT.md, since Pi is cross-project).
 - #16 Deep work flow — a local agent that never leaves the machine fits the

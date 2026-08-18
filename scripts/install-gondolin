@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# install-gondolin: set up Pi's Gondolin micro-VM sandbox extension (issue 17).
+#
+# Pi's built-in tools + `!` commands are routed into a QEMU micro-VM so an
+# incoherent tool call can't touch the host, while auth stays host-side. The
+# extension itself ships inside the nix-provided `pi-coding-agent` package (read
+# only, in the store), but it has a runtime npm dependency
+# (@earendil-works/gondolin) that must be `npm install`ed into a *writable*
+# location — the one irreducibly imperative step (nix can't own ~/.pi state).
+#
+# This is idempotent: re-run it after any `pi-coding-agent` version bump (the
+# store path + extension version move; this refreshes the writable copy).
+#
+# Prereqs (declarative, already in the flake): pi-coding-agent + qemu_kvm +
+# kvm-amd + kvm group on athena. Needs /dev/kvm at *run* time, not install time.
+set -euo pipefail
+
+command -v pi  >/dev/null || { echo "error: 'pi' not on PATH (is pi-coding-agent installed?)" >&2; exit 1; }
+command -v npm >/dev/null || { echo "error: 'npm' not on PATH (nodejs missing?)" >&2; exit 1; }
+
+# Locate the extension source inside the installed pi-coding-agent store path,
+# derived from the `pi` binary so it tracks whatever version nix has switched to.
+pi_root=$(dirname "$(dirname "$(readlink -f "$(command -v pi)")")")
+src="$pi_root/lib/node_modules/pi-monorepo/examples/extensions/gondolin"
+dest="$HOME/.pi/agent/extensions/gondolin"
+
+[ -d "$src" ] || { echo "error: gondolin extension not found at $src" >&2
+  echo "       (needs pi-coding-agent >= 0.84.x; stable froze it pre-Gondolin — see flake.nix)" >&2; exit 1; }
+
+echo "==> copying extension from store to writable $dest"
+mkdir -p "$(dirname "$dest")"
+rm -rf "$dest"
+cp -R "$src" "$dest"
+chmod -R u+w "$dest"
+
+echo "==> npm install (--ignore-scripts: gondolin declares no install hooks; also"
+echo "    blocks any transitive lifecycle script — supply-chain caution)"
+( cd "$dest" && npm install --ignore-scripts )
+
+echo
+echo "Done. Run Pi with the sandbox from any project:  cd <project> && pi -e $dest"
+echo "Note: a transitive 'undici' advisory ships in the pinned tree; to patch"
+echo "      (semver-compatible) run:  ( cd $dest && npm audit fix )"
