@@ -408,6 +408,19 @@ in {
   home.file.".hammerspoon" =
     lib.mkIf pkgs.stdenv.isDarwin { source = ./hammerspoon; };
 
+  # --- pi coding agent: local-model catalog (issue 17) ---
+  # Declares the Ollama provider + local model roster (qwen3/llama3.1/qwen2.5-coder)
+  # for Pi. File-level (not directory-level) passthrough is required: Pi writes its
+  # own runtime state — auth.json, sessions/, models-store.json, the gondolin
+  # extension — into ~/.pi/agent/, so that dir must stay real, not a store symlink.
+  # Pi only ever *reads* models.json, so a read-only store symlink is fine.
+  # Linux-guarded because pi-coding-agent + the Vulkan Ollama service are athena-only
+  # (see hosts/athena); argus is the only other Linux host and never runs Pi, so the
+  # file is inert there. The Gondolin extension install stays imperative
+  # (scripts/install-gondolin) — nix can't own that writable npm tree.
+  home.file.".pi/agent/models.json" =
+    lib.mkIf pkgs.stdenv.isLinux { source = ./pi/models.json; };
+
   # --- doom: emacs install symlink + private config (both out-of-store) ---
   # ~/.emacs.d → the hand-cloned doomemacs install. Doom itself stays imperative
   # (NOT nix-managed; ADR-0002): you `git clone` doomemacs into ~/code and run

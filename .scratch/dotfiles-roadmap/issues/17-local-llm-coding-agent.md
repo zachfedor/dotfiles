@@ -383,6 +383,27 @@ So: local model drives Pi's agentic loop **and** every tool call is sandboxed. T
 full picture — local inference on host GPU, agentic tool-calling, VM-sandboxed
 execution, host-isolated credential — now works on one 7B/8B-class local model.
 
+**Reasoning option added — `qwen3:8b` (2026-08-17).** Pulled (~5.2 GB Q4). Through
+ollama's OpenAI endpoint it returns **native `tool_calls`** (empty `content`) *and*
+puts thinking in a `reasoning` field; `reasoning_effort` is accepted. Wired in
+`models.json` with `reasoning: true` + model-level `compat.thinkingFormat:
+"reasoning_effort"` / `supportsReasoningEffort: true` (overriding the provider-level
+`false` kept for the non-reasoning models). `pi --list-models` shows it reasoning=yes.
+End-to-end: `pi --model qwen3:8b --thinking low -e …/gondolin` reasoned, then issued
+a sandboxed `bash` call returning guest kernel `6.18.22-virt`. So the local roster is
+now three: **llama3.1:8b** (fast, reliable tools — default), **qwen3:8b** (reasoning +
+tools), **qwen2.5-coder:7b** (code-gen only). Note: qwen3 thinking is slow enough that
+a full boot+reason+tool round-trip exceeds ~2 min — fine, just budget for it.
+
+**`models.json` made reproducible (2026-08-17).** Moved into the repo at
+`./pi/models.json` and placed via home-manager as a **file-level** passthrough
+(`home.file.".pi/agent/models.json"`, `isLinux`-guarded) — dir-level would break
+Pi, which writes `auth.json`/`sessions/`/`models-store.json`/the extension into
+`~/.pi/agent/`. Pi only reads `models.json`, so the read-only store symlink is fine.
+Eval-verified on athena. Remaining imperative bits are unavoidable runtime state:
+`scripts/install-gondolin` (writable npm tree) and the `ollama pull`s of the model
+weights themselves (not nix-ownable).
+
 ## Next-actions for exploration
 
 - [x] ~~ROCm + gfx override~~ — **rejected 2026-07-30**, hangs the GPU / freezes
