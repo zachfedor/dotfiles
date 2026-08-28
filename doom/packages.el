@@ -61,7 +61,6 @@
 ;; (doom/themes/) applies whatever palette scripts/theme-switch last wrote.
 (package! base16-theme)
 (package! lorem-ipsum)
-(package! mini-frame)
 (package! mixed-pitch)
 (package! nano-theme)
 ;; (package! org-appear)

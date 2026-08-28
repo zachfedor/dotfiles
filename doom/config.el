@@ -54,15 +54,12 @@
  ;; Use Unicode ellipses instead of three periods for space efficiency
  truncate-string-ellipsis "…"
  ;; Raise undo history to 80Mb
- undo-limit (* 80 100 100)
- ;; Enable visual line-based editing
- visual-line-mode 1
+ undo-limit (* 80 1000 1000)
  ;; Stretch cursor to contain entire glyph
- x-stretch-cursor t
- ;; standardize indent and tab widths
- standard-indent 2
- evil-shift-width 2
- tab-width 2)
+ x-stretch-cursor t)
+
+;; Soft-wrap long lines everywhere via Doom's `:editor word-wrap' module
+(+global-word-wrap-mode 1)
 
 ;; Remove the GUI titlebar entirely (macOS NS build). Drops the title bar plus
 ;; traffic-light buttons; resize via window edges.
@@ -75,9 +72,11 @@
  evil-shift-width 2
  tab-width 2)
 
-;; Settings for native-comp
-(setq find-function-C-source-directory
-      "/opt/homebrew/Cellar/emacs-plus@30/30.1/share/emacs/30.1/etc/src/")
+;; Let `find-function' / `describe-function' / `gd' / `K' jump to the C source
+;; of built-in primitives, regardless of version or platform
+(let ((src (expand-file-name "../src/" data-directory)))
+  (when (file-directory-p src)
+    (setq find-function-C-source-directory src)))
 
 ;; Theme (issue 08 / ADR-0009): a generic base16 theme driven by
 ;; scripts/theme-switch, rather than a Doom theme package.
@@ -685,19 +684,6 @@ Inspired by above z/downcase-org-keywords function"
 (add-hook 'cider--debug-mode-hook 'z/cider-debug-toggle-insert-state)
 
 (setq typescript-indent-level 2)
-
-(use-package! mini-frame
-  :config
-  ;; Use mini-frame instead of minibuffer globally
-  (setq mini-frame-mode t)
-  ;; With the exception of the following commands which should continue to use the minibuffer
-  (setq mini-frame-ignore-commands '(evil-ex evil-ex-search-forward evil-ex-search-backward +default/diagnostics eval-expression "edebug-eval-expression" debugger-eval-expression))
-  ;; Place the mini-frame roughly centered on the window
-  (custom-set-variables
-   '(mini-frame-show-parameters
-     '((top . 0.4)
-       (width . 0.6)
-       (left . 0.5)))))
 
 
 ;; ;; Resize org headings
