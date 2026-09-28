@@ -161,10 +161,10 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-;; PARA tree (roadmap #06): GTD control files live in ~/gtd (its own Syncthing
-;; folder); notes co-located across the sibling buckets ~/projects ~/areas
-;; ~/resources. org-directory = ~/gtd only sets capture/journal/default-notes
-;; defaults — it does NOT scope agenda/links; those use org-agenda-files below.
+;;
+;; NOTE: this only sets the capture/journal/default-notes anchor. It does NOT
+;; scope agenda/links or declare a storage root; those use org-agenda-files
+;; by absolute path defined below. 
 (setq org-directory (expand-file-name "~/gtd"))
 ;; (defun zf/org-mode-setup ()
 ;;   (setq display-line-numbers nil)
@@ -186,16 +186,21 @@
   (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM %TAGS")
   (setq org-deadline-warning-days 7)
   (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-  ;; Agenda scans the GTD control files + actionable buckets (projects/areas).
-  ;; resources/ is reference, kept out to reduce scan noise. Static at load —
-  ;; restart Emacs to pick up newly-created files (revisit dynamic glob in #12).
-  (setq org-agenda-files
-        (append (list org-default-notes-file
-                      (expand-file-name "todo.org" org-directory)
-                      (expand-file-name "someday.org" org-directory)
-                      (expand-file-name "journal.org" org-directory))
-                (directory-files-recursively (expand-file-name "~/projects") "\\.org$")
-                (directory-files-recursively (expand-file-name "~/areas") "\\.org$")))
+  ;; Agenda scans the GTD files + actionable buckets (projects/areas), not
+  ;; reference or archives. Computed by a function and refreshed before every
+  ;; agenda build, so newly-created files appear without a restart.
+  (defun zf/org-agenda-files ()
+    "GTD files + every .org under ~/projects and ~/areas."
+    (append (list org-default-notes-file
+                  (expand-file-name "todo.org" org-directory)
+                  (expand-file-name "someday.org" org-directory)
+                  (expand-file-name "journal.org" org-directory))
+            (directory-files-recursively (expand-file-name "~/projects") "\\.org$")
+            (directory-files-recursively (expand-file-name "~/areas") "\\.org$")))
+  (setq org-agenda-files (zf/org-agenda-files))
+  ;; Rescan and refresh this variable on agenda entry points
+  (advice-add 'org-agenda-files :before
+              (lambda (&rest _) (setq org-agenda-files (zf/org-agenda-files))))
   (setq org-ellipsis " ▾ ")
   (setq org-global-properties '(("EFFORT_ALL" . "0:15 0:30 1:00 2:00 4:00 6:00 0:00")))
   (setq org-hide-emphasis-markers t)
@@ -256,18 +261,32 @@
             (todo "NEXT" ((org-agenda-overriding-header "Next actions")))
             (todo "WAIT" ((org-agenda-overriding-header "Waiting on"))))))))
 
-;; --- Stuck projects: a project = a file in ~/projects; stuck = no NEXT in it ---
-;; (#07) File-level (not org's heading-level org-stuck-projects), matching the
-;; PARA model where each ~/projects/<name>/ file is a project.
+;; --- Stuck projects: a project = a top-level entry in ~/projects; stuck = no NEXT ---
+;; A project is one top-level entry under ~/projects, either a directory
+;; with one or more .org files or a single top-level .org file.
+(defun zf/file-has-next-p (file)
+  "Non-nil if FILE contains a NEXT todo heading."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (goto-char (point-min))
+    (re-search-forward "^\\*+[ \t]+NEXT[ \t]" nil t)))
+
 (defun zf/stuck-project-files ()
-  "Return project files under ~/projects with no NEXT action."
-  (seq-remove
-   (lambda (f)
-     (with-temp-buffer
-       (insert-file-contents f)
-       (goto-char (point-min))
-       (re-search-forward "^\\*+[ \t]+NEXT[ \t]" nil t)))
-   (directory-files-recursively (expand-file-name "~/projects") "\\.org$")))
+  "Return top-level projects under ~/projects that lack a NEXT action.
+A directory-project is stuck only if NONE of its .org files has a NEXT.
+Returns absolute paths (a dir path for directory-projects, a file path for
+loose ones); entries with no .org at all are skipped."
+  (let ((root (expand-file-name "~/projects")))
+    (delq nil
+          (mapcar
+           (lambda (entry)
+             (let* ((path (expand-file-name entry root))
+                    (orgs (if (file-directory-p path)
+                              (directory-files-recursively path "\\.org$")
+                            (and (string-suffix-p ".org" entry) (list path)))))
+               (when (and orgs (not (seq-some #'zf/file-has-next-p orgs)))
+                 path)))
+           (directory-files root nil "\\`[^.]")))))
 
 (defun zf/stuck-projects ()
   "Pop a buffer listing project files that lack a NEXT action."
@@ -336,13 +355,50 @@
   (interactive)
   (find-file org-default-notes-file))
 
+;; --- Notes find/browse/search across the whole PARA tree ---
+;; Doom's `SPC n f/F/s' (+default/find-in-notes, +default/browse-notes,
+;; +default/org-notes-search) all operate on `org-directory' alone which is
+;; only ~/gtd. This includes other searchable PARA buckets.
+(defvar zf/notes-roots
+  '("~/gtd" "~/projects" "~/areas" "~/resources" "~/archive")
+  "PARA note buckets searched by the `SPC n' find/browse/search commands.")
+
+(defun zf/notes-roots-abs ()
+  "`zf/notes-roots' as existing absolute directories."
+  (seq-filter #'file-directory-p (mapcar #'expand-file-name zf/notes-roots)))
+
+(defun zf/find-in-notes ()
+  "Find a file anywhere in the PARA note tree (all of `zf/notes-roots')."
+  (interactive)
+  (consult-fd (zf/notes-roots-abs)))
+
+(defun zf/search-notes ()
+  "Ripgrep the whole PARA note tree (all of `zf/notes-roots').
+Seeds the search with the active region, matching +default/org-notes-search."
+  (interactive)
+  (consult-ripgrep (zf/notes-roots-abs)
+                   (when (doom-region-active-p)
+                     (buffer-substring-no-properties
+                      (doom-region-beginning) (doom-region-end)))))
+
+(defun zf/browse-notes (root)
+  "Browse one PARA note bucket ROOT, prompted from `zf/notes-roots'.
+`doom-project-browse' walks a single dir; there is no shared parent, so pick
+the bucket first (find/search below span all buckets at once)."
+  (interactive (list (completing-read "Browse bucket: " (zf/notes-roots-abs) nil t)))
+  (doom-project-browse root))
+
 ;; GTD workflow keys under the notes prefix (#07): jump to inbox, run the review
 ;; agenda. Refile itself is doom's `SPC m r r`; capture is `SPC X` / `org-capture`.
 (map! :after evil :leader :prefix "n"
       :desc "Open inbox" "n" #'zf/open-inbox
       :desc "Review agenda" "r" (cmd! (org-agenda nil "r"))
       :desc "Review projects" "R" #'zf/stuck-projects
-      :desc "Archive project" "A" #'zf/archive-project)
+      :desc "Archive project" "A" #'zf/archive-project
+      ;; Repointed at the PARA tree (see above); override Doom's org-directory-only defaults.
+      :desc "Find in notes (PARA)" "f" #'zf/find-in-notes
+      :desc "Browse a bucket" "F" #'zf/browse-notes
+      :desc "Search notes (PARA)" "s" #'zf/search-notes)
 ;; Doom registers its own key-based which-key labels for the leader (e.g. "SPC n
 ;; n" → "Org capture"), which override the :desc above in the popup. Re-register
 ;; ours so the labels match the rebindings.
@@ -351,7 +407,10 @@
     "SPC n n" "Open inbox"
     "SPC n r" "Review agenda"
     "SPC n R" "Review projects"
-    "SPC n A" "Archive project"))
+    "SPC n A" "Archive project"
+    "SPC n f" "Find in notes (PARA)"
+    "SPC n F" "Browse a bucket"
+    "SPC n s" "Search notes (PARA)"))
 
 ;; Save all org buffers 1 minute before the hour, every hour
 (run-at-time "00:59" 3600 'org-save-all-org-buffers)
