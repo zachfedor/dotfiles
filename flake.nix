@@ -36,7 +36,10 @@
     # Cherry-pick claude-code from unstable
     claudeUnstableOverlay = final: prev: {
       claude-code =
-        nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.claude-code;
+        (import nixpkgs-unstable {
+          inherit (prev.stdenv.hostPlatform) system;
+          config.allowUnfree = true;
+        }).claude-code;
     };
 
     # Shared home-manager wiring, identical across hosts. The platform module
@@ -66,7 +69,7 @@
     nixosConfigurations.athena = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        { nixpkgs.overlays = [ piUnstableOverlay ]; }
+        { nixpkgs.overlays = [ piUnstableOverlay claudeUnstableOverlay ]; }
         ./hosts/athena/default.nix
         home-manager.nixosModules.home-manager
         hmModule
