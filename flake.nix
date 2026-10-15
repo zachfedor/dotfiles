@@ -33,6 +33,12 @@
         nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-coding-agent;
     };
 
+    # Cherry-pick claude-code from unstable
+    claudeUnstableOverlay = final: prev: {
+      claude-code =
+        nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.claude-code;
+    };
+
     # Shared home-manager wiring, identical across hosts. The platform module
     # (darwinModules / nixosModules) is supplied per-host below. The user config
     # itself (./home.nix) is cross-platform with inline isDarwin/isLinux guards.

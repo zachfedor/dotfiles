@@ -20,6 +20,15 @@ let
   # Derive from the HM-managed home dir so this is correct on both macOS
   # (/Users/zach) and NixOS (/home/zach).
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+
+  # List of tree-sitter grammars for both Emacs and Neovim to install via Nix
+  # rather than via Doom's install-at-runtime setup. Add new languages here
+  # and each editor will pick it up, mapped using its attrset.
+  tsGrammars = [
+    "bash" "c" "clojure" "go" "gomod" "javascript" "typescript" "tsx"
+    "json" "lua" "markdown" "markdown-inline" "nix" "python" "rust"
+    "toml" "yaml" "vim" "vimdoc"
+  ];
 in {
   home.stateVersion = "25.05";
 
@@ -30,6 +39,9 @@ in {
     # dev core
     git coreutils gnutar fd ripgrep silver-searcher tree tree-sitter
     editorconfig-core-c htop openssl pandoc p7zip
+    # tree-sitter grammars
+    (emacsPackages.treesit-grammars.with-grammars
+      (g: map (n: g."tree-sitter-${n}") (lib.subtractLists [ "vimdoc" ] tsGrammars)))
     # shell tooling
     shellcheck shfmt
     # global dev CLIs (issue 10 audit). Per-project toolchains live in devShells
@@ -105,6 +117,15 @@ in {
     # macOS it has no aarch64-darwin cache and tries to build qtwebengine from
     # source, which fails — so hestia keeps the Homebrew cask instead.
     anki
+    # Emacs built-in treesit doesn't come with grammars out of the box, it
+    # compiles them from source as requested. Build with Nix instead.
+    (pkgs.emacsPackages.treesit-grammars.with-grammars (g: with g; [
+      tree-sitter-bash  tree-sitter-c tree-sitter-clojure tree-sitter-go
+      tree-sitter-gomod  tree-sitter-javascript tree-sitter-typescript
+      tree-sitter-tsx  tree-sitter-json tree-sitter-lua tree-sitter-markdown
+      tree-sitter-nix  tree-sitter-python tree-sitter-rust tree-sitter-toml
+      tree-sitter-yaml  tree-sitter-vim
+    ]))
   ]
   # macOS-only (issue 10): NS Emacs replaces the emacs-plus brew + d12frosted tap
   # (ADR-0005); blueutil is the bluetooth CLI driven by Hammerspoon scripts.
@@ -186,13 +207,8 @@ in {
 
     plugins = with pkgs.vimPlugins; [
       {
-        # Curated grammar set (issue 10) instead of withAllGrammars (~100+ grammars,
-        # needless build/closure for a backup editor). Tracks the langs Doom enables
-        # + config formats. Add one here if a new language comes up.
-        plugin = nvim-treesitter.withPlugins (p: with p; [
-          bash c clojure go gomod javascript typescript tsx json lua
-          markdown markdown-inline nix python rust toml yaml vim vimdoc
-        ]);
+        # Curated grammar set instead of withAllGrammars
+        plugin = nvim-treesitter.withPlugins (p: map (n: p.${n}) tsGrammars);
         type = "lua";
         # nvim-treesitter `main` branch (nixpkgs switched to it) removed the
         # `nvim-treesitter.configs` module and its highlight/indent options.

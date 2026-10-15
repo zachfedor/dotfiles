@@ -444,45 +444,6 @@ the bucket first (find/search below span all buckets at once)."
 ;; Use org-mode's open at point function everywhere
 (map! :desc "Open At Point" :nie "s-<return>" #'org-open-at-point-global)
 
-;;; Org-Superstar
-;; (use-package! org-superstar
-;;   :config (setq org-superstar-cycle-headline-bullets t  ;; don't cycle, just repeat the last bullet in list
-;;                 org-superstar-headline-bullets-list '(?◉ ?○ ?▷)))
-
-;; (use-package! org-appear
-;;   :hook (org-mode . org-appear-mode)
-;;   :config
-;;   (setq org-appear-autoemphasis t
-;;         org-appear-autosubmarkers t
-;;         org-appear-autolinks nil)
-;;   (run-at-time nil nil #'org-appear--set-elements))
-
-;; (use-package! deft
-;;   :config
-;;   (setq
-;;    ;; deft should use same notes directory as org-mode
-;;    deft-directory org-directory
-;;    ;; create new files with this filetype
-;;    deft-default-extension "org"
-;;    ;; include these filetype in searches
-;;    deft-extensions '("org" "md")
-;;    ;; generated titles in new files are prefixed with `#+title'
-;;    deft-org-mode-title-prefix t
-;;    ;; search sub-directories too
-;;    deft-recursive t
-;;    deft-use-filename-as-title nil
-;;    ;; use the search string text to create new files using `deft-file-naming-rules'
-;;    deft-use-filter-string-for-filename t
-;;    ;; convert spaces to hyphens and downcase all text
-;;    deft-file-naming-rules '((nospace . "-") (case-fn . downcase))
-;;    ;; prevent properties or logbook entries from showing in the summary
-;;    deft-strip-summary-regexp "\\`\\(.+\n\\)+\n"))
-
-;; (map!
-;;  :leader
-;;  :desc "Open deft" "DEL" #'deft
-;;  :prefix "f"
-;;  :desc "Deft find file" "n" #'deft-find-file)
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
@@ -624,6 +585,13 @@ git repo in it."
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+(after! treesit
+  ;; Grammars come from Nix, not compiled at runtime. See home.nix
+  (dolist (dir (list (format "/etc/profiles/per-user/%s/lib" (user-login-name))
+                     (expand-file-name "~/.nix-profile/lib")))
+    (when (file-directory-p dir)
+      (add-to-list 'treesit-extra-load-path dir))))
+
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
   :config
