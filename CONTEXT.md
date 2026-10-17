@@ -164,6 +164,14 @@ fine for direct-play + the SD DVD-rip library, weak for 4K/HEVC. **Escape hatch*
 (not built): if heavy transcoding ever bites, move Jellyfin to athena (AMD GPU),
 woken on demand via Wake-on-LAN with argus as the always-on LAN relay.
 
+**Media acquisition** (Arr suite):
+**Prowlarr + Sonarr + Radarr + SABnzbd** (Usenet-only), a Container Manager compose
+project on **mnemosyne** beside Jellyfin — always-on and co-located with the library
+so imports hardlink instead of copy (one `/volume1/Media Library:/data` mount across
+all containers; Sonarr→`/data/Shows`, Radarr→`/data/Movies`). Tailnet-only (MagicDNS,
+no port-forward). _Not_ argus (too minimal/SD-bound) or athena (asleep by default).
+See **ADR-0010** + roadmap **#20**.
+
 ## Flagged ambiguities
 
 - "declarative" was used to mean both *rewrite every config in Nix* and *manage
