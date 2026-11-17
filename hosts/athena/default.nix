@@ -95,19 +95,6 @@
     };
   };
 
-  # Run an ssh-agent for the login session. macOS (hestia) always has one via
-  # launchd + keychain, but GNOME dropped gnome-keyring's ssh-agent, so without
-  # this athena has no agent and `git push` over ssh re-prompts for the key
-  # passphrase on every use. With this + home.nix's `addKeysToAgent = "yes"`, the
-  # key auto-adds on first use and stays cached for the rest of the session.
-  programs.ssh.startAgent = true;
-  # 26.05 regression: the GNOME module now enables services.gnome.gcr-ssh-agent by
-  # default, which hard-conflicts with startAgent above (only one ssh-agent
-  # allowed). GNOME had NO ssh-agent when startAgent was added (see comment above);
-  # 26.05 re-added one. Keep our startAgent (tuned for addKeysToAgent git-push
-  # caching) and disable GNOME's to resolve the assertion.
-  services.gnome.gcr-ssh-agent.enable = false;
-
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
