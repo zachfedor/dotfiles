@@ -48,7 +48,7 @@ source ${ZIM_HOME}/init.zsh
 # trimmed to the last 2 dirs by prompt-pwd) so theme glyph changes survive. Git
 # status stays on the right.
 PS1=${PS1/'$(_prompt_mnml_keymap)'/'%F{244}$(prompt-pwd)%f $(_prompt_mnml_keymap)'}
-RPS1='${(e)git_info[rprompt]}%f'
+RPS1='${direnv_info:+$direnv_info%f }${(e)git_info[rprompt]}%f'
 
 #
 # ALIASES
@@ -67,6 +67,19 @@ command -v stellar >/dev/null && source <(stellar completion --shell zsh)
 # Per-project envs via nix-direnv (`use flake`). HM's programs.direnv only hooks
 # HM-managed shells; our zsh is passthrough, so hook it manually here.
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+# Builds a prompt marker for direnv environment. Runs as a precmd hook _after_
+# direnv's own so we have access to its exported variables.
+_direnv_prompt_info() {
+  local dir=$PWD
+  until [[ -f $dir/.envrc || $dir == / ]]; do dir=${dir:h}; done
+  [[ -f $dir/.envrc ]] || { direnv_info=; return }
+
+  local color=red icon='∗'
+  [[ $(direnv status) == *'Found RC allowed 0'* ]] && color=green
+  [[ $(<$dir/.envrc) == *'use '(flake|nix)* ]] && icon='❄'
+  direnv_info="%F{$color}$icon"
+}
+autoload -Uz add-zsh-hook && add-zsh-hook precmd _direnv_prompt_info
 
 #
 # ZSH SETTINGS

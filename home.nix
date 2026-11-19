@@ -153,6 +153,7 @@ in {
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
+    config.global.hide_env_diff = true;
   };
 
   # --- Syncthing: sync the PARA tree across hestia + athena + mnemosyne (issue 06) ---
