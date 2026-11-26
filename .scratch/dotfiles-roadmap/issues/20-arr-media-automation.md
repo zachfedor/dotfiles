@@ -159,6 +159,10 @@ outbound from the NAS; nothing inbound beyond the tailnet.
 - [ ] A Sonarr grab **hardlinks** into `/data/Shows` (verify link count > 1, not a copy)
       and Jellyfin shows the new item
 - [ ] All UIs reachable over the tailnet by MagicDNS; nothing exposed to the internet
+- [ ] Login enabled on every Arr + SABnzbd web UI (every tailnet device can reach
+      them, and their API keys are credentials)
+- [ ] DS923+ RAM upgraded past the stock 4GB before the stack goes live (shared
+      with Jellyfin + Syncthing; SABnzbd par2 repair is the spike)
 - [ ] Sanitized compose kept on the NAS only; no API keys in the repo
 
 ## Related
