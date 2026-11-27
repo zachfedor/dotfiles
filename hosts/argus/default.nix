@@ -72,7 +72,22 @@
   # --- Tailscale: always-on tailnet node. `sudo tailscale up` once after install.
   # Fresh NixOS install issues new host keys, which clears the pre-migration
   # `tailscale ssh`/host-key-verification failure noted in issue 13.
-  services.tailscale.enable = true;
+  # Exit node + LAN subnet router: lets tailnet peers egress via home and reach
+  # non-tailscale LAN devices (router, printer). useRoutingFeatures = "server"
+  # enables IP forwarding, without which advertised routes silently blackhole.
+  # Approve the subnet route in the Tailscale admin console after first deploy.
+  # --accept-dns=false keeps argus on the public nameservers above; otherwise
+  # MagicDNS rewrites resolv.conf to 100.100.100.100, which loops back into this
+  # box's own AdGuard (the tailnet's global resolver).
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
+    extraSetFlags = [
+      "--advertise-exit-node"
+      "--advertise-routes=192.168.1.0/24"
+      "--accept-dns=false"
+    ];
+  };
 
   # --- ssh: key-only, same as athena. Login user = zach (post-migration the argus
   # ssh matchBlock in home.nix flips from pi@192.168.1.2 to zach@argus).
